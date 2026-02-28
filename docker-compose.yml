@@ -1,0 +1,256 @@
+
+x-airflow-common:
+  &airflow-common
+  build:
+    context: ./airflow
+    dockerfile: Dockerfile
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./src:/opt/airflow/src
+    - ./data:/opt/airflow/data                              # ✅ Added
+    - ./great_expectations:/opt/airflow/great_expectations  # ✅ Added
+    - ./scripts:/opt/airflow/scripts
+  environment:
+    &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BhWNOdQ26slT6K0YaZeZyPs="  # ✅ Fixed
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow:5432/airflow
+    AIRFLOW__WEBSERVER__SECRET_KEY: "airflow-secret-key"
+    PYTHONPATH: /opt/airflow/src:/opt/airflow
+    # ✅ Add environment variables for DAGs to use:
+    POSTGRES_SOURCE_HOST: postgres-source
+    POSTGRES_SOURCE_PORT: 5432
+    POSTGRES_SOURCE_USER: school_user
+    POSTGRES_SOURCE_PASSWORD: school_pass
+    POSTGRES_SOURCE_DB: school_source
+    POSTGRES_WAREHOUSE_HOST: postgres-warehouse
+    POSTGRES_WAREHOUSE_PORT: 5432
+    POSTGRES_WAREHOUSE_USER: warehouse_user
+    POSTGRES_WAREHOUSE_PASSWORD: warehouse_pass
+    POSTGRES_WAREHOUSE_DB: school_warehouse
+  networks:
+    - school-network
+
+services:
+
+  # =============================
+  # PostgreSQL Airflow Metadata
+  # =============================
+  postgres-airflow:
+    image: postgres:15-alpine  # ✅ Changed to alpine (smaller)
+    container_name: postgres-airflow
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_airflow_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - school-network
+
+  # =============================
+  # PostgreSQL Source
+  # =============================
+  postgres-source:
+    image: postgres:15-alpine  # ✅ Changed to alpine
+    container_name: postgres-source
+    environment:
+      POSTGRES_USER: school_user
+      POSTGRES_PASSWORD: school_pass
+      POSTGRES_DB: school_source
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_source_data:/var/lib/postgresql/data
+      - ./sql/source:/docker-entrypoint-initdb.d  # ✅ Added for auto-init
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school_user -d school_source"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - school-network
+
+  # =============================
+  # PostgreSQL Warehouse
+  # =============================
+  postgres-warehouse:
+    image: postgres:15-alpine  # ✅ Changed to alpine
+    container_name: postgres-warehouse
+    environment:
+      POSTGRES_USER: warehouse_user
+      POSTGRES_PASSWORD: warehouse_pass
+      POSTGRES_DB: school_warehouse
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_warehouse_data:/var/lib/postgresql/data
+      - ./sql/warehouse:/docker-entrypoint-initdb.d  # ✅ Added for auto-init
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U warehouse_user -d school_warehouse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - school-network
+
+  # =============================
+  # Airflow Init
+  # =============================
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow-init
+    command: >
+      bash -c "
+      airflow db migrate &&
+      airflow users create
+      --username admin
+      --firstname Admin
+      --lastname User
+      --role Admin
+      --email admin@example.com
+      --password admin"
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+    restart: on-failure
+
+  # =============================
+  # Airflow Webserver
+  # =============================
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow-webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:  # ✅ Added healthcheck
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+  # =============================
+  # Airflow Scheduler
+  # =============================
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow-scheduler
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+  # =============================
+  # MinIO
+  # =============================
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_pass
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:  # ✅ Added healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - school-network
+
+  # =============================
+  # Prometheus
+  # =============================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus  # ✅ Added data persistence
+    command:  # ✅ Added explicit command
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - school-network
+    restart: unless-stopped  # ✅ Added restart policy
+
+  # =============================
+  # Grafana
+  # =============================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clock-panel  # ✅ Added useful plugin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana:/etc/grafana/provisioning  # ✅ Added for auto-provisioning
+    depends_on:  # ✅ Added dependency
+      - prometheus
+    networks:
+      - school-network
+    restart: unless-stopped  # ✅ Added restart policy
+
+  # =============================
+  # pgAdmin (Database Management)
+  # =============================
+  pgadmin:  # ✅ Added new service
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@school.edu
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - school-network
+    restart: unless-stopped
+
+volumes:
+  postgres_airflow_data:
+  postgres_source_data:
+  postgres_warehouse_data:
+  minio_data:
+  grafana_data:
+  prometheus_data:  # ✅ Added
+  pgadmin_data:     # ✅ Added
+
+networks:
+  school-network:
+    driver: bridge

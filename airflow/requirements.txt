@@ -1,0 +1,6 @@
+pandas==2.1.4
+sqlalchemy==1.4.49
+psycopg2-binary==2.9.9
+great_expectations
+boto3
+minio
