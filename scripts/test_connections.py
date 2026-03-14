@@ -32,9 +32,9 @@ def main():
     print("=" * 60)
     
     tests = [
-    ("Source DB", "postgres-source", 5432, "school_user", "school_pass", "school_source"),
-    ("Warehouse DB", "postgres-warehouse", 5432, "warehouse_user", "warehouse_pass", "school_warehouse"),
-    ("Airflow DB", "postgres-airflow", 5432, "airflow", "airflow", "airflow"),
+    ("Source DB", "localhost", 5434, "school_user", "school_pass", "school_source"),
+    ("Warehouse DB", "localhost", 5435, "warehouse_user", "warehouse_pass", "school_warehouse"),
+    ("Airflow DB", "localhost", 5433, "airflow", "airflow", "airflow"),
 ]
     
     results = []
