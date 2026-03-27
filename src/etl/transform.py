@@ -1,437 +1,977 @@
-# src/etl/transform.py
 """
-transform.py - Business logic xử lý dữ liệu từ 3 nguồn.
+=============================================
+TẦNG TRANSFORM — Chuẩn hóa và tính toán nghiệp vụ
+=============================================
 
-  Nguồn 1 (PostgreSQL):
-    transform_sinh_vien()  → dim_sinh_vien
-    transform_giang_vien() → dim_giang_vien
-    transform_diem()       → fact_hoc_tap
-    calculate_gpa()        → agg_student_summary (phần học tập)
+Đồng bộ với warehouse_models.py v2.0:
+  DimSinhVien  : thêm ma_co_van, ten_co_van (SCD Type 2)
+  DimHocPhan   : thêm loai_hoc_phan
+  DimHocKy     : thêm nam_ket_thuc
+  FactHocTap   : từ diem + dang_ky (Nguồn 1 PG)
+  FactCtsv     : từ CSV (Nguồn 2)
+  FactTaiChinh : từ API (Nguồn 3)
+  AggStudentSummary : merge 3 nguồn
 
-  Nguồn 2 (CSV - Phòng CTSV):
-    transform_ctsv()       → fact_ctsv
-
-  Nguồn 3 (API Portal):
-    transform_tai_chinh()  → fact_tai_chinh
-
-  Tổng hợp:
-    calculate_agg_summary() → agg_student_summary (3 nguồn)
+Output: TransformedData → DataFrames sẵn sàng cho load.py
+  load.py sẽ:
+    1. Lookup/tạo surrogate keys (sinh_vien_key, hoc_phan_key, ...)
+    2. Insert vào ORM models
+  Nên transform CHỈ cần output natural keys + dữ liệu,
+  KHÔNG cần lo surrogate keys.
 """
+
+from typing import Dict, Optional
+from dataclasses import dataclass, field
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
+
+from src.etl.extract import ExtractedData
 from src.utils.logger import get_logger
+from src.utils.minio_client import MinIOClient
 
-logger = get_logger(__name__)
-
-
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 1 — CLEANING
-# ══════════════════════════════════════════════════════════════════
-
-def clean_string_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Strip khoảng trắng đầu/cuối các cột string."""
-    df = df.copy()
-    for col in df.select_dtypes(include="object").columns:
-        if df[col].dropna().apply(lambda x: isinstance(x, str)).all():
-            df[col] = df[col].str.strip()
-    return df
+logger = get_logger("etl.transform")
 
 
-def remove_duplicates(df: pd.DataFrame, subset: list) -> pd.DataFrame:
-    """Xóa bản ghi trùng lặp theo subset, giữ lại bản ghi đầu tiên."""
-    before = len(df)
-    df     = df.drop_duplicates(subset=subset, keep="first")
-    after  = len(df)
-    if before != after:
-        logger.warning(f"Xóa {before - after} bản ghi trùng lặp (subset={subset})")
-    return df
-
-
-def handle_nulls(df: pd.DataFrame, rules: dict) -> pd.DataFrame:
+# ─────────────────────────────────────────────
+# Data container — kết quả transform
+# ─────────────────────────────────────────────
+@dataclass
+class TransformedData:
     """
-    Xử lý NULL theo quy tắc từng cột.
-    rules = { 'ten_mon': 'Không rõ', 'diem': 0.0 }
+    Container giữ toàn bộ dữ liệu đã transform, sẵn sàng cho load.py.
+
+    Tên field tương ứng với cách load.py gọi:
+      load.py: _load_dim_hoc_ky(data.dim_thoi_gian)
+      load.py: _load_fact_hoc_tap(data.fact_diem)
+      load.py: _load_fact_ctsv(data.fact_ren_luyen)
+      load.py: _load_fact_tai_chinh(data.fact_tai_chinh)
+      load.py: _load_agg_summary(data.fact_tong_hop_sv)
     """
-    df = df.copy()
-    for col, default in rules.items():
-        if col in df.columns and default is not None:
-            n = df[col].isnull().sum()
-            if n > 0:
-                df[col] = df[col].fillna(default)
-                logger.warning(f"Điền NULL '{col}': {n} giá trị → {default}")
-    return df
+
+    # Dimension tables
+    dim_giang_vien: pd.DataFrame = field(default_factory=pd.DataFrame)
+    dim_sinh_vien: pd.DataFrame = field(default_factory=pd.DataFrame)
+    dim_hoc_phan: pd.DataFrame = field(default_factory=pd.DataFrame)
+    dim_thoi_gian: pd.DataFrame = field(default_factory=pd.DataFrame)  # → dim_hoc_ky
+
+    # Fact tables
+    fact_diem: pd.DataFrame = field(default_factory=pd.DataFrame)          # → fact_hoc_tap
+    fact_ren_luyen: pd.DataFrame = field(default_factory=pd.DataFrame)     # → fact_ctsv
+    fact_tai_chinh: pd.DataFrame = field(default_factory=pd.DataFrame)     # → fact_tai_chinh
+
+    # Bảng tổng hợp (merge 3 nguồn)
+    fact_tong_hop_sv: pd.DataFrame = field(default_factory=pd.DataFrame)   # → agg_student_summary
+
+    def summary(self) -> Dict[str, int]:
+        counts = {}
+        for attr in vars(self):
+            val = getattr(self, attr)
+            if isinstance(val, pd.DataFrame):
+                counts[attr] = len(val)
+        return counts
 
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 2 — BUSINESS LOGIC
-# ══════════════════════════════════════════════════════════════════
+# ─────────────────────────────────────────────
+# Hằng số nghiệp vụ
+# ─────────────────────────────────────────────
 
-def quy_doi_diem_chu(diem) -> tuple:
+# Bảng quy đổi điểm số → điểm chữ → hệ 4 (theo quy chế PTIT)
+GRADE_SCALE = [
+    (9.0,  10.01, "A+", 4.0),
+    (8.5,  9.0,   "A",  3.7),
+    (8.0,  8.5,   "B+", 3.5),
+    (7.0,  8.0,   "B",  3.0),
+    (6.5,  7.0,   "C+", 2.5),
+    (5.5,  6.5,   "C",  2.0),
+    (5.0,  5.5,   "D+", 1.5),
+    (4.0,  5.0,   "D",  1.0),
+    (0.0,  4.0,   "F",  0.0),
+]
+
+# Trọng số thành phần điểm
+WEIGHT_CHUYEN_CAN = 0.10
+WEIGHT_BAI_TAP = 0.10
+WEIGHT_GIUA_KY = 0.20
+WEIGHT_CUOI_KY = 0.60
+
+# Ngưỡng cảnh báo học vụ
+GPA_WARNING_LEVEL_1 = 1.0    # GPA < 1.0 → cảnh báo lần 1
+GPA_WARNING_LEVEL_2 = 1.2    # GPA < 1.2 → cảnh báo lần 2
+
+# Phân loại xếp loại rèn luyện
+RL_THRESHOLDS = [
+    (90, 100, "Xuất sắc"),
+    (80, 90,  "Tốt"),
+    (65, 80,  "Khá"),
+    (50, 65,  "Trung bình"),
+    (35, 50,  "Yếu"),
+    (0,  35,  "Kém"),
+]
+
+
+# ═════════════════════════════════════════════
+# TRANSFORMER CLASS
+# ═════════════════════════════════════════════
+class DataTransformer:
     """
-    Quy đổi điểm hệ 10 → (diem_chu, diem_he_4) theo quy chế PTIT.
-    Ví dụ: 8.7 → ('A', 4.0)
+    Xử lý toàn bộ logic Transform cho pipeline ETL.
+
+    Input:  ExtractedData  (raw data từ 3 nguồn)
+    Output: TransformedData (DataFrames sẵn sàng cho load.py)
+
+    Lưu ý:
+      - Transform KHÔNG tạo surrogate keys → load.py lo việc đó
+      - Transform output natural keys (ma_sinh_vien, ma_hoc_phan, ...)
+      - Transform denormalize dimensions (Star Schema)
+      - Transform tính toán nghiệp vụ (GPA, cảnh báo, ...)
     """
-    if pd.isna(diem): return None, None
-    d = float(diem)
-    if d >= 9.0: return "A+", 4.0
-    if d >= 8.5: return "A",  4.0
-    if d >= 8.0: return "B+", 3.5
-    if d >= 7.0: return "B",  3.0
-    if d >= 6.5: return "C+", 2.5
-    if d >= 5.5: return "C",  2.0
-    if d >= 5.0: return "D+", 1.5
-    if d >= 4.0: return "D",  1.0
-    return "F", 0.0
 
+    def __init__(self):
+        self._last_run_id: str = ""   # lưu run_id staging gần nhất
 
-def xep_loai_hoc_luc(gpa4) -> str:
-    """Xếp loại học lực theo GPA hệ 4."""
-    if pd.isna(gpa4):  return "Chưa xác định"
-    g = float(gpa4)
-    if g >= 3.6: return "Xuất sắc"
-    if g >= 3.2: return "Giỏi"
-    if g >= 2.5: return "Khá"
-    if g >= 2.0: return "Trung bình"
-    if g >= 1.0: return "Yếu"
-    return "Kém"
+    def transform_all(self, extracted: ExtractedData) -> TransformedData:
+        """Entry point — transform toàn bộ dữ liệu → lưu staging vào MinIO."""
+        logger.info("🔄 BẮT ĐẦU TRANSFORM")
+        logger.info("=" * 70)
 
+        result = TransformedData()
 
-def tinh_tuoi(ngay_sinh) -> int:
-    if pd.isna(ngay_sinh): return None
-    today = datetime.today()
-    ns    = pd.to_datetime(ngay_sinh)
-    return today.year - ns.year - ((today.month, today.day) < (ns.month, ns.day))
+        # ── Bước 1: Transform Dimensions ──
+        logger.info("── Bước 1: Transform Dimension Tables ──")
 
+        result.dim_thoi_gian = self._transform_dim_hoc_ky(
+            extracted.hoc_ky_nam_hoc
+        )
+        result.dim_giang_vien = self._transform_dim_giang_vien(
+            extracted.giang_vien, extracted.khoa
+        )
+        result.dim_hoc_phan = self._transform_dim_hoc_phan(
+            extracted.hoc_phan, extracted.khoa
+        )
+        result.dim_sinh_vien = self._transform_dim_sinh_vien(
+            extracted.sinh_vien,
+            extracted.nganh,
+            extracted.lop_hanh_chinh,
+            extracted.khoa,
+            extracted.giang_vien,
+        )
 
-def xac_dinh_rui_ro(gpa4, diem_rl, co_no_hp) -> str:
-    """
-    Xác định mức độ rủi ro tổng hợp từ 3 nguồn.
-    Cao        : GPA < 2.0 hoặc RL < 50 hoặc nợ HP
-    Trung bình : GPA < 2.5 hoặc RL < 65
-    Thấp       : không có tiêu chí nào
-    """
-    if pd.isna(gpa4): return "Chưa xác định"
-    g  = float(gpa4)
-    rl = float(diem_rl) if pd.notna(diem_rl) else 100.0
-    no = bool(co_no_hp)
+        # ── Bước 2: Transform Facts ──
+        logger.info("── Bước 2: Transform Fact Tables ──")
 
-    if g < 2.0 or rl < 50 or no:     return "Cao"
-    if g < 2.5 or rl < 65:           return "Trung bình"
-    return "Thấp"
+        result.fact_diem = self._transform_fact_diem(
+            extracted.diem_hoc_phan,
+            extracted.dang_ky_hoc_phan,
+        )
+        result.fact_ren_luyen = self._transform_fact_ren_luyen(
+            extracted.ctsv_data
+        )
+        result.fact_tai_chinh = self._transform_fact_tai_chinh(
+            extracted.tai_chinh_data
+        )
 
+        # ── Bước 3: Merge 3 nguồn → Tổng hợp ──
+        logger.info("── Bước 3: Tổng hợp đa nguồn ──")
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 3 — TRANSFORM NGUỒN 1 (PostgreSQL)
-# ══════════════════════════════════════════════════════════════════
+        result.fact_tong_hop_sv = self._build_agg_student_summary(
+            fact_diem=result.fact_diem,
+            fact_rl=result.fact_ren_luyen,
+            fact_tc=result.fact_tai_chinh,
+            dk_df=extracted.dang_ky_hoc_phan,
+            hp_df=extracted.hoc_phan,
+        )
 
-def transform_sinh_vien(df_sv: pd.DataFrame,
-                        df_lop: pd.DataFrame,
-                        df_nganh: pd.DataFrame,
-                        df_khoa: pd.DataFrame) -> pd.DataFrame:
-    """
-    Chuẩn bị DataFrame sinh viên để load vào dim_sinh_vien.
+        # ── Summary ──
+        logger.info("=" * 70)
+        logger.info("✅ TRANSFORM HOÀN TẤT")
+        for name, count in result.summary().items():
+            logger.info(f"   {name:<25s}: {count:>8,} records")
+        logger.info("=" * 70)
 
-    v2.0: join thêm lop → nganh → khoa để lấy ten_nganh, ten_khoa,
-          ma_co_van (cố vấn của lớp).
-    Bỏ: he_dao_tao, hoc_ky_hien_tai (không còn trong source v2.0)
+        # ── Lưu staging vào MinIO bucket staging-data ──────────────────
+        # Gọi sau khi đã có TransformedData đầy đủ
+        # Nếu MinIO lỗi → chỉ log warning, KHÔNG crash pipeline
+        self._save_to_staging(result)
+        # ──────────────────────────────────────────────────────────────
 
-    Input:
-        df_sv    : bảng sinh_vien
-        df_lop   : bảng lop_hanh_chinh (để lấy ma_co_van, ma_nganh)
-        df_nganh : bảng nganh (để lấy ten_nganh)
-        df_khoa  : bảng khoa  (để lấy ten_khoa)
-    """
-    logger.info(f"Transform sinh_vien: {len(df_sv)} rows")
-    df = df_sv.copy()
+        return result
 
-    # 1. Làm sạch
-    df = clean_string_columns(df)
-    df = remove_duplicates(df, subset=["ma_sinh_vien"])
-    df = handle_nulls(df, {
-        "gioi_tinh"         : "Không rõ",
-        "trang_thai_hoc_tap": "Đang học",
-    })
+    # ══════════════════════════════════════════════════
+    # MINIO STAGING
+    # ══════════════════════════════════════════════════
 
-    # 2. Join lop → lấy ma_co_van, ten_lop
-    lop_cols = ["ma_lop", "ten_lop", "ma_co_van", "ma_nganh"]
-    lop_cols = [c for c in lop_cols if c in df_lop.columns]
-    df = df.merge(df_lop[lop_cols], on="ma_lop", how="left",
-                  suffixes=("", "_lop"))
-    # ma_nganh ưu tiên từ sinh_vien, nếu NULL thì lấy từ lop
-    if "ma_nganh_lop" in df.columns:
-        df["ma_nganh"] = df["ma_nganh"].fillna(df["ma_nganh_lop"])
-        df.drop(columns=["ma_nganh_lop"], inplace=True)
+    def _save_to_staging(self, data: TransformedData) -> None:
+        """
+        Lưu toàn bộ TransformedData vào MinIO bucket 'staging-data'.
 
-    # 3. Join nganh → lấy ten_nganh, ma_khoa
-    df = df.merge(
-        df_nganh[["ma_nganh", "ten_nganh", "ma_khoa"]],
-        on="ma_nganh", how="left", suffixes=("", "_nganh")
-    )
+        Mỗi lần chạy tạo 1 folder theo timestamp:
+          staging-data/
+            2024-01-15_02-00/
+              dim_hoc_ky.parquet
+              dim_giang_vien.parquet
+              dim_hoc_phan.parquet
+              dim_sinh_vien.parquet
+              fact_diem.parquet
+              fact_ren_luyen.parquet
+              fact_tai_chinh.parquet
+              fact_tong_hop_sv.parquet
 
-    # 4. Join khoa → lấy ten_khoa
-    df = df.merge(
-        df_khoa[["ma_khoa", "ten_khoa"]],
-        on="ma_khoa", how="left", suffixes=("", "_khoa")
-    )
+        Không raise exception — MinIO lỗi chỉ log warning,
+        pipeline vẫn tiếp tục vì data đang có trong RAM.
+        """
+        try:
+            client = MinIOClient()
+            run_id = MinIOClient.make_run_id()   # VD: "2024-01-15_02-00"
 
-    # 5. Tính toán
-    df["ho_ten"] = df["ho"].str.strip() + " " + df["ten"].str.strip()
+            # Mapping: tên file → attribute trong TransformedData
+            upload_map = {
+                "dim_hoc_ky.parquet":       data.dim_thoi_gian,
+                "dim_giang_vien.parquet":   data.dim_giang_vien,
+                "dim_hoc_phan.parquet":     data.dim_hoc_phan,
+                "dim_sinh_vien.parquet":    data.dim_sinh_vien,
+                "fact_diem.parquet":        data.fact_diem,
+                "fact_ren_luyen.parquet":   data.fact_ren_luyen,
+                "fact_tai_chinh.parquet":   data.fact_tai_chinh,
+                "fact_tong_hop_sv.parquet": data.fact_tong_hop_sv,
+            }
 
-    # 6. SCD Type 2 fields
-    df["ngay_hieu_luc"]     = datetime.today().date()
-    df["ngay_het_hieu_luc"] = None
-    df["la_ban_hien_tai"]   = True
-    df["phien_ban"]         = 1
+            results = {}
+            for file_name, df in upload_map.items():
+                results[file_name] = client.upload_df(
+                    df, file_name, run_id, bucket="staging"
+                )
 
-    logger.info(f"  → {len(df)} rows sau transform")
-    return df
+            self._last_run_id = run_id
 
+            success = sum(results.values())
+            total   = len(results)
+            logger.info(
+                f"  MinIO staging-data: {success}/{total} files OK"
+                f" → run_id={run_id}"
+            )
 
-def transform_giang_vien(df_gv: pd.DataFrame,
-                         df_khoa: pd.DataFrame,
-                         df_co_so: pd.DataFrame) -> pd.DataFrame:
-    """Chuẩn bị DataFrame giảng viên cho dim_giang_vien."""
-    logger.info(f"Transform giang_vien: {len(df_gv)} rows")
-    df = df_gv.copy()
-    df = clean_string_columns(df)
-    df = remove_duplicates(df, subset=["ma_giang_vien"])
+        except Exception as e:
+            # Staging thất bại KHÔNG phải lỗi nghiêm trọng
+            logger.warning(f"  MinIO staging thất bại (pipeline vẫn tiếp tục): {e}")
 
-    # Join khoa, co_so
-    df = df.merge(df_khoa[["ma_khoa", "ten_khoa"]], on="ma_khoa", how="left")
-    df = df.merge(df_co_so[["ma_co_so", "ten_co_so"]], on="ma_co_so", how="left")
+    def load_from_staging(self, run_id: str = None) -> TransformedData:
+        """
+        Đọc TransformedData từ MinIO thay vì chạy lại Transform.
 
-    df["ho_ten"] = df["ho"].str.strip() + " " + df["ten"].str.strip()
-    logger.info(f"  → {len(df)} rows")
-    return df
+        Dùng khi:
+          - Pipeline crash ở bước Load → resume từ đây, không Transform lại
+          - Debug: kiểm tra output Transform của một lần chạy cụ thể
 
+        Args:
+            run_id: timestamp folder. None = tự lấy lần mới nhất.
 
-def transform_diem(df_diem: pd.DataFrame,
-                   df_dk:   pd.DataFrame,
-                   df_hp:   pd.DataFrame) -> pd.DataFrame:
-    """
-    Chuẩn bị DataFrame điểm cho fact_hoc_tap.
-    Join: diem ← dang_ky ← hoc_phan (để lấy so_tin_chi, ma_hoc_ky)
-    """
-    logger.info(f"Transform diem: {len(df_diem)} rows")
+        Returns:
+            TransformedData đọc từ MinIO staging-data.
 
-    df = df_diem.merge(
-        df_dk[["ma_dang_ky", "ma_sinh_vien", "ma_hoc_phan",
-               "ma_hoc_ky", "ma_giang_vien"]],
-        on="ma_dang_ky", how="left"
-    ).merge(
-        df_hp[["ma_hoc_phan", "so_tin_chi"]],
-        on="ma_hoc_phan", how="left"
-    )
+        Raises:
+            FileNotFoundError: nếu không tìm thấy staging data nào.
+        """
+        client = MinIOClient()
 
-    df = clean_string_columns(df)
-    df = handle_nulls(df, {"so_tin_chi": 3})
+        if run_id is None:
+            run_id = client.get_latest_run_id(bucket="staging")
+            if run_id is None:
+                raise FileNotFoundError(
+                    "Không tìm thấy staging data trong MinIO bucket 'staging-data'. "
+                    "Hãy chạy transform_all() ít nhất 1 lần trước."
+                )
 
-    df["diem_chat_luong"] = (
-        pd.to_numeric(df["diem_he_4"],  errors="coerce") *
-        pd.to_numeric(df["so_tin_chi"], errors="coerce")
-    ).round(4)
+        logger.info(f"  Load TransformedData từ MinIO staging: run_id={run_id}")
 
-    logger.info(f"  → {len(df)} rows")
-    return df
+        data = TransformedData(
+            dim_thoi_gian    = client.download_df("dim_hoc_ky.parquet",       run_id, bucket="staging"),
+            dim_giang_vien   = client.download_df("dim_giang_vien.parquet",   run_id, bucket="staging"),
+            dim_hoc_phan     = client.download_df("dim_hoc_phan.parquet",     run_id, bucket="staging"),
+            dim_sinh_vien    = client.download_df("dim_sinh_vien.parquet",    run_id, bucket="staging"),
+            fact_diem        = client.download_df("fact_diem.parquet",        run_id, bucket="staging"),
+            fact_ren_luyen   = client.download_df("fact_ren_luyen.parquet",   run_id, bucket="staging"),
+            fact_tai_chinh   = client.download_df("fact_tai_chinh.parquet",   run_id, bucket="staging"),
+            fact_tong_hop_sv = client.download_df("fact_tong_hop_sv.parquet", run_id, bucket="staging"),
+        )
 
+        logger.info(f"✅ Load from staging-data OK — run_id={run_id}")
+        return data
 
-def calculate_gpa(df_diem_full: pd.DataFrame) -> pd.DataFrame:
-    """
-    Tính GPA tổng hợp theo từng sinh viên.
-    Trả về DataFrame: ma_sinh_vien + các chỉ số GPA.
-    """
-    logger.info("Tính GPA...")
-    df = df_diem_full.copy()
-    df["diem_he_4"]       = pd.to_numeric(df["diem_he_4"],    errors="coerce")
-    df["so_tin_chi"]      = pd.to_numeric(df["so_tin_chi"],   errors="coerce")
-    df["dat_mon"]         = df["dat_mon"].astype(bool)
-    df["diem_chat_luong"] = df["diem_he_4"] * df["so_tin_chi"]
+    # ═══════════════════════════════════════════
+    # DIMENSION TRANSFORMS
+    # ═══════════════════════════════════════════
 
-    gpa_df = df.groupby("ma_sinh_vien").apply(
-        lambda g: pd.Series({
-            "tong_tc"      : g["so_tin_chi"].sum(),
-            "tong_cl"      : g["diem_chat_luong"].sum(),
-            "tc_tich_luy"  : g.loc[g["dat_mon"], "so_tin_chi"].sum(),
-            "so_mon_truot" : (~g["dat_mon"]).sum(),
-            "tong_mon"     : len(g),
+    def _transform_dim_hoc_ky(self, hk_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transform → DimHocKy (warehouse: dim_hoc_ky).
+
+        load.py đọc: ma_hoc_ky, nam_hoc, hoc_ky,
+                      ngay_bat_dau, ngay_ket_thuc,
+                      nam_bat_dau, nam_ket_thuc
+        """
+        if hk_df.empty:
+            return pd.DataFrame()
+
+        result = hk_df[[
+            "ma_hoc_ky", "nam_hoc", "hoc_ky",
+            "ngay_bat_dau", "ngay_ket_thuc",
+        ]].copy()
+
+        result["ngay_bat_dau"] = pd.to_datetime(
+            result["ngay_bat_dau"], errors="coerce"
+        )
+        result["ngay_ket_thuc"] = pd.to_datetime(
+            result["ngay_ket_thuc"], errors="coerce"
+        )
+
+        # Thêm cột năm (warehouse_models yêu cầu)
+        result["nam_bat_dau"] = result["ngay_bat_dau"].dt.year
+        result["nam_ket_thuc"] = result["ngay_ket_thuc"].dt.year
+
+        result = result.drop_duplicates(subset=["ma_hoc_ky"])
+        logger.info(f"  dim_thoi_gian (→dim_hoc_ky)  → {len(result):>6,} records")
+        return result
+
+    def _transform_dim_giang_vien(
+        self, gv_df: pd.DataFrame, khoa_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """
+        Transform → DimGiangVien (warehouse: dim_giang_vien).
+
+        load.py đọc: ma_giang_vien, ho, ten, ho_ten, email,
+                      so_dien_thoai, chuc_danh, trang_thai_cong_tac,
+                      ma_khoa, ten_khoa
+        """
+        if gv_df.empty:
+            return pd.DataFrame()
+
+        cols_needed = [
+            "ma_giang_vien", "ho", "ten", "email",
+            "so_dien_thoai", "chuc_danh", "trang_thai_cong_tac", "ma_khoa",
+        ]
+        existing_cols = [c for c in cols_needed if c in gv_df.columns]
+        result = gv_df[existing_cols].copy()
+
+        # Tạo họ tên đầy đủ
+        result["ho_ten"] = (
+            result["ho"].str.strip() + " " + result["ten"].str.strip()
+        )
+
+        # Enrich tên khoa
+        if not khoa_df.empty and "ma_khoa" in result.columns:
+            result = result.merge(
+                khoa_df[["ma_khoa", "ten_khoa"]],
+                on="ma_khoa",
+                how="left",
+            )
+
+        result = result.drop_duplicates(subset=["ma_giang_vien"])
+        logger.info(f"  dim_giang_vien              → {len(result):>6,} records")
+        return result
+
+    def _transform_dim_hoc_phan(
+        self, hp_df: pd.DataFrame, khoa_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """
+        Transform → DimHocPhan (warehouse: dim_hoc_phan).
+
+        load.py đọc: ma_hoc_phan, ma_mon, ten_mon, so_tin_chi,
+                      so_gio_ly_thuyet, so_gio_thuc_hanh,
+                      hoc_ky_de_xuat, bat_buoc, loai_hoc_phan,
+                      ma_khoa, ten_khoa
+        """
+        if hp_df.empty:
+            return pd.DataFrame()
+
+        cols_needed = [
+            "ma_hoc_phan", "ma_mon", "ten_mon", "so_tin_chi",
+            "so_gio_ly_thuyet", "so_gio_thuc_hanh",
+            "hoc_ky_de_xuat", "bat_buoc", "ma_khoa",
+        ]
+        existing_cols = [c for c in cols_needed if c in hp_df.columns]
+        result = hp_df[existing_cols].copy()
+
+        # Thêm loai_hoc_phan (warehouse_models yêu cầu)
+        if "bat_buoc" in result.columns:
+            result["loai_hoc_phan"] = result["bat_buoc"].apply(
+                lambda x: "Bat buoc" if x else "Tu chon"
+            )
+        else:
+            result["loai_hoc_phan"] = "Bat buoc"
+
+        # Enrich tên khoa
+        if not khoa_df.empty and "ma_khoa" in result.columns:
+            result = result.merge(
+                khoa_df[["ma_khoa", "ten_khoa"]],
+                on="ma_khoa",
+                how="left",
+            )
+
+        result = result.drop_duplicates(subset=["ma_hoc_phan"])
+        logger.info(f"  dim_hoc_phan                → {len(result):>6,} records")
+        return result
+
+    def _transform_dim_sinh_vien(
+        self,
+        sv_df: pd.DataFrame,
+        nganh_df: pd.DataFrame,
+        lop_df: pd.DataFrame,
+        khoa_df: pd.DataFrame,
+        gv_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Transform → DimSinhVien (warehouse: dim_sinh_vien, SCD Type 2).
+
+        Denormalize đầy đủ cho Star Schema:
+          SV + Ngành + Khoa + Lớp + Cố vấn
+
+        load.py đọc: ma_sinh_vien, ho, ten, ho_ten,
+                      ngay_sinh, gioi_tinh, email,
+                      khoa_hoc, trang_thai_hoc_tap,
+                      ma_nganh, ten_nganh,
+                      ma_khoa, ten_khoa,
+                      ma_lop, ten_lop,
+                      ma_co_van, ten_co_van
+        """
+        if sv_df.empty:
+            return pd.DataFrame()
+
+        result = sv_df[[
+            "ma_sinh_vien", "ho", "ten", "ngay_sinh",
+            "gioi_tinh", "email", "ma_nganh", "ma_lop",
+            "khoa_hoc", "trang_thai_hoc_tap",
+        ]].copy()
+
+        # Tạo họ tên đầy đủ
+        result["ho_ten"] = (
+            result["ho"].str.strip() + " " + result["ten"].str.strip()
+        )
+
+        # ── Enrich Ngành + Khoa ──
+        if not nganh_df.empty:
+            nganh_cols = ["ma_nganh", "ten_nganh"]
+            if "ma_khoa" in nganh_df.columns:
+                nganh_cols.append("ma_khoa")
+            result = result.merge(
+                nganh_df[nganh_cols].drop_duplicates(subset=["ma_nganh"]),
+                on="ma_nganh",
+                how="left",
+            )
+
+        if not khoa_df.empty and "ma_khoa" in result.columns:
+            result = result.merge(
+                khoa_df[["ma_khoa", "ten_khoa"]].drop_duplicates(subset=["ma_khoa"]),
+                on="ma_khoa",
+                how="left",
+            )
+
+        # ── Enrich Lớp + Cố vấn ──
+        if not lop_df.empty:
+            lop_cols = ["ma_lop", "ten_lop"]
+            if "ma_co_van" in lop_df.columns:
+                lop_cols.append("ma_co_van")
+            result = result.merge(
+                lop_df[lop_cols].drop_duplicates(subset=["ma_lop"]),
+                on="ma_lop",
+                how="left",
+            )
+
+        # Lấy tên cố vấn từ bảng giảng viên
+        if not gv_df.empty and "ma_co_van" in result.columns:
+            gv_name = gv_df[["ma_giang_vien", "ho", "ten"]].copy()
+            gv_name["ten_co_van"] = (
+                gv_name["ho"].str.strip() + " " + gv_name["ten"].str.strip()
+            )
+            gv_name = gv_name[["ma_giang_vien", "ten_co_van"]].drop_duplicates(
+                subset=["ma_giang_vien"]
+            )
+            result = result.merge(
+                gv_name,
+                left_on="ma_co_van",
+                right_on="ma_giang_vien",
+                how="left",
+            )
+            # Bỏ cột ma_giang_vien thừa từ merge
+            if "ma_giang_vien" in result.columns:
+                result = result.drop(columns=["ma_giang_vien"])
+        else:
+            result["ten_co_van"] = None
+
+        # Đảm bảo có cột ma_co_van
+        if "ma_co_van" not in result.columns:
+            result["ma_co_van"] = None
+
+        # Chuyển kiểu ngày sinh
+        result["ngay_sinh"] = pd.to_datetime(
+            result["ngay_sinh"], errors="coerce"
+        )
+
+        result = result.drop_duplicates(subset=["ma_sinh_vien"])
+        logger.info(f"  dim_sinh_vien               → {len(result):>6,} records")
+        return result
+
+    # ═══════════════════════════════════════════
+    # FACT TRANSFORMS
+    # ═══════════════════════════════════════════
+
+    def _transform_fact_diem(
+        self, diem_df: pd.DataFrame, dk_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """
+        Transform → FactHocTap (warehouse: fact_hoc_tap).
+
+        JOIN điểm + đăng ký → tính điểm tổng kết, chữ, hệ 4.
+
+        load.py đọc: ma_sinh_vien, ma_hoc_phan, ma_hoc_ky,
+                      ma_giang_vien, ma_dang_ky,
+                      diem_chuyen_can, diem_bai_tap,
+                      diem_giua_ky, diem_cuoi_ky,
+                      diem_tong_ket, diem_chu, diem_he_4,
+                      dat_mon, hoc_lai
+        """
+        if diem_df.empty or dk_df.empty:
+            logger.warning("  fact_diem | Không có dữ liệu điểm hoặc đăng ký")
+            return pd.DataFrame()
+
+        # JOIN điểm + đăng ký
+        result = diem_df.merge(
+            dk_df[[
+                "ma_dang_ky", "ma_sinh_vien", "ma_hoc_phan",
+                "ma_hoc_ky", "ma_giang_vien",
+            ]],
+            on="ma_dang_ky",
+            how="left",
+            suffixes=("", "_dk"),
+        )
+
+        # Xử lý cột trùng lặp từ merge
+        for col in ["ma_sinh_vien", "ma_hoc_phan", "ma_hoc_ky", "ma_giang_vien"]:
+            dk_col = f"{col}_dk"
+            if dk_col in result.columns:
+                result[col] = result[col].fillna(result[dk_col])
+                result = result.drop(columns=[dk_col])
+
+        # Ép kiểu số cho các cột điểm
+        score_cols = [
+            "diem_chuyen_can", "diem_bai_tap",
+            "diem_giua_ky", "diem_cuoi_ky",
+        ]
+        for col in score_cols:
+            if col in result.columns:
+                result[col] = pd.to_numeric(result[col], errors="coerce")
+
+        # ── Tính điểm tổng kết (nếu chưa có hoặc NULL) ──
+        if "diem_tong_ket" not in result.columns:
+            result["diem_tong_ket"] = np.nan
+
+        result["diem_tong_ket"] = pd.to_numeric(
+            result["diem_tong_ket"], errors="coerce"
+        )
+
+        mask_null = result["diem_tong_ket"].isna()
+        has_all_scores = pd.Series(True, index=result.index)
+        for col in score_cols:
+            if col in result.columns:
+                has_all_scores = has_all_scores & result[col].notna()
+
+        recalc_mask = mask_null & has_all_scores
+        if recalc_mask.any():
+            result.loc[recalc_mask, "diem_tong_ket"] = (
+                result.loc[recalc_mask, "diem_chuyen_can"] * WEIGHT_CHUYEN_CAN
+                + result.loc[recalc_mask, "diem_bai_tap"] * WEIGHT_BAI_TAP
+                + result.loc[recalc_mask, "diem_giua_ky"] * WEIGHT_GIUA_KY
+                + result.loc[recalc_mask, "diem_cuoi_ky"] * WEIGHT_CUOI_KY
+            ).round(2)
+            logger.info(
+                f"  fact_diem | Tính lại điểm tổng kết cho {recalc_mask.sum()} bản ghi"
+            )
+
+        # ── Tính điểm chữ & hệ 4 ──
+        result["diem_chu"] = result["diem_tong_ket"].apply(self._to_letter_grade)
+        result["diem_he_4"] = result["diem_tong_ket"].apply(self._to_gpa_4)
+
+        # ── Đạt / Không đạt ──
+        result["dat_mon"] = result["diem_tong_ket"] >= 4.0
+
+        # ── Đảm bảo cột hoc_lai ──
+        if "hoc_lai" not in result.columns:
+            result["hoc_lai"] = False
+
+        # Chọn cột output
+        output_cols = [
+            "ma_dang_ky", "ma_sinh_vien", "ma_hoc_phan",
+            "ma_hoc_ky", "ma_giang_vien",
+            "diem_chuyen_can", "diem_bai_tap",
+            "diem_giua_ky", "diem_cuoi_ky",
+            "diem_tong_ket", "diem_chu", "diem_he_4",
+            "dat_mon", "hoc_lai",
+        ]
+        existing = [c for c in output_cols if c in result.columns]
+        result = result[existing]
+
+        logger.info(f"  fact_diem (→fact_hoc_tap)    → {len(result):>6,} records")
+        return result
+
+    def _transform_fact_ren_luyen(self, ctsv_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transform → FactCtsv (warehouse: fact_ctsv).
+
+        Dữ liệu từ CSV Phòng CTSV.
+        Gồm: điểm rèn luyện, học bổng, kỷ luật.
+
+        load.py đọc: ma_sinh_vien, hoc_ky (= ma_hoc_ky),
+                      diem_ren_luyen, xep_loai_rl,
+                      loai_hoc_bong, muc_tien_hb,
+                      hinh_thuc_ky_luat, ly_do_ky_luat,
+                      co_hoc_bong, bi_ky_luat
+        """
+        if ctsv_df.empty:
+            logger.warning("  fact_ren_luyen | Không có dữ liệu CSV")
+            return pd.DataFrame()
+
+        result = ctsv_df.copy()
+
+        # ── Chuẩn hóa ──
+        result["ma_sinh_vien"] = result["ma_sinh_vien"].str.strip().str.upper()
+
+        if "hoc_ky" in result.columns:
+            result["hoc_ky"] = result["hoc_ky"].str.strip()
+
+        # Ép kiểu số
+        result["diem_ren_luyen"] = pd.to_numeric(
+            result["diem_ren_luyen"], errors="coerce"
+        )
+        result["muc_tien_hb"] = pd.to_numeric(
+            result["muc_tien_hb"], errors="coerce"
+        ).fillna(0)
+
+        # ── Tự tính xếp loại rèn luyện nếu thiếu ──
+        mask = result["xep_loai_rl"].isna() & result["diem_ren_luyen"].notna()
+        if mask.any():
+            result.loc[mask, "xep_loai_rl"] = result.loc[
+                mask, "diem_ren_luyen"
+            ].apply(self._classify_rl)
+
+        # ── Flags phụ trợ ──
+        result["co_hoc_bong"] = (
+            result["loai_hoc_bong"].notna()
+            & (result["loai_hoc_bong"].str.strip() != "")
+        )
+        result["bi_ky_luat"] = (
+            result["hinh_thuc_ky_luat"].notna()
+            & (result["hinh_thuc_ky_luat"].str.strip() != "")
+        )
+
+        # Chuỗi trống → NaN
+        for col in ["loai_hoc_bong", "hinh_thuc_ky_luat", "ly_do_ky_luat"]:
+            if col in result.columns:
+                result[col] = result[col].replace(r"^\s*$", np.nan, regex=True)
+
+        logger.info(f"  fact_ren_luyen (→fact_ctsv)  → {len(result):>6,} records")
+        return result
+
+    def _transform_fact_tai_chinh(self, api_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transform → FactTaiChinh (warehouse: fact_tai_chinh).
+
+        Dữ liệu từ REST API Portal sinh viên.
+        Gồm: học phí, nợ, miễn giảm.
+
+        load.py đọc: ma_sinh_vien, hoc_ky,
+                      hoc_phi_phai_dong, da_dong, con_no,
+                      duoc_mien_giam, ly_do_mien_giam,
+                      so_tien_mien_giam, ngay_dong_cuoi
+        """
+        if api_df.empty:
+            logger.warning("  fact_tai_chinh | Không có dữ liệu API")
+            return pd.DataFrame()
+
+        result = api_df.copy()
+
+        # Chuẩn hóa tên cột (API có thể trả tên khác)
+        col_mapping = {
+            "ma_sinh_vien": "ma_sinh_vien",
+            "hoc_ky": "hoc_ky",
+            "hoc_phi_phai_dong": "hoc_phi_phai_dong",
+            "da_dong": "da_dong",
+            "con_no": "con_no",
+            "duoc_mien_giam": "duoc_mien_giam",
+            "ly_do_mien_giam": "ly_do_mien_giam",
+            "so_tien_mien_giam": "so_tien_mien_giam",
+            "ngay_dong_cuoi": "ngay_dong_cuoi",
+        }
+        result = result.rename(columns={
+            k: v for k, v in col_mapping.items() if k in result.columns
         })
-    ).reset_index()
 
-    gpa_df["gpa_he_4"]    = (gpa_df["tong_cl"] / gpa_df["tong_tc"]).round(2)
-    gpa_df["gpa_he_10"]   = (gpa_df["gpa_he_4"] * 2.5).clip(upper=10.0).round(2)
-    gpa_df["ty_le_truot"] = gpa_df["so_mon_truot"] / gpa_df["tong_mon"]
-    gpa_df["xep_loai"]    = gpa_df["gpa_he_4"].apply(xep_loai_hoc_luc)
-    gpa_df["canh_bao"]    = gpa_df["gpa_he_4"] < 2.0
+        # Chuẩn hóa
+        if "ma_sinh_vien" in result.columns:
+            result["ma_sinh_vien"] = result["ma_sinh_vien"].str.strip().str.upper()
 
-    logger.info(f"  → GPA tính xong cho {len(gpa_df)} SV")
-    return gpa_df
+        for col in ["hoc_phi_phai_dong", "da_dong", "con_no", "so_tien_mien_giam"]:
+            if col in result.columns:
+                result[col] = pd.to_numeric(result[col], errors="coerce").fillna(0)
 
+        if "ngay_dong_cuoi" in result.columns:
+            result["ngay_dong_cuoi"] = pd.to_datetime(
+                result["ngay_dong_cuoi"], errors="coerce"
+            )
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 4 — TRANSFORM NGUỒN 2 (CSV - Phòng CTSV)
-# ══════════════════════════════════════════════════════════════════
+        logger.info(f"  fact_tai_chinh               → {len(result):>6,} records")
+        return result
 
-# Mapping học kỳ: "HK1-2021-22" → "HK1-2021-22" (đã khớp)
-# File CSV dùng cùng format với PostgreSQL → không cần convert
+    # ═══════════════════════════════════════════
+    # TỔNG HỢP ĐA NGUỒN → AggStudentSummary
+    # ═══════════════════════════════════════════
 
-def transform_ctsv(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """
-    Chuẩn hóa DataFrame từ CSV Phòng CTSV để load vào fact_ctsv.
+    def _build_agg_student_summary(
+        self,
+        fact_diem: pd.DataFrame,
+        fact_rl: pd.DataFrame,
+        fact_tc: pd.DataFrame,
+        dk_df: pd.DataFrame,
+        hp_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Tổng hợp 3 nguồn → bảng cho AggStudentSummary.
 
-    Xử lý:
-      - Strip string, điền NULL
-      - Tính cờ co_hoc_bong, bi_ky_luat
-      - Đảm bảo diem_rl trong khoảng 0-100
-      - muc_tien_hb: NULL → 0
-      - Rename hoc_ky → ma_hoc_ky (cuối cùng, SAU khi remove_duplicates)
+        Đây là bài toán chính: cross-source integration.
+        Grain: mỗi sinh viên × mỗi học kỳ.
 
-    Input : DataFrame thô từ extract_csv_ctsv()
-    Output: DataFrame sẵn sàng load — cột ma_hoc_ky (không phải hoc_ky)
-    """
-    logger.info(f"Transform CTSV: {len(df_raw)} rows")
-    df = df_raw.copy()
+        load.py._load_agg_summary đọc:
+          ma_sinh_vien, ma_hoc_ky,
+          gpa_hoc_ky_he4, gpa_hoc_ky_he10,
+          tong_tin_chi, so_mon_hoc, so_mon_rot,
+          diem_ren_luyen, xep_loai_rl,
+          co_hoc_bong, bi_ky_luat,
+          con_no, duoc_mien_giam,
+          canh_bao_hoc_vu, nguy_co_bo_hoc
+        """
+        if fact_diem.empty:
+            logger.warning("  agg_summary | Không có điểm → bỏ qua tổng hợp")
+            return pd.DataFrame()
 
-    # 1. Làm sạch
-    df = clean_string_columns(df)
-    # Dùng tên gốc 'hoc_ky' (chưa rename) để remove_duplicates đúng
-    df = remove_duplicates(df, subset=["ma_sinh_vien", "hoc_ky"])
+        # ── 1. Tính GPA theo học kỳ ──
+        gpa_df = self._calculate_semester_gpa(fact_diem, dk_df, hp_df)
+        if gpa_df.empty:
+            return pd.DataFrame()
 
-    # 2. Xử lý NULL
-    df = handle_nulls(df, {
-        "diem_rl"      : 0,
-        "xep_loai_rl"  : "Chưa xếp loại",
-        "loai_hoc_bong": "",
-        "muc_tien_hb"  : 0,
-        "hinh_thuc_kl" : "",
-        "ly_do_kl"     : "",
-    })
+        # ── 2. Merge rèn luyện (Nguồn 2: CSV) ──
+        if not fact_rl.empty:
+            rl_cols = [
+                "ma_sinh_vien", "hoc_ky",
+                "diem_ren_luyen", "xep_loai_rl",
+                "co_hoc_bong", "bi_ky_luat",
+                "loai_hoc_bong", "muc_tien_hb",
+            ]
+            existing_rl = [c for c in rl_cols if c in fact_rl.columns]
+            gpa_df = gpa_df.merge(
+                fact_rl[existing_rl],
+                left_on=["ma_sinh_vien", "ma_hoc_ky"],
+                right_on=["ma_sinh_vien", "hoc_ky"],
+                how="left",
+            )
+            if "hoc_ky" in gpa_df.columns:
+                gpa_df = gpa_df.drop(columns=["hoc_ky"])
+        else:
+            gpa_df["diem_ren_luyen"] = np.nan
+            gpa_df["xep_loai_rl"] = np.nan
+            gpa_df["co_hoc_bong"] = False
+            gpa_df["bi_ky_luat"] = False
 
-    # 3. Đảm bảo kiểu số
-    df["diem_rl"]     = pd.to_numeric(df["diem_rl"],     errors="coerce").clip(0, 100).fillna(0).astype(int)
-    df["muc_tien_hb"] = pd.to_numeric(df["muc_tien_hb"], errors="coerce").fillna(0).astype(int)
+        # ── 3. Merge tài chính (Nguồn 3: API) ──
+        if not fact_tc.empty:
+            tc_cols = [
+                "ma_sinh_vien", "hoc_ky",
+                "hoc_phi_phai_dong", "con_no",
+                "duoc_mien_giam",
+            ]
+            existing_tc = [c for c in tc_cols if c in fact_tc.columns]
+            gpa_df = gpa_df.merge(
+                fact_tc[existing_tc],
+                left_on=["ma_sinh_vien", "ma_hoc_ky"],
+                right_on=["ma_sinh_vien", "hoc_ky"],
+                how="left",
+            )
+            if "hoc_ky" in gpa_df.columns:
+                gpa_df = gpa_df.drop(columns=["hoc_ky"])
+        else:
+            gpa_df["hoc_phi_phai_dong"] = 0
+            gpa_df["con_no"] = 0
+            gpa_df["duoc_mien_giam"] = False
 
-    # 4. Cờ tổng hợp
-    df["co_hoc_bong"] = df["loai_hoc_bong"].str.strip().ne("") & df["loai_hoc_bong"].notna()
-    df["bi_ky_luat"]  = df["hinh_thuc_kl"].str.strip().ne("") & df["hinh_thuc_kl"].notna()
+        # Fill NA
+        gpa_df["con_no"] = gpa_df["con_no"].fillna(0)
+        gpa_df["hoc_phi_phai_dong"] = gpa_df["hoc_phi_phai_dong"].fillna(0)
 
-    # 5. Rename hoc_ky → ma_hoc_ky CUỐI CÙNG (sau tất cả bước trên)
-    df = df.rename(columns={"hoc_ky": "ma_hoc_ky"})
+        # ── 4. Tính tỷ lệ nợ ──
+        gpa_df["ty_le_no"] = np.where(
+            gpa_df["hoc_phi_phai_dong"] > 0,
+            (gpa_df["con_no"] / gpa_df["hoc_phi_phai_dong"] * 100).round(1),
+            0,
+        )
+        gpa_df["da_dong_du"] = gpa_df["con_no"] <= 0
 
-    logger.info(f"  → {len(df)} rows sau transform")
-    logger.info(f"     Co HB: {df['co_hoc_bong'].sum()} | Bi KL: {df['bi_ky_luat'].sum()}")
-    return df
+        # ── 5. Tính flags nghiệp vụ ──
 
+        # Cảnh báo học vụ: GPA < 1.0
+        gpa_df["canh_bao_hoc_vu"] = gpa_df["gpa_hoc_ky_he4"] < GPA_WARNING_LEVEL_1
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 5 — TRANSFORM NGUỒN 3 (API Portal Tài chính)
-# ══════════════════════════════════════════════════════════════════
+        # Đủ điều kiện học bổng:
+        #   GPA >= 3.2 AND RL >= 80 AND không kỷ luật AND không nợ HP
+        gpa_df["du_dieu_kien_hoc_bong"] = (
+            (gpa_df["gpa_hoc_ky_he4"] >= 3.2)
+            & (gpa_df["diem_ren_luyen"].fillna(0) >= 80)
+            & (~gpa_df["bi_ky_luat"].fillna(False))
+            & (gpa_df["da_dong_du"].fillna(True))
+        )
 
-def transform_tai_chinh(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """
-    Chuẩn hóa DataFrame từ API Portal để load vào fact_tai_chinh.
+        # Nguy cơ bỏ học:
+        #   GPA < 2.0 AND RL < 50 AND nợ HP > 50%
+        gpa_df["nguy_co_bo_hoc"] = (
+            (gpa_df["gpa_hoc_ky_he4"] < 2.0)
+            & (gpa_df["diem_ren_luyen"].fillna(100) < 50)
+            & (gpa_df["ty_le_no"].fillna(0) > 50)
+        )
 
-    API trả về JSON → DataFrame, cần:
-      - Đảm bảo kiểu số (BigInteger cho tiền)
-      - Xử lý ngay_dong_cuoi: string → date
-      - Điền NULL các cột tiền về 0
-      - Rename hoc_ky → ma_hoc_ky (CUỐI CÙNG, sau remove_duplicates)
+        logger.info(f"  agg_student_summary          → {len(gpa_df):>6,} records")
 
-    Input : DataFrame thô từ extract_api_tai_chinh()
-    Output: DataFrame sẵn sàng load — cột ma_hoc_ky (không phải hoc_ky)
-    """
-    logger.info(f"Transform Tài chính: {len(df_raw)} rows")
-    df = df_raw.copy()
+        # Log thống kê
+        if not gpa_df.empty:
+            n_warn = gpa_df["canh_bao_hoc_vu"].sum()
+            n_hb = gpa_df["du_dieu_kien_hoc_bong"].sum()
+            n_risk = gpa_df["nguy_co_bo_hoc"].sum()
+            logger.info(f"    → Cảnh báo học vụ:       {n_warn:>5}")
+            logger.info(f"    → Đủ ĐK học bổng:       {n_hb:>5}")
+            logger.info(f"    → Nguy cơ bỏ học:        {n_risk:>5}")
 
-    # 1. Làm sạch
-    df = clean_string_columns(df)
-    # Dùng tên gốc 'hoc_ky' (chưa rename) để remove_duplicates đúng
-    df = remove_duplicates(df, subset=["ma_sinh_vien", "hoc_ky"])
+        return gpa_df
 
-    # 2. Kiểu số cho các cột tiền
-    money_cols = ["hoc_phi_phai_dong", "da_dong", "con_no", "so_tien_mien_giam"]
-    for col in money_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+    # ═══════════════════════════════════════════
+    # UTILITY METHODS
+    # ═══════════════════════════════════════════
 
-    # 3. Convert ngay_dong_cuoi: string → date
-    if "ngay_dong_cuoi" in df.columns:
-        df["ngay_dong_cuoi"] = pd.to_datetime(
-            df["ngay_dong_cuoi"], errors="coerce"
-        ).dt.date
-        # Nếu NULL (chưa đóng) → giữ NULL, không điền
+    def _calculate_semester_gpa(
+        self,
+        fact_diem: pd.DataFrame,
+        dk_df: pd.DataFrame,
+        hp_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Tính GPA theo học kỳ cho mỗi sinh viên.
+        GPA = Σ(điểm_hệ_4 × số_tín_chỉ) / Σ(số_tín_chỉ)
 
-    # 4. Boolean
-    if "duoc_mien_giam" in df.columns:
-        df["duoc_mien_giam"] = df["duoc_mien_giam"].astype(bool)
+        Output columns:
+          ma_sinh_vien, ma_hoc_ky,
+          tong_tin_chi, so_mon_hoc, so_mon_rot,
+          gpa_hoc_ky_he4, gpa_hoc_ky_he10,
+          tin_chi_dat, tin_chi_khong_dat, ty_le_dat
+        """
+        if fact_diem.empty:
+            return pd.DataFrame()
 
-    # 5. Xử lý NULL chuỗi
-    df = handle_nulls(df, {
-        "ly_do_mien_giam"  : "",
-        "so_tien_mien_giam": 0,
-    })
+        diem = fact_diem.copy()
 
-    # 6. Rename hoc_ky → ma_hoc_ky CUỐI CÙNG (sau tất cả bước trên)
-    df = df.rename(columns={"hoc_ky": "ma_hoc_ky"})
+        # Đảm bảo có cột diem_he_4 và diem_tong_ket
+        diem["diem_he_4"] = pd.to_numeric(diem["diem_he_4"], errors="coerce")
+        diem["diem_tong_ket"] = pd.to_numeric(diem["diem_tong_ket"], errors="coerce")
 
-    logger.info(f"  → {len(df)} rows sau transform")
-    logger.info(f"     Co no HP : {(df['con_no'] > 0).sum()}")
-    logger.info(f"     Mien giam: {df['duoc_mien_giam'].sum()}")
-    return df
+        # Lấy số tín chỉ từ học phần
+        if not hp_df.empty and "ma_hoc_phan" in diem.columns:
+            diem = diem.merge(
+                hp_df[["ma_hoc_phan", "so_tin_chi"]].drop_duplicates(
+                    subset=["ma_hoc_phan"]
+                ),
+                on="ma_hoc_phan",
+                how="left",
+            )
+        if "so_tin_chi" not in diem.columns:
+            diem["so_tin_chi"] = 3  # Default
 
+        diem["so_tin_chi"] = diem["so_tin_chi"].fillna(3).astype(int)
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 6 — TỔNG HỢP AGG_STUDENT_SUMMARY (3 nguồn)
-# ══════════════════════════════════════════════════════════════════
+        # Đảm bảo cột dat_mon
+        if "dat_mon" not in diem.columns:
+            diem["dat_mon"] = diem["diem_tong_ket"] >= 4.0
 
-def calculate_agg_summary(df_gpa:     pd.DataFrame,
-                          df_ctsv:    pd.DataFrame,
-                          df_tc:      pd.DataFrame) -> pd.DataFrame:
-    """
-    Tính toán agg_student_summary từ 3 nguồn.
+        # Weighted scores
+        diem["weighted_4"] = diem["diem_he_4"] * diem["so_tin_chi"]
+        diem["weighted_10"] = diem["diem_tong_ket"] * diem["so_tin_chi"]
 
-    Tham số:
-        df_gpa  : kết quả từ calculate_gpa()  (Nguồn 1)
-        df_ctsv : kết quả transform_ctsv()     (Nguồn 2)
-        df_tc   : kết quả transform_tai_chinh() (Nguồn 3)
+        # Group by SV + HK
+        gpa_df = (
+            diem
+            .groupby(["ma_sinh_vien", "ma_hoc_ky"])
+            .agg(
+                total_weighted_4=("weighted_4", "sum"),
+                total_weighted_10=("weighted_10", "sum"),
+                tong_tin_chi=("so_tin_chi", "sum"),
+                so_mon_hoc=("ma_hoc_phan", "count"),
+                so_mon_rot=("dat_mon", lambda x: (~x).sum()),
+                so_mon_dat=("dat_mon", lambda x: x.sum()),
+                tin_chi_dat=("so_tin_chi", lambda x: x[diem.loc[x.index, "dat_mon"]].sum()
+                             if hasattr(x, "index") else 0),
+            )
+            .reset_index()
+        )
 
-    Trả về: DataFrame tổng hợp cho mỗi sinh viên
-    """
-    logger.info("Tính agg_student_summary từ 3 nguồn...")
+        # GPA
+        gpa_df["gpa_hoc_ky_he4"] = np.where(
+            gpa_df["tong_tin_chi"] > 0,
+            (gpa_df["total_weighted_4"] / gpa_df["tong_tin_chi"]).round(2),
+            0,
+        )
+        gpa_df["gpa_hoc_ky_he10"] = np.where(
+            gpa_df["tong_tin_chi"] > 0,
+            (gpa_df["total_weighted_10"] / gpa_df["tong_tin_chi"]).round(2),
+            0,
+        )
 
-    # --- Nguồn 2: Tổng hợp RL trung bình theo SV ---
-    rl_agg = df_ctsv.groupby("ma_sinh_vien").agg(
-        diem_rl_tb      = ("diem_rl",       "mean"),
-        xep_loai_rl_last= ("xep_loai_rl",   "last"),
-    ).reset_index()
-    rl_agg["diem_rl_tb"] = rl_agg["diem_rl_tb"].round(1)
+        # Tỷ lệ đạt
+        gpa_df["tin_chi_khong_dat"] = gpa_df["tong_tin_chi"] - gpa_df.get(
+            "tin_chi_dat", 0
+        )
+        gpa_df["ty_le_dat"] = np.where(
+            gpa_df["so_mon_hoc"] > 0,
+            (gpa_df["so_mon_dat"] / gpa_df["so_mon_hoc"] * 100).round(1),
+            0,
+        )
 
-    # --- Nguồn 3: Tổng hợp tài chính theo SV ---
-    tc_agg = df_tc.groupby("ma_sinh_vien").agg(
-        tong_no          = ("con_no",        "sum"),
-        co_mien_giam     = ("duoc_mien_giam", "any"),
-    ).reset_index()
-    tc_agg["co_no_hp"] = tc_agg["tong_no"] > 0
+        # Bỏ cột trung gian
+        gpa_df = gpa_df.drop(
+            columns=["total_weighted_4", "total_weighted_10"],
+            errors="ignore",
+        )
 
-    # --- Merge 3 nguồn ---
-    result = df_gpa.copy()
-    result = result.merge(rl_agg, on="ma_sinh_vien", how="left")
-    result = result.merge(tc_agg, on="ma_sinh_vien", how="left")
+        return gpa_df
 
-    # Điền NULL cho SV chưa có dữ liệu từ nguồn 2/3
-    result["diem_rl_tb"]       = result["diem_rl_tb"].fillna(0)
-    result["xep_loai_rl_last"] = result["xep_loai_rl_last"].fillna("Chưa có")
-    result["tong_no"]          = result["tong_no"].fillna(0)
-    result["co_no_hp"]         = result["co_no_hp"].fillna(False)
-    result["co_mien_giam"]     = result["co_mien_giam"].fillna(False)
+    @staticmethod
+    def _to_letter_grade(score: float) -> Optional[str]:
+        """Chuyển điểm số (hệ 10) → điểm chữ theo thang PTIT."""
+        if pd.isna(score):
+            return None
+        for lower, upper, letter, _ in GRADE_SCALE:
+            if lower <= score < upper:
+                return letter
+        return "F"
 
-    # Đánh giá rủi ro tổng hợp
-    result["muc_do_rui_ro"] = result.apply(
-        lambda r: xac_dinh_rui_ro(r["gpa_he_4"], r["diem_rl_tb"], r["co_no_hp"]),
-        axis=1
-    )
-    result["canh_bao"] = (result["gpa_he_4"] < 2.0) | (result["diem_rl_tb"] < 50)
+    @staticmethod
+    def _to_gpa_4(score: float) -> Optional[float]:
+        """Chuyển điểm số (hệ 10) → hệ 4 theo thang PTIT."""
+        if pd.isna(score):
+            return None
+        for lower, upper, _, gpa4 in GRADE_SCALE:
+            if lower <= score < upper:
+                return gpa4
+        return 0.0
 
-    logger.info(f"  → agg_summary tính xong cho {len(result)} SV")
-    return result
+    @staticmethod
+    def _classify_rl(score: float) -> Optional[str]:
+        """Phân loại điểm rèn luyện."""
+        if pd.isna(score):
+            return None
+        for lower, upper, label in RL_THRESHOLDS:
+            if lower <= score < upper:
+                return label
+        return "Kem"

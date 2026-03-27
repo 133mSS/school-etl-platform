@@ -31,7 +31,7 @@ SELECT
 
     hk.ma_hoc_ky,
     hk.nam_hoc,
-    hk.hoc_ky,          -- v2.0: đúng tên cột
+    hk.hoc_ky,        
 
     ht.diem_chuyen_can,
     ht.diem_bai_tap,
@@ -48,7 +48,7 @@ SELECT
 FROM fact_hoc_tap ht
 JOIN  dim_sinh_vien  sv ON ht.sinh_vien_key  = sv.sinh_vien_key AND sv.la_ban_hien_tai = TRUE
 JOIN  dim_hoc_phan   hp ON ht.hoc_phan_key   = hp.hoc_phan_key
-LEFT JOIN dim_giang_vien gv ON ht.giang_vien_key = gv.giang_vien_key  -- v2.0: LEFT JOIN
+LEFT JOIN dim_giang_vien gv ON ht.giang_vien_key = gv.giang_vien_key
 JOIN  dim_hoc_ky     hk ON ht.hoc_ky_key     = hk.hoc_ky_key;
 
 COMMENT ON VIEW v_student_performance IS 'Kết quả học tập chi tiết — Nguồn 1: PostgreSQL';

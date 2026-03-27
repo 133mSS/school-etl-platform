@@ -1,4 +1,3 @@
-
 x-airflow-common:
   &airflow-common
   build:
@@ -9,28 +8,62 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./src:/opt/airflow/src
-    - ./data:/opt/airflow/data                              # ✅ Added
-    - ./great_expectations:/opt/airflow/great_expectations  # ✅ Added
+    - ./data:/opt/airflow/data
+    - ./great_expectations:/opt/airflow/great_expectations
     - ./scripts:/opt/airflow/scripts
   environment:
     &airflow-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-    AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BhWNOdQ26slT6K0YaZeZyPs="  # ✅ Fixed
+    AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BhWNOdQ26slT6K0YaZeZyPs="
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow:5432/airflow
     AIRFLOW__WEBSERVER__SECRET_KEY: "airflow-secret-key"
     PYTHONPATH: /opt/airflow/src:/opt/airflow
-    # ✅ Add environment variables for DAGs to use:
+
+    # PostgreSQL Source
     POSTGRES_SOURCE_HOST: postgres-source
-    POSTGRES_SOURCE_PORT: 5432
+    POSTGRES_SOURCE_PORT: "5432"
     POSTGRES_SOURCE_USER: school_user
     POSTGRES_SOURCE_PASSWORD: school_pass
     POSTGRES_SOURCE_DB: school_source
+    SOURCE_DB_HOST: postgres-source
+    SOURCE_DB_PORT: "5432"
+    SOURCE_DB_NAME: school_source
+    SOURCE_DB_USER: school_user
+    SOURCE_DB_PASS: school_pass
+
+    # PostgreSQL Warehouse
     POSTGRES_WAREHOUSE_HOST: postgres-warehouse
-    POSTGRES_WAREHOUSE_PORT: 5432
+    POSTGRES_WAREHOUSE_PORT: "5432"
     POSTGRES_WAREHOUSE_USER: warehouse_user
     POSTGRES_WAREHOUSE_PASSWORD: warehouse_pass
     POSTGRES_WAREHOUSE_DB: school_warehouse
+    WH_DB_HOST: postgres-warehouse
+    WH_DB_PORT: "5432"
+    WH_DB_NAME: school_warehouse
+    WH_DB_USER: warehouse_user
+    WH_DB_PASS: warehouse_pass
+
+    # MinIO
+    MINIO_ENDPOINT: http://minio:9000
+    MINIO_ACCESS_KEY: minio_admin
+    MINIO_SECRET_KEY: minio_pass
+    MINIO_BUCKET_RAW: raw-data
+    MINIO_BUCKET_STAGING: staging-data
+
+    # API (Mock server chạy trên host)
+    API_BASE_URL: http://host.docker.internal:5055
+    API_JSON_DIR: /opt/airflow/data/api_json
+    API_TIMEOUT: "30"
+    API_MAX_RETRIES: "3"
+
+    # CSV
+    CSV_DATA_DIR: /opt/airflow/data/csv
+
+    # ETL
+    ETL_BATCH_SIZE: "500"
+    ETL_LOG_LEVEL: INFO
+
   networks:
     - school-network
 
@@ -40,7 +73,7 @@ services:
   # PostgreSQL Airflow Metadata
   # =============================
   postgres-airflow:
-    image: postgres:15-alpine  # ✅ Changed to alpine (smaller)
+    image: postgres:15-alpine
     container_name: postgres-airflow
     environment:
       POSTGRES_USER: airflow
@@ -62,7 +95,7 @@ services:
   # PostgreSQL Source
   # =============================
   postgres-source:
-    image: postgres:15-alpine  # ✅ Changed to alpine
+    image: postgres:15-alpine
     container_name: postgres-source
     environment:
       POSTGRES_USER: school_user
@@ -72,7 +105,7 @@ services:
       - "5434:5432"
     volumes:
       - postgres_source_data:/var/lib/postgresql/data
-      - ./sql/source:/docker-entrypoint-initdb.d  # ✅ Added for auto-init
+      - ./sql/source:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U school_user -d school_source"]
       interval: 10s
@@ -85,7 +118,7 @@ services:
   # PostgreSQL Warehouse
   # =============================
   postgres-warehouse:
-    image: postgres:15-alpine  # ✅ Changed to alpine
+    image: postgres:15-alpine
     container_name: postgres-warehouse
     environment:
       POSTGRES_USER: warehouse_user
@@ -95,7 +128,7 @@ services:
       - "5435:5432"
     volumes:
       - postgres_warehouse_data:/var/lib/postgresql/data
-      - ./sql/warehouse:/docker-entrypoint-initdb.d  # ✅ Added for auto-init
+      - ./sql/warehouse:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U warehouse_user -d school_warehouse"]
       interval: 10s
@@ -137,7 +170,7 @@ services:
     depends_on:
       airflow-init:
         condition: service_completed_successfully
-    healthcheck:  # ✅ Added healthcheck
+    healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
@@ -162,6 +195,7 @@ services:
       retries: 5
       start_period: 30s
     restart: always
+
   # =============================
   # MinIO
   # =============================
@@ -177,7 +211,7 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
-    healthcheck:  # ✅ Added healthcheck
+    healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
@@ -195,13 +229,13 @@ services:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus  # ✅ Added data persistence
-    command:  # ✅ Added explicit command
+      - prometheus_data:/prometheus
+    command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     networks:
       - school-network
-    restart: unless-stopped  # ✅ Added restart policy
+    restart: unless-stopped
 
   # =============================
   # Grafana
@@ -214,20 +248,20 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_INSTALL_PLUGINS: grafana-clock-panel  # ✅ Added useful plugin
+      GF_INSTALL_PLUGINS: grafana-clock-panel
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana:/etc/grafana/provisioning  # ✅ Added for auto-provisioning
-    depends_on:  # ✅ Added dependency
+      - ./grafana:/etc/grafana/provisioning
+    depends_on:
       - prometheus
     networks:
       - school-network
-    restart: unless-stopped  # ✅ Added restart policy
+    restart: unless-stopped
 
   # =============================
-  # pgAdmin (Database Management)
+  # pgAdmin
   # =============================
-  pgadmin:  # ✅ Added new service
+  pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
     environment:
@@ -248,8 +282,8 @@ volumes:
   postgres_warehouse_data:
   minio_data:
   grafana_data:
-  prometheus_data:  # ✅ Added
-  pgadmin_data:     # ✅ Added
+  prometheus_data:
+  pgadmin_data:
 
 networks:
   school-network:

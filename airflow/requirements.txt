@@ -1,6 +1,33 @@
-pandas==2.1.4
-sqlalchemy==1.4.49
+# Core
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# Database
+SQLAlchemy==1.4.52
 psycopg2-binary==2.9.9
-great_expectations
-boto3
-minio
+alembic==1.13.1
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.3
+
+# Data Quality
+great-expectations==0.18.8
+
+# HTTP/API
+requests==2.31.0
+
+# Cloud Storage
+boto3==1.34.22
+minio==7.2.3
+
+# Data Generation
+Faker==22.0.0
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Utilities
+python-json-logger==2.0.7
+click==8.1.7

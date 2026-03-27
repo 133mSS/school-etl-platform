@@ -1,17 +1,5 @@
-﻿-- =============================================
--- DATA WAREHOUSE - FACT & AGGREGATE TABLES
--- Version: 2.0
--- Nguồn 1 (PostgreSQL) : fact_hoc_tap, fact_dang_ky
--- Nguồn 2 (CSV CTSV)   : fact_ctsv
--- Nguồn 3 (API Portal) : fact_tai_chinh
--- Chạy SAU create_dimension.sql
--- =============================================
+﻿-- DATA WAREHOUSE - FACT & AGGREGATE TABLES
 
--- =============================================
--- FACT 1: FACT_HOC_TAP
--- Nguồn: PostgreSQL
--- Grain: SinhVien × HocPhan × HocKy
--- =============================================
 CREATE TABLE IF NOT EXISTS fact_hoc_tap (
     hoc_tap_key      SERIAL PRIMARY KEY,
 
@@ -27,7 +15,7 @@ CREATE TABLE IF NOT EXISTS fact_hoc_tap (
     ma_hoc_phan      VARCHAR(20) NOT NULL,
     ma_dang_ky       INT,
 
-    -- Measures: điểm thành phần (PTIT: 10%-20%-20%-50%)
+    -- Measures: 
     diem_chuyen_can  DECIMAL(4,2),
     diem_bai_tap     DECIMAL(4,2),
     diem_giua_ky     DECIMAL(4,2),
@@ -36,11 +24,11 @@ CREATE TABLE IF NOT EXISTS fact_hoc_tap (
     diem_chu         VARCHAR(2),
     diem_he_4        DECIMAL(3,2),
 
-    -- Measures: cờ trạng thái
+ 
     dat_mon          BOOLEAN,
     hoc_lai          BOOLEAN,
 
-    -- Measures: tính GPA
+  
     so_tin_chi       INT,
     diem_chat_luong  DECIMAL(5,2),   -- diem_he_4 × so_tin_chi
 
@@ -57,11 +45,8 @@ CREATE INDEX IF NOT EXISTS idx_fact_ht_hk      ON fact_hoc_tap(hoc_ky_key);
 CREATE INDEX IF NOT EXISTS idx_fact_ht_ma_sv   ON fact_hoc_tap(ma_sinh_vien);
 CREATE INDEX IF NOT EXISTS idx_fact_ht_dat_mon ON fact_hoc_tap(dat_mon);
 
--- =============================================
+
 -- FACT 2: FACT_DANG_KY
--- Nguồn: PostgreSQL
--- Grain: giao dịch đăng ký môn học
--- =============================================
 CREATE TABLE IF NOT EXISTS fact_dang_ky (
     dang_ky_key      SERIAL PRIMARY KEY,
 
@@ -88,12 +73,8 @@ CREATE INDEX IF NOT EXISTS idx_fact_dk_sv   ON fact_dang_ky(sinh_vien_key);
 CREATE INDEX IF NOT EXISTS idx_fact_dk_hk   ON fact_dang_ky(hoc_ky_key);
 CREATE INDEX IF NOT EXISTS idx_fact_dk_ma   ON fact_dang_ky(ma_sinh_vien);
 
--- =============================================
+
 -- FACT 3: FACT_CTSV
--- Nguồn: CSV từ Phòng Công tác Sinh viên
--- Grain: SinhVien × HocKy
--- Nội dung: điểm rèn luyện + học bổng + kỷ luật
--- =============================================
 CREATE TABLE IF NOT EXISTS fact_ctsv (
     ctsv_key         SERIAL PRIMARY KEY,
 
@@ -105,19 +86,19 @@ CREATE TABLE IF NOT EXISTS fact_ctsv (
     ma_sinh_vien     VARCHAR(20) NOT NULL,
     ma_hoc_ky        VARCHAR(50) NOT NULL,
 
-    -- Measures: Điểm rèn luyện
-    diem_rl          INT,                   -- 0-100
-    xep_loai_rl      VARCHAR(20),           -- Xuất sắc/Tốt/Khá/TB/Yếu/Kém
+    -- Measures:
+    diem_rl          INT,                  
+    xep_loai_rl      VARCHAR(20),           
 
-    -- Measures: Học bổng (NULL nếu không có)
+
     loai_hoc_bong    VARCHAR(100),
     muc_tien_hb      BIGINT DEFAULT 0,
 
-    -- Measures: Kỷ luật (NULL nếu không có)
+   
     hinh_thuc_kl     VARCHAR(100),
     ly_do_kl         VARCHAR(200),
 
-    -- Cờ tổng hợp (phục vụ query nhanh)
+ 
     co_hoc_bong      BOOLEAN DEFAULT FALSE,
     bi_ky_luat       BOOLEAN DEFAULT FALSE,
 
@@ -137,12 +118,9 @@ CREATE INDEX IF NOT EXISTS idx_fact_ctsv_rl      ON fact_ctsv(diem_rl);
 CREATE INDEX IF NOT EXISTS idx_fact_ctsv_hb      ON fact_ctsv(co_hoc_bong);
 CREATE INDEX IF NOT EXISTS idx_fact_ctsv_kl      ON fact_ctsv(bi_ky_luat);
 
--- =============================================
+
 -- FACT 4: FACT_TAI_CHINH
--- Nguồn: REST API từ Portal sinh viên (vendor)
--- Grain: SinhVien × HocKy
--- Nội dung: tình trạng học phí + miễn giảm
--- =============================================
+
 CREATE TABLE IF NOT EXISTS fact_tai_chinh (
     tai_chinh_key     SERIAL PRIMARY KEY,
 
@@ -154,20 +132,20 @@ CREATE TABLE IF NOT EXISTS fact_tai_chinh (
     ma_sinh_vien      VARCHAR(20) NOT NULL,
     ma_hoc_ky         VARCHAR(50) NOT NULL,
 
-    -- Measures: Học phí
+    -- Measures: 
     hoc_phi_phai_dong BIGINT DEFAULT 0,
     da_dong           BIGINT DEFAULT 0,
     con_no            BIGINT DEFAULT 0,
 
-    -- Measures: Miễn giảm
+
     duoc_mien_giam    BOOLEAN DEFAULT FALSE,
     ly_do_mien_giam   VARCHAR(100),
     so_tien_mien_giam BIGINT DEFAULT 0,
 
-    -- Ngày đóng cuối cùng
+
     ngay_dong_cuoi    DATE,
 
-    -- Cờ tổng hợp (phục vụ query nhanh)
+
     con_no_flag       BOOLEAN GENERATED ALWAYS AS (con_no > 0) STORED,
 
     -- ETL metadata
@@ -186,10 +164,9 @@ CREATE INDEX IF NOT EXISTS idx_fact_tc_ma       ON fact_tai_chinh(ma_sinh_vien);
 CREATE INDEX IF NOT EXISTS idx_fact_tc_no       ON fact_tai_chinh(con_no_flag);
 CREATE INDEX IF NOT EXISTS idx_fact_tc_mien     ON fact_tai_chinh(duoc_mien_giam);
 
--- =============================================
+
 -- AGGREGATE: AGG_STUDENT_SUMMARY
--- Tổng hợp toàn diện mỗi sinh viên từ 3 nguồn
--- =============================================
+
 CREATE TABLE IF NOT EXISTS agg_student_summary (
     agg_key               SERIAL PRIMARY KEY,
     sinh_vien_key         INT NOT NULL REFERENCES dim_sinh_vien(sinh_vien_key),
@@ -210,19 +187,16 @@ CREATE TABLE IF NOT EXISTS agg_student_summary (
     so_mon_khong_dat      INT DEFAULT 0,
     so_mon_hoc_lai        INT DEFAULT 0,
 
-    -- Rèn luyện (từ fact_ctsv)
+ 
     diem_rl_trung_binh    DECIMAL(4,1),
     xep_loai_rl_gan_nhat  VARCHAR(20),
 
-    -- Tài chính (từ fact_tai_chinh)
+ 
     tong_no_hoc_phi       BIGINT DEFAULT 0,
     co_no_hoc_phi         BOOLEAN DEFAULT FALSE,
     duoc_mien_giam        BOOLEAN DEFAULT FALSE,
 
-    -- Đánh giá rủi ro tổng hợp (3 nguồn)
-    -- Cao   : GPA < 2.0 + RL yếu + nợ HP
-    -- TB    : 1 trong 3 tiêu chí trên
-    -- Thấp  : không có tiêu chí nào
+    -- Đánh giá rủi ro tổng hợp
     muc_do_rui_ro         VARCHAR(20),
     canh_bao_hoc_vu       BOOLEAN DEFAULT FALSE,
     co_the_tot_nghiep     BOOLEAN DEFAULT FALSE,
@@ -241,7 +215,7 @@ CREATE INDEX IF NOT EXISTS idx_agg_ss_canh_bao ON agg_student_summary(canh_bao_h
 DO $$
 BEGIN
     RAISE NOTICE '==========================================';
-    RAISE NOTICE '✅ create_facts.sql v2.0 DONE';
+    RAISE NOTICE '   create_facts.sql v2.0 DONE';
     RAISE NOTICE '   Fact Tables:';
     RAISE NOTICE '   1. fact_hoc_tap  (PostgreSQL)';
     RAISE NOTICE '   2. fact_dang_ky  (PostgreSQL)';

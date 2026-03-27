@@ -1,37 +1,26 @@
 # src/config/database.py
-"""
-database.py - Tạo engine và session cho Source DB và Warehouse DB.
-Các file ETL import SourceSession / WarehouseSession từ đây để truy vấn.
-"""
+
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.orm import sessionmaker, declarative_base
 from src.config.settings import SOURCE_DB_URL, WAREHOUSE_DB_URL
 
 
 # ── ENGINE ────────────────────────────────────────────────────────
-# engine là đối tượng quản lý pool kết nối đến DB
-# pool_pre_ping=True: tự động kiểm tra kết nối còn sống không trước khi dùng
 source_engine    = create_engine(SOURCE_DB_URL,    pool_pre_ping=True)
 warehouse_engine = create_engine(WAREHOUSE_DB_URL, pool_pre_ping=True)
 
 
 # ── SESSION ───────────────────────────────────────────────────────
-# Session là phiên làm việc: dùng để chạy query, commit, rollback
-# autocommit=False: phải gọi .commit() thủ công (an toàn hơn)
-# autoflush=False : không tự flush trước mỗi query
+
 SourceSession    = sessionmaker(bind=source_engine,    autocommit=False, autoflush=False)
 WarehouseSession = sessionmaker(bind=warehouse_engine, autocommit=False, autoflush=False)
 
 
 # ── BASE CLASS ────────────────────────────────────────────────────
-# source_models.py và warehouse_models.py kế thừa từ đây
-class SourceBase(DeclarativeBase):
-    pass
+SourceBase = declarative_base()
 
-class WarehouseBase(DeclarativeBase):
-    pass
-
+WarehouseBase = declarative_base()
 
 # ── HÀM TIỆN ÍCH ─────────────────────────────────────────────────
 def test_connections():

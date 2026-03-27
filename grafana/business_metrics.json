@@ -1,0 +1,758 @@
+{
+    "title": "Business Metrics - ETL Platform PTIT",
+    "uid": "business-metrics-v3",
+    "schemaVersion": 36,
+    "version": 3,
+    "refresh": "5m",
+    "time": {
+        "from": "now-30d",
+        "to": "now"
+    },
+    "tags": [
+        "etl",
+        "business",
+        "students"
+    ],
+    "templating": {
+        "list": []
+    },
+    "annotations": {
+        "list": []
+    },
+    "panels": [
+        {
+            "id": 1,
+            "title": "Tổng sinh viên đang học",
+            "type": "stat",
+            "gridPos": {
+                "x": 0,
+                "y": 0,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "blue"
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^total$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as total FROM dim_sinh_vien WHERE la_ban_hien_tai = TRUE AND trang_thai_hoc_tap = 'Đang học'",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 2,
+            "title": "SV cảnh báo học vụ",
+            "type": "stat",
+            "gridPos": {
+                "x": 6,
+                "y": 0,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 50
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^total$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as total FROM agg_student_summary WHERE canh_bao_hoc_vu = TRUE",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 3,
+            "title": "SV nguy cơ bỏ học",
+            "type": "stat",
+            "gridPos": {
+                "x": 12,
+                "y": 0,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 5
+                            },
+                            {
+                                "color": "red",
+                                "value": 20
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^total$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as total FROM agg_student_summary WHERE muc_do_rui_ro IN ('Cao', 'Rat cao')",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 4,
+            "title": "GPA trung bình (hệ 4)",
+            "type": "stat",
+            "gridPos": {
+                "x": 18,
+                "y": 0,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 2,
+                    "min": 0,
+                    "max": 4,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 2.0
+                            },
+                            {
+                                "color": "green",
+                                "value": 2.5
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^gpa$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ROUND(AVG(gpa_he_4)::numeric, 2) as gpa FROM agg_student_summary WHERE gpa_he_4 IS NOT NULL AND gpa_he_4 > 0",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 10,
+            "title": "Tổng SV nợ học phí",
+            "type": "stat",
+            "gridPos": {
+                "x": 0,
+                "y": 4,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 50
+                            },
+                            {
+                                "color": "red",
+                                "value": 100
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^total$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as total FROM agg_student_summary WHERE co_no_hoc_phi = TRUE",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 11,
+            "title": "Tỷ lệ đạt môn toàn trường (%)",
+            "type": "stat",
+            "gridPos": {
+                "x": 6,
+                "y": 4,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "decimals": 1,
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "green",
+                                "value": 85
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^ty_le$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ROUND(100.0 * SUM(CASE WHEN dat_mon = TRUE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as ty_le FROM fact_hoc_tap",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 12,
+            "title": "SV được học bổng",
+            "type": "stat",
+            "gridPos": {
+                "x": 12,
+                "y": 4,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "purple"
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^total$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(DISTINCT ma_sinh_vien) as total FROM fact_ctsv WHERE co_hoc_bong = TRUE",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 13,
+            "title": "SV bị kỷ luật",
+            "type": "stat",
+            "gridPos": {
+                "x": 18,
+                "y": 4,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^total$/",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(DISTINCT ma_sinh_vien) as total FROM fact_ctsv WHERE bi_ky_luat = TRUE",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 5,
+            "title": "Phân bố xếp loại học lực",
+            "type": "piechart",
+            "gridPos": {
+                "x": 0,
+                "y": 8,
+                "w": 12,
+                "h": 8
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "pieType": "donut",
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT xep_loai_hoc_luc as xep_loai, COUNT(*) as so_luong FROM agg_student_summary WHERE xep_loai_hoc_luc IS NOT NULL GROUP BY xep_loai_hoc_luc ORDER BY so_luong DESC",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 6,
+            "title": "GPA trung bình theo Ngành",
+            "type": "barchart",
+            "gridPos": {
+                "x": 12,
+                "y": 8,
+                "w": 12,
+                "h": 8
+            },
+            "options": {
+                "orientation": "horizontal",
+                "showValue": "always",
+                "legend": {
+                    "displayMode": "hidden"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 2,
+                    "min": 0,
+                    "max": 4,
+                    "color": {
+                        "mode": "palette-classic"
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT sv.ten_nganh as nganh, ROUND(AVG(agg.gpa_he_4)::numeric, 2) as gpa_tb FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key AND sv.la_ban_hien_tai = TRUE WHERE agg.gpa_he_4 IS NOT NULL AND agg.gpa_he_4 > 0 GROUP BY sv.ten_nganh ORDER BY gpa_tb DESC",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 7,
+            "title": "Danh sách SV nguy cơ bỏ học (GPA < 2.0 + RL < 50 + Nợ HP)",
+            "type": "table",
+            "gridPos": {
+                "x": 0,
+                "y": 16,
+                "w": 24,
+                "h": 10
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "gpa_he_4",
+                        "desc": false
+                    }
+                ]
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "gpa_he_4"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 2.0
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "muc_do_rui_ro"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc, agg.gpa_he_4, agg.diem_rl_trung_binh as diem_rl, agg.tong_no_hoc_phi as no_hp, agg.muc_do_rui_ro, CASE WHEN agg.canh_bao_hoc_vu THEN 'Co' ELSE 'Khong' END as canh_bao FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key AND sv.la_ban_hien_tai = TRUE WHERE agg.muc_do_rui_ro IN ('Cao', 'Rat cao', 'Trung binh') ORDER BY CASE agg.muc_do_rui_ro WHEN 'Rat cao' THEN 1 WHEN 'Cao' THEN 2 WHEN 'Trung binh' THEN 3 END, agg.gpa_he_4 ASC LIMIT 50",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 8,
+            "title": "Tỷ lệ nợ học phí theo Khóa (%)",
+            "type": "barchart",
+            "gridPos": {
+                "x": 0,
+                "y": 26,
+                "w": 12,
+                "h": 6
+            },
+            "options": {
+                "orientation": "vertical",
+                "showValue": "always"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "decimals": 1,
+                    "min": 0,
+                    "max": 100,
+                    "color": {
+                        "mode": "palette-classic"
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT sv.khoa_hoc, ROUND(100.0 * SUM(CASE WHEN agg.co_no_hoc_phi THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as pct_no FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key AND sv.la_ban_hien_tai = TRUE GROUP BY sv.khoa_hoc ORDER BY sv.khoa_hoc",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 9,
+            "title": "Top 10 môn có tỷ lệ rớt cao nhất",
+            "type": "table",
+            "gridPos": {
+                "x": 12,
+                "y": 26,
+                "w": 12,
+                "h": 6
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "ty_le_rot",
+                        "desc": true
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT hp.ten_mon, hp.so_tin_chi, COUNT(*) as tong_luot, ROUND(100.0 * SUM(CASE WHEN f.dat_mon = FALSE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as ty_le_rot FROM fact_hoc_tap f JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key GROUP BY hp.ten_mon, hp.so_tin_chi HAVING COUNT(*) >= 20 ORDER BY ty_le_rot DESC LIMIT 10",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 14,
+            "title": "Phân bố mức độ rủi ro",
+            "type": "piechart",
+            "gridPos": {
+                "x": 0,
+                "y": 32,
+                "w": 12,
+                "h": 8
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "pieType": "donut"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COALESCE(muc_do_rui_ro, 'Thap') as muc_rui_ro, COUNT(*) as so_luong FROM agg_student_summary GROUP BY muc_do_rui_ro ORDER BY CASE muc_do_rui_ro WHEN 'Rat cao' THEN 1 WHEN 'Cao' THEN 2 WHEN 'Trung binh' THEN 3 ELSE 4 END",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        },
+        {
+            "id": 15,
+            "title": "Điểm rèn luyện trung bình theo Khóa",
+            "type": "barchart",
+            "gridPos": {
+                "x": 12,
+                "y": 32,
+                "w": 12,
+                "h": 8
+            },
+            "options": {
+                "orientation": "vertical",
+                "showValue": "always"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 1,
+                    "min": 0,
+                    "max": 100,
+                    "color": {
+                        "mode": "palette-classic"
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT sv.khoa_hoc, ROUND(AVG(agg.diem_rl_trung_binh)::numeric, 1) as diem_rl_tb FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key AND sv.la_ban_hien_tai = TRUE WHERE agg.diem_rl_trung_binh IS NOT NULL GROUP BY sv.khoa_hoc ORDER BY sv.khoa_hoc",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "afh6y8b8xe1hcc"
+            }
+        }
+    ]
+}

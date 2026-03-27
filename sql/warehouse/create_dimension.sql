@@ -130,8 +130,6 @@ CREATE TABLE dim_giang_vien (
     trang_thai_cong_tac VARCHAR(20),
     ma_khoa             VARCHAR(10),
     ten_khoa            VARCHAR(200),
-    ma_co_so            VARCHAR(10),
-    ten_co_so           VARCHAR(200),
     ngay_tao            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 COMMENT ON TABLE dim_giang_vien IS 'Instructor dimension';

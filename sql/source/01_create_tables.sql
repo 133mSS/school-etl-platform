@@ -2,28 +2,14 @@
 -- SCHOOL SOURCE DATABASE SCHEMA
 -- Operational database (OLTP)
 -- Version: 2.0
--- Hierarchy: CoSo -> Khoa -> Nganh -> Lop -> SinhVien
+-- Hierarchy:  Khoa -> Nganh -> Lop -> SinhVien
 -- =============================================
-
--- =============================================
--- 1. CO_SO (CAMPUS)
--- =============================================
-CREATE TABLE co_so (
-    ma_co_so  VARCHAR(10)  PRIMARY KEY,
-    ten_co_so VARCHAR(200) NOT NULL,
-    dia_chi   TEXT,
-    ngay_tao  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-COMMENT ON TABLE co_so IS 'Campus/Branch - Co so dao tao: Ha Noi, TP.HCM';
-
 -- =============================================
 -- 2. KHOA (FACULTY)
 -- =============================================
 CREATE TABLE khoa (
     ma_khoa  VARCHAR(10)  PRIMARY KEY,
     ten_khoa VARCHAR(200) NOT NULL,
-    ma_co_so VARCHAR(10)  REFERENCES co_so(ma_co_so),
     ngay_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -56,7 +42,6 @@ CREATE TABLE giang_vien (
     trang_thai_cong_tac VARCHAR(20)  DEFAULT 'Dang cong tac',
     ngay_tuyen_dung     DATE,
     ma_khoa             VARCHAR(10)  REFERENCES khoa(ma_khoa),
-    ma_co_so            VARCHAR(10)  REFERENCES co_so(ma_co_so),
     ngay_tao            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ngay_cap_nhat       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -222,7 +207,7 @@ CREATE INDEX idx_sv_email        ON sinh_vien(email);
 
 -- giang_vien
 CREATE INDEX idx_gv_khoa         ON giang_vien(ma_khoa);
-CREATE INDEX idx_gv_co_so        ON giang_vien(ma_co_so);
+
 
 -- hoc_phan
 CREATE INDEX idx_hp_khoa         ON hoc_phan(ma_khoa);
@@ -270,9 +255,8 @@ DO $$
 BEGIN
     RAISE NOTICE '============================================';
     RAISE NOTICE 'Schema v2.0 - DONE!';
-    RAISE NOTICE 'Hierarchy: CoSo -> Khoa -> Nganh -> Lop -> SV';
+    RAISE NOTICE 'Hierarchy:  Khoa -> Nganh -> Lop -> SV';
     RAISE NOTICE 'Tables:';
-    RAISE NOTICE '  1.  co_so';
     RAISE NOTICE '  2.  khoa';
     RAISE NOTICE '  3.  nganh         (MOI)';
     RAISE NOTICE '  4.  giang_vien';

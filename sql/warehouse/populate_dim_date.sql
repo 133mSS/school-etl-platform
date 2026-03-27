@@ -1,9 +1,5 @@
-﻿-- =============================================
+﻿
 -- POPULATE DIM_DATE (PTIT SYNCED)
--- Range: 2020-01-01 → 2029-12-31 (~3652 rows)
--- Chạy SAU create_dimensions.sql
--- User: warehouse_user | DB: school_warehouse | Port: 5435
--- =============================================
 
 INSERT INTO dim_date (
     date_key,
@@ -25,7 +21,7 @@ SELECT
     TO_CHAR(d, 'YYYYMMDD')::INT                                  AS date_key,
     d                                                            AS full_date,
     EXTRACT(ISODOW FROM d)::INT                                  AS day_of_week,
-    -- Việt hóa tên ngày trong tuần
+    
     CASE EXTRACT(ISODOW FROM d)
         WHEN 1 THEN 'Thứ Hai'
         WHEN 2 THEN 'Thứ Ba'
@@ -39,13 +35,13 @@ SELECT
     EXTRACT(DOY FROM d)::INT                                     AS day_of_year,
     EXTRACT(WEEK FROM d)::INT                                    AS week_of_year,
     EXTRACT(MONTH FROM d)::INT                                   AS month_num,
-    -- Việt hóa tên tháng
+   
     'Tháng ' || EXTRACT(MONTH FROM d)::TEXT                      AS month_name,
     EXTRACT(QUARTER FROM d)::INT                                 AS quarter,
     EXTRACT(YEAR FROM d)::INT                                    AS year,
     EXTRACT(ISODOW FROM d) IN (6, 7)                             AS is_weekend,
 
-    -- Năm học: Từ tháng 9 năm nay đến tháng 8 năm sau
+    
     CASE
         WHEN EXTRACT(MONTH FROM d) >= 9
         THEN 'Năm học ' || EXTRACT(YEAR FROM d)::TEXT 
@@ -54,10 +50,7 @@ SELECT
              || '-' || EXTRACT(YEAR FROM d)::TEXT
     END                                                          AS academic_year,
 
-    -- Học kỳ (Theo quy chuẩn PTIT):
-    --   Tháng 9 - Tháng 1: Học kỳ 1
-    --   Tháng 2 - Tháng 6: Học kỳ 2
-    --   Tháng 7 - Tháng 8: Học kỳ Hè
+    
     CASE
         WHEN EXTRACT(MONTH FROM d) >= 9 OR EXTRACT(MONTH FROM d) = 1
             THEN 'Học kỳ 1'
@@ -73,7 +66,7 @@ FROM generate_series(
 ) AS d
 ON CONFLICT (date_key) DO NOTHING;
 
--- Kiểm tra dữ liệu (Verify)
+-- Verify
 DO $$
 DECLARE
     v_count    INT;
@@ -85,7 +78,7 @@ BEGIN
     FROM dim_date;
 
     RAISE NOTICE '========================================';
-    RAISE NOTICE '✅ populate_dim_date.sql (PTIT SYNCED) DONE';
+    RAISE NOTICE '   populate_dim_date.sql (PTIT SYNCED) DONE';
     RAISE NOTICE '   Tổng số dòng : %', v_count;
     RAISE NOTICE '   Thời gian    : % → %', v_min_date, v_max_date;
     RAISE NOTICE '   Trạng thái   : Đồng nhất Tiếng Việt thành công';

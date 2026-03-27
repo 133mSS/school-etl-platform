@@ -1,380 +1,505 @@
-# src/etl/extract.py
 """
-extract.py - Extract dữ liệu từ 3 nguồn độc lập:
+src/etl/extract.py — Extraction Layer (Tuần 3)
+================================================
+Trích xuất dữ liệu từ 3 nguồn:
+  Nguồn 1: PostgreSQL (Phòng Đào tạo) — 10 bảng OLTP
+  Nguồn 2: CSV files  (Phòng CTSV)    — rèn luyện, học bổng, kỷ luật
+  Nguồn 3: JSON files (Portal tài chính) — học phí, miễn giảm
 
-  NGUỒN 1 — PostgreSQL (Phòng Đào tạo)
-    Hệ thống học vụ chính thức. ETL đọc trực tiếp qua SQLAlchemy.
-    Dữ liệu: sinh_vien, dang_ky, diem, hoc_phan, giang_vien, ...
-
-  NGUỒN 2 — CSV (Phòng Công tác Sinh viên)
-    Phòng CTSV dùng phần mềm riêng, không kết nối hệ thống học vụ.
-    Mỗi học kỳ họ export file Excel gửi cho bộ phận phân tích.
-    File: data/sources/ctsv_hoc_ky.csv
-    Nội dung: diem_rl, xep_loai_rl, hoc_bong, ky_luat theo từng HK
-
-  NGUỒN 3 — REST API (Portal Tài chính — vendor bên ngoài)
-    Portal do công ty phần mềm cung cấp, trường không có quyền
-    truy cập DB của họ — chỉ gọi được API được cấp phép.
-    Endpoint: GET /api/tai-chinh/hoc-phi
-    Nội dung: tinh trang hoc phi, no hoc phi, mien giam theo từng HK
-
-Bài toán chỉ giải được khi join đủ 3 nguồn:
-  - Phát hiện SV nguy cơ bỏ học (GPA thấp + DRL yếu + nợ HP)
-  - Xét học bổng tự động (GPA + DRL + không kỷ luật + không nợ HP)
-  - Tác động nợ học phí đến kết quả thi cuối kỳ
+Checkpoint: Tất cả extractions chạy thành công, trả về DataFrames hợp lệ.
 """
 
-import io
-import time
+import os
+import glob
+import json as json_lib
+from typing import Dict, List, Optional
+from dataclasses import dataclass, field
+
 import pandas as pd
-import requests
-from datetime import datetime
-from minio import Minio
 
 from src.config.settings import (
-    SOURCE_DB_URL,
-    MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY,
-    MINIO_BUCKET_RAW
+    CSV_DATA_DIR,
+    API_BASE_URL,
+    API_JSON_DIR,
+    API_TIMEOUT,
+    API_MAX_RETRIES,
 )
+from src.config.database import source_engine
 from src.utils.logger import get_logger
+from src.utils.minio_client import MinIOClient
 
-logger = get_logger(__name__)
-
-PORTAL_API_BASE = "http://localhost:5050"
-
-
-# ══════════════════════════════════════════════════
-# PHẦN 1 — POSTGRESQL EXTRACTOR (Phòng Đào tạo)
-# ══════════════════════════════════════════════════
-
-def extract_table(table_name: str, last_updated: str = None) -> pd.DataFrame:
-    """
-    Đọc một bảng từ Source DB ra DataFrame.
-
-    Tham số:
-        table_name   : tên bảng, ví dụ 'sinh_vien'
-        last_updated : nếu có → incremental load (chỉ lấy bản ghi mới hơn)
-                       nếu None → full load toàn bộ bảng
-    """
-    if last_updated:
-        query = f"SELECT * FROM {table_name} WHERE ngay_tao > '{last_updated}'"
-        logger.info(f"Incremental extract: {table_name} (sau {last_updated})")
-    else:
-        query = f"SELECT * FROM {table_name}"
-        logger.info(f"Full extract: {table_name}")
-
-    try:
-        df = pd.read_sql(query, SOURCE_DB_URL)
-        logger.info(f"  → {len(df):,} rows extracted từ {table_name}")
-        return df
-    except Exception as e:
-        logger.error(f"  → Lỗi extract {table_name}: {e}")
-        raise
+logger = get_logger("etl.extract")
 
 
-def extract_all_tables() -> dict:
-    """
-    Extract toàn bộ bảng cần thiết từ PostgreSQL source.
-    Trả về dict: { 'sinh_vien': DataFrame, ... }
-    """
-    logger.info("=" * 55)
-    logger.info("NGUON 1 - PostgreSQL (Phong Dao tao)")
-    logger.info("=" * 55)
+# ─────────────────────────────────────────────
+# Data container
+# ─────────────────────────────────────────────
+@dataclass
+class ExtractedData:
+    """Container giữ toàn bộ dữ liệu extracted từ 3 nguồn."""
 
-    tables = [
-        "co_so", "khoa", "nganh", "giang_vien",
-        "lop_hanh_chinh", "sinh_vien", "hoc_phan",
-        "hoc_ky_nam_hoc", "dang_ky_hoc_phan",
-        "diem_hoc_phan", "tong_hop_ket_qua"
+    # Nguồn 1: PostgreSQL
+    khoa: pd.DataFrame = field(default_factory=pd.DataFrame)
+    nganh: pd.DataFrame = field(default_factory=pd.DataFrame)
+    giang_vien: pd.DataFrame = field(default_factory=pd.DataFrame)
+    lop_hanh_chinh: pd.DataFrame = field(default_factory=pd.DataFrame)
+    sinh_vien: pd.DataFrame = field(default_factory=pd.DataFrame)
+    hoc_phan: pd.DataFrame = field(default_factory=pd.DataFrame)
+    hoc_ky_nam_hoc: pd.DataFrame = field(default_factory=pd.DataFrame)
+    dang_ky_hoc_phan: pd.DataFrame = field(default_factory=pd.DataFrame)
+    diem_hoc_phan: pd.DataFrame = field(default_factory=pd.DataFrame)
+    tong_hop_ket_qua: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    # Nguồn 2: CSV
+    ctsv_data: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    # Nguồn 3: JSON/API
+    tai_chinh_data: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    # Metadata
+    extract_timestamp: str = ""
+
+    def summary(self) -> Dict[str, int]:
+        """Trả về số bản ghi mỗi bảng."""
+        counts = {}
+        for attr_name in [
+            "khoa", "nganh", "giang_vien", "lop_hanh_chinh",
+            "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc",
+            "dang_ky_hoc_phan", "diem_hoc_phan", "tong_hop_ket_qua",
+            "ctsv_data", "tai_chinh_data",
+        ]:
+            df = getattr(self, attr_name)
+            counts[attr_name] = len(df) if isinstance(df, pd.DataFrame) else 0
+        return counts
+
+
+# ═════════════════════════════════════════════
+# NGUỒN 1: PostgreSQL Extractor
+# ═════════════════════════════════════════════
+class PostgreSQLExtractor:
+    """Trích xuất từ Source DB (Phòng Đào tạo)."""
+
+    SOURCE_TABLES = [
+        "khoa", "nganh", "giang_vien", "lop_hanh_chinh",
+        "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc",
+        "dang_ky_hoc_phan", "diem_hoc_phan", "tong_hop_ket_qua",
     ]
-    data = {}
-    for table in tables:
-        data[table] = extract_table(table)
 
-    logger.info(f"  -> PostgreSQL xong: {len(tables)} bang")
-    return data
+    def __init__(self):
+        self.engine = source_engine
 
+    def _read_table(self, table_name: str, query: str = None) -> pd.DataFrame:
+        """Đọc 1 bảng từ PostgreSQL."""
+        try:
+            if query:
+                df = pd.read_sql(query, self.engine)
+            else:
+                df = pd.read_sql_table(table_name, self.engine)
+            logger.info(f"  PostgreSQL | {table_name:<25s} → {len(df):>6,} records")
+            return df
+        except Exception as e:
+            logger.error(f"  PostgreSQL | Lỗi đọc '{table_name}': {e}")
+            return pd.DataFrame()
 
-# ══════════════════════════════════════════════════
-# PHẦN 2 — CSV EXTRACTOR (Phòng Công tác Sinh viên)
-# ══════════════════════════════════════════════════
+    # ── Roadmap functions ──
 
-def extract_csv_ctsv(file_path: str = "data/sources/ctsv_hoc_ky.csv") -> pd.DataFrame:
-    """
-    Đọc file CSV từ Phòng Công tác Sinh viên.
+    def extract_students_from_postgres(self) -> pd.DataFrame:
+        """Trích xuất bảng sinh_vien."""
+        return self._read_table("sinh_vien")
 
-    Format CSV (KHÁC PostgreSQL — Phòng CTSV tự quản lý):
-        ma_sinh_vien  : join với dim_sinh_vien
-        hoc_ky        : join với dim_hoc_ky (format: HK1-2021-22)
-        diem_rl       : điểm rèn luyện 0-100
-        xep_loai_rl   : Xuat sac / Tot / Kha / Trung binh / Yeu / Kem
-        loai_hoc_bong : tên HB nếu có, rỗng nếu không
-        muc_tien_hb   : số tiền HB (0 nếu không có)
-        hinh_thuc_kl  : hình thức KL nếu có, rỗng nếu không
-        ly_do_kl      : lý do KL nếu có
+    def extract_grades_from_postgres(self) -> pd.DataFrame:
+        """Trích xuất bảng diem_hoc_phan."""
+        return self._read_table("diem_hoc_phan")
 
-    Lý do là nguồn riêng:
-        Phòng CTSV dùng phần mềm quản lý kỷ luật/khen thưởng riêng,
-        không kết nối với hệ thống học vụ Phòng Đào tạo.
-    """
-    logger.info("=" * 55)
-    logger.info("NGUON 2 - CSV (Phong Cong tac Sinh vien)")
-    logger.info(f"  File: {file_path}")
-    logger.info("=" * 55)
+    def extract_enrollments_from_postgres(self) -> pd.DataFrame:
+        """Trích xuất bảng dang_ky_hoc_phan."""
+        return self._read_table("dang_ky_hoc_phan")
 
-    try:
-        df = pd.read_csv(file_path, encoding="utf-8")
-        logger.info(f"  -> Doc duoc: {len(df):,} rows, {len(df.columns)} columns")
+    def extract_all(self) -> Dict[str, pd.DataFrame]:
+        """Full extract — tất cả 10 bảng."""
+        logger.info("═" * 60)
+        logger.info("NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract")
+        logger.info("═" * 60)
 
-        # Validate cột bắt buộc
-        required_cols = ["ma_sinh_vien", "hoc_ky", "diem_rl", "xep_loai_rl"]
-        missing = [c for c in required_cols if c not in df.columns]
-        if missing:
-            raise ValueError(f"CSV thieu cot bat buoc: {missing}")
+        result = {}
+        for table in self.SOURCE_TABLES:
+            result[table] = self._read_table(table)
 
-        # Thống kê nhanh
-        co_hb = (df["loai_hoc_bong"].fillna("") != "").sum()
-        co_kl = (df["hinh_thuc_kl"].fillna("") != "").sum()
-        logger.info(f"  -> Co hoc bong : {co_hb:,} records")
-        logger.info(f"  -> Co ky luat  : {co_kl:,} records")
+        total = sum(len(df) for df in result.values())
+        logger.info(f"  PostgreSQL | TỔNG: {total:,} records từ {len(self.SOURCE_TABLES)} bảng")
+        return result
 
-        return df
+    def extract_by_semester(self, ma_hoc_ky: str) -> Dict[str, pd.DataFrame]:
+        """Incremental extract — lọc theo học kỳ."""
+        logger.info(f"  PostgreSQL | Incremental cho HK: {ma_hoc_ky}")
 
-    except FileNotFoundError:
-        logger.error(f"  -> Khong tim thay file: {file_path}")
-        logger.error("     Chay: python scripts/generate_csv_api_sources.py")
-        raise
-    except Exception as e:
-        logger.error(f"  -> Loi doc CSV: {e}")
-        raise
+        result = {}
+        # Dimensions: lấy hết
+        for table in ["khoa", "nganh", "giang_vien", "lop_hanh_chinh",
+                       "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc"]:
+            result[table] = self._read_table(table)
 
-
-# ══════════════════════════════════════════════════
-# PHẦN 3 — REST API EXTRACTOR (Portal Tài chính)
-# ══════════════════════════════════════════════════
-
-def _check_api_health(base_url: str, timeout: int = 5) -> bool:
-    """Kiểm tra API server còn sống. Trả về True nếu OK."""
-    try:
-        resp = requests.get(f"{base_url}/api/health", timeout=timeout)
-        if resp.status_code == 200:
-            data = resp.json()
-            logger.info(f"  -> API health: OK | records={data.get('records', '?')}")
-            return True
-        return False
-    except requests.exceptions.ConnectionError:
-        logger.error(f"  -> Khong ket noi duoc API: {base_url}")
-        logger.error("     Chay: python scripts/mock_api_server.py")
-        return False
-    except Exception as e:
-        logger.error(f"  -> API health check loi: {e}")
-        return False
-
-
-def _fetch_page(base_url: str, page: int, limit: int,
-                hoc_ky: str = None, timeout: int = 30) -> dict:
-    """Gọi 1 trang dữ liệu từ API /tai-chinh/hoc-phi."""
-    params = {"page": page, "limit": limit}
-    if hoc_ky:
-        params["hoc_ky"] = hoc_ky
-
-    resp = requests.get(
-        f"{base_url}/api/tai-chinh/hoc-phi",
-        params=params,
-        timeout=timeout
-    )
-    resp.raise_for_status()
-    return resp.json()
-
-
-def extract_api_tai_chinh(
-    base_url: str = PORTAL_API_BASE,
-    hoc_ky: str = None,
-    page_size: int = 500,
-    max_retries: int = 3
-) -> pd.DataFrame:
-    """
-    Extract toàn bộ dữ liệu tài chính từ Portal API.
-
-    Xử lý tự động:
-        - Health check trước khi extract
-        - Pagination (500 records/trang)
-        - Retry khi lỗi mạng (tối đa 3 lần, backoff 2s)
-        - Gom tất cả trang thành 1 DataFrame
-
-    Tham số:
-        base_url   : URL API (mặc định localhost:5050)
-        hoc_ky     : lọc theo HK cụ thể, None = lấy tất cả
-        page_size  : số records/trang
-        max_retries: số lần retry khi lỗi
-
-    Lý do là nguồn riêng:
-        Portal do vendor bên ngoài, trường không có quyền truy cập DB —
-        chỉ gọi được REST API được cấp phép.
-
-    Trả về DataFrame với cột:
-        ma_sinh_vien, hoc_ky,
-        hoc_phi_phai_dong, da_dong, con_no,
-        duoc_mien_giam, ly_do_mien_giam, so_tien_mien_giam,
-        ngay_dong_cuoi
-    """
-    logger.info("=" * 55)
-    logger.info("NGUON 3 - REST API (Portal Tai chinh - vendor)")
-    logger.info(f"  URL : {base_url}")
-    logger.info(f"  Filter HK: {hoc_ky or 'Tat ca'}")
-    logger.info("=" * 55)
-
-    # Bước 1: Health check
-    if not _check_api_health(base_url):
-        raise ConnectionError(
-            f"API khong kha dung: {base_url}\n"
-            "Chay: python scripts/mock_api_server.py"
+        # Facts: lọc theo HK
+        result["dang_ky_hoc_phan"] = self._read_table(
+            "dang_ky_hoc_phan",
+            f"SELECT * FROM dang_ky_hoc_phan WHERE ma_hoc_ky = '{ma_hoc_ky}'"
         )
+        result["diem_hoc_phan"] = self._read_table(
+            "diem_hoc_phan",
+            f"""SELECT d.* FROM diem_hoc_phan d
+                JOIN dang_ky_hoc_phan dk ON d.ma_dang_ky = dk.ma_dang_ky
+                WHERE dk.ma_hoc_ky = '{ma_hoc_ky}'"""
+        )
+        result["tong_hop_ket_qua"] = self._read_table("tong_hop_ket_qua")
+        return result
 
-    all_records = []
-    page = 1
 
-    # Bước 2: Pagination loop
-    while True:
-        for attempt in range(1, max_retries + 1):
-            try:
-                payload = _fetch_page(base_url, page, page_size, hoc_ky)
-                break
-            except requests.exceptions.Timeout:
-                logger.warning(f"  -> Timeout trang {page}, thu lai {attempt}/{max_retries}")
-                time.sleep(2 * attempt)
-            except requests.exceptions.ConnectionError:
-                logger.warning(f"  -> Mat ket noi trang {page}, thu lai {attempt}/{max_retries}")
-                time.sleep(2 * attempt)
-            except Exception as e:
-                if attempt == max_retries:
-                    logger.error(f"  -> Loi trang {page} sau {max_retries} lan: {e}")
-                    raise
-                time.sleep(2)
+# ═════════════════════════════════════════════
+# NGUỒN 2: CSV Extractor
+# ═════════════════════════════════════════════
+class CSVExtractor:
+    """Trích xuất từ CSV files (Phòng CTSV)."""
 
-        records  = payload.get("data", [])
-        all_records.extend(records)
+    EXPECTED_COLUMNS = [
+        "ma_sinh_vien", "hoc_ky", "diem_ren_luyen", "xep_loai_rl",
+        "loai_hoc_bong", "muc_tien_hb", "hinh_thuc_ky_luat", "ly_do_ky_luat",
+    ]
 
-        pagination = payload.get("pagination", {})
-        total      = pagination.get("total", 0)
-        has_next   = pagination.get("has_next", False)
+    def __init__(self, csv_dir: str = None):
+        self.csv_dir = csv_dir or CSV_DATA_DIR
 
-        logger.info(f"  -> Trang {page}: {len(records)} records | Tong: {len(all_records)}/{total}")
+    def extract_courses_from_csv(self, filepath: str) -> pd.DataFrame:
+        """Đọc 1 file CSV (roadmap function name)."""
+        return self._read_single_file(filepath)
 
-        if not has_next:
-            break
-        page += 1
+    def _read_single_file(self, file_path: str) -> pd.DataFrame:
+        """Đọc 1 file CSV với validation."""
+        try:
+            df = pd.read_csv(
+                file_path, encoding="utf-8",
+                dtype={"ma_sinh_vien": str, "hoc_ky": str},
+                na_values=["", "NULL", "null", "N/A"],
+            )
+            df.columns = df.columns.str.strip().str.lower()
 
-    if not all_records:
-        logger.warning("  -> API tra ve 0 records")
+            # Validate columns
+            missing = set(self.EXPECTED_COLUMNS) - set(df.columns)
+            if missing:
+                logger.warning(f"  CSV | '{file_path}' thiếu cột: {missing}")
+
+            logger.info(f"  CSV | {os.path.basename(file_path):<35s} → {len(df):>6,} records")
+            return df
+        except FileNotFoundError:
+            logger.error(f"  CSV | Không tìm thấy: {file_path}")
+            return pd.DataFrame()
+        except Exception as e:
+            logger.error(f"  CSV | Lỗi đọc '{file_path}': {e}")
+            return pd.DataFrame()
+
+    def extract_by_semester(self, ma_hoc_ky: str) -> pd.DataFrame:
+        """Đọc CSV theo học kỳ — thử cả 2 naming convention."""
+        candidates = [
+            f"ctsv_{ma_hoc_ky}.csv",
+            f"ctsv_{ma_hoc_ky.replace('-', '_')}.csv",
+        ]
+        for fname in candidates:
+            fpath = os.path.join(self.csv_dir, fname)
+            if os.path.exists(fpath):
+                return self._read_single_file(fpath)
+
+        logger.warning(f"  CSV | Không tìm thấy file cho HK: {ma_hoc_ky}")
         return pd.DataFrame()
 
-    df = pd.DataFrame(all_records)
+    def extract_all(self) -> pd.DataFrame:
+        """Đọc tất cả CSV files."""
+        logger.info("═" * 60)
+        logger.info("NGUỒN 2 — CSV (Phòng CTSV) | Extract")
+        logger.info("═" * 60)
 
-    con_no    = (df["con_no"] > 0).sum() if "con_no" in df.columns else 0
-    mien_giam = df["duoc_mien_giam"].sum() if "duoc_mien_giam" in df.columns else 0
-    logger.info(f"  -> Extract xong: {len(df):,} records")
-    logger.info(f"  -> Con no HP    : {con_no:,}")
-    logger.info(f"  -> Duoc mien giam: {mien_giam:,}")
+        csv_files = sorted(glob.glob(os.path.join(self.csv_dir, "ctsv_*.csv")))
+        # Bỏ file "all" nếu có
+        csv_files = [f for f in csv_files if "all" not in os.path.basename(f).lower()]
 
-    return df
+        if not csv_files:
+            logger.warning(f"  CSV | Không tìm thấy file trong: {self.csv_dir}")
+            return pd.DataFrame()
+
+        logger.info(f"  CSV | Tìm thấy {len(csv_files)} file(s)")
+
+        all_dfs = []
+        for fp in csv_files:
+            df = self._read_single_file(fp)
+            if not df.empty:
+                all_dfs.append(df)
+
+        if not all_dfs:
+            return pd.DataFrame()
+
+        combined = pd.concat(all_dfs, ignore_index=True)
+
+        # Loại bỏ duplicate
+        before = len(combined)
+        combined = combined.drop_duplicates(subset=["ma_sinh_vien", "hoc_ky"], keep="last")
+        dupes = before - len(combined)
+        if dupes > 0:
+            logger.info(f"  CSV | Loại bỏ {dupes} bản ghi trùng")
+
+        logger.info(f"  CSV | TỔNG: {len(combined):,} records từ {len(all_dfs)} file(s)")
+        return combined
 
 
-def extract_all_sources(
-    csv_path: str = "data/sources/ctsv_hoc_ky.csv",
-    api_base: str = PORTAL_API_BASE,
-) -> dict:
+# ═════════════════════════════════════════════
+# NGUỒN 3: API/JSON Extractor
+# ═════════════════════════════════════════════
+class APIExtractor:
     """
-    Extract toàn bộ 3 nguồn trong 1 lần gọi.
-    Dùng trong Airflow DAG task đầu tiên.
-
-    Trả về:
-        {
-            "postgresql"    : { "sinh_vien": df, ... },  # 11 bảng
-            "csv_ctsv"      : DataFrame,                 # Phòng CTSV
-            "api_tai_chinh" : DataFrame,                 # Portal vendor
-        }
-
-    Lưu ý: nguồn 2 và 3 thất bại sẽ trả về DataFrame rỗng,
-    KHÔNG làm hỏng toàn bộ pipeline (graceful degradation).
+    Trích xuất từ REST API hoặc JSON files (Portal tài chính).
+    Thử gọi HTTP trước → nếu fail → đọc JSON file fallback.
     """
-    logger.info("╔══════════════════════════════════════════╗")
-    logger.info("║  BAT DAU EXTRACT TU 3 NGUON              ║")
-    logger.info("╚══════════════════════════════════════════╝")
 
-    result = {}
+    def __init__(self, base_url: str = None, json_dir: str = None):
+        self.base_url = (base_url or API_BASE_URL).rstrip("/")
+        self.json_dir = json_dir or API_JSON_DIR
 
-    # Nguồn 1: PostgreSQL — bắt buộc phải thành công
-    result["postgresql"] = extract_all_tables()
+    def extract_enrollments_from_api(self, ma_hoc_ky: str) -> pd.DataFrame:
+        """Roadmap function name — lấy tài chính theo HK."""
+        return self.extract_by_semester(ma_hoc_ky)
 
-    # Nguồn 2: CSV CTSV — không ảnh hưởng pipeline nếu lỗi
-    try:
-        result["csv_ctsv"] = extract_csv_ctsv(csv_path)
-    except Exception as e:
-        logger.error(f"Nguon 2 (CSV CTSV) that bai: {e}")
-        result["csv_ctsv"] = pd.DataFrame()
+    def extract_by_semester(self, ma_hoc_ky: str) -> pd.DataFrame:
+        """Lấy dữ liệu tài chính cho 1 HK."""
 
-    # Nguồn 3: API Portal — không ảnh hưởng pipeline nếu lỗi
-    try:
-        result["api_tai_chinh"] = extract_api_tai_chinh(api_base)
-    except Exception as e:
-        logger.error(f"Nguon 3 (API Tai chinh) that bai: {e}")
-        result["api_tai_chinh"] = pd.DataFrame()
+        # Thử HTTP API trước
+        df = self._try_http_api(ma_hoc_ky)
+        if not df.empty:
+            return df
 
-    logger.info("╔══════════════════════════════════════════╗")
-    logger.info("║  EXTRACT HOAN THANH                      ║")
-    logger.info(f"║  PostgreSQL   : {len(result['postgresql'])} bang")
-    logger.info(f"║  CSV CTSV     : {len(result['csv_ctsv']):,} rows")
-    logger.info(f"║  API Portal   : {len(result['api_tai_chinh']):,} rows")
-    logger.info("╚══════════════════════════════════════════╝")
+        # Fallback: đọc JSON file
+        df = self._try_json_file(ma_hoc_ky)
+        if not df.empty:
+            return df
 
-    return result
+        logger.warning(f"  API | Không có dữ liệu cho HK: {ma_hoc_ky}")
+        return pd.DataFrame()
+
+    def _try_http_api(self, ma_hoc_ky: str) -> pd.DataFrame:
+        """Thử gọi REST API."""
+        try:
+            import requests
+            url = f"{self.base_url}/api/tai-chinh/sinh-vien"
+            resp = requests.get(url, params={"hoc_ky": ma_hoc_ky}, timeout=API_TIMEOUT)
+            resp.raise_for_status()
+            data = resp.json()
+            records = data["data"] if isinstance(data, dict) and "data" in data else data
+            df = pd.DataFrame(records)
+            logger.info(f"  API | (HTTP) HK {ma_hoc_ky} → {len(df):>6,} records")
+            return df
+        except Exception:
+            return pd.DataFrame()
+
+    def _try_json_file(self, ma_hoc_ky: str) -> pd.DataFrame:
+        """Đọc JSON file (fallback khi API không khả dụng)."""
+        candidates = [
+            f"taichinh_{ma_hoc_ky.replace('-', '_')}.json",
+            f"taichinh_{ma_hoc_ky}.json",
+        ]
+        for fname in candidates:
+            fpath = os.path.join(self.json_dir, fname)
+            if os.path.exists(fpath):
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        records = json_lib.load(f)
+                    df = pd.DataFrame(records)
+                    logger.info(f"  API | (JSON) {fname} → {len(df):>6,} records")
+                    return df
+                except Exception as e:
+                    logger.error(f"  API | Lỗi đọc JSON: {e}")
+        return pd.DataFrame()
+
+    def extract_all_semesters(self, semester_list: List[str]) -> pd.DataFrame:
+        """Lấy tài chính cho nhiều HK."""
+        all_dfs = []
+        for hk in semester_list:
+            df = self.extract_by_semester(hk)
+            if not df.empty:
+                all_dfs.append(df)
+
+        if not all_dfs:
+            # Thử file tổng hợp
+            all_file = os.path.join(self.json_dir, "taichinh_all.json")
+            if os.path.exists(all_file):
+                with open(all_file, "r", encoding="utf-8") as f:
+                    records = json_lib.load(f)
+                combined = pd.DataFrame(records)
+                logger.info(f"  API | (taichinh_all.json) → {len(combined):>6,} records")
+                return combined
+            return pd.DataFrame()
+
+        combined = pd.concat(all_dfs, ignore_index=True)
+        logger.info(f"  API | TỔNG: {len(combined):,} records từ {len(all_dfs)} HK")
+        return combined
 
 
-# ══════════════════════════════════════════════════
-# PHẦN 4 — MINIO STAGING
-# ══════════════════════════════════════════════════
+# ═════════════════════════════════════════════
+# FACADE — DataExtractor (gọi từ DAG/script)
+# ═════════════════════════════════════════════
+class DataExtractor:
+    """Facade gộp 3 extractor."""
 
-def get_minio_client() -> Minio:
-    """Tạo MinIO client dùng chung."""
-    return Minio(
-        MINIO_ENDPOINT,
-        access_key=MINIO_ACCESS_KEY,
-        secret_key=MINIO_SECRET_KEY,
-        secure=False
-    )
+    def __init__(self):
+        self.pg  = PostgreSQLExtractor()
+        self.csv = CSVExtractor()
+        self.api = APIExtractor()
+        self._last_run_id: str = ""   # lưu run_id của lần staging gần nhất
 
+    def extract_full(self, semester_list: List[str] = None) -> ExtractedData:
+        """Full extract từ 3 nguồn → lưu staging vào MinIO → trả ExtractedData."""
+        logger.info("🚀 BẮT ĐẦU FULL EXTRACT")
+        logger.info("=" * 70)
 
-def upload_to_staging(df: pd.DataFrame, table_name: str) -> str:
-    """
-    Lưu DataFrame thành Parquet rồi upload lên MinIO staging.
+        result = ExtractedData()
+        result.extract_timestamp = pd.Timestamp.now().isoformat()
 
-    Path: raw/{table_name}/{YYYY-MM-DD}/data.parquet
-    Ví dụ:
-        raw/sinh_vien/2026-03-12/data.parquet
-        raw/csv_ctsv/2026-03-12/data.parquet
-        raw/api_tai_chinh/2026-03-12/data.parquet
-    """
-    client = get_minio_client()
+        # Nguồn 1
+        pg_data = self.pg.extract_all()
+        for table_name, df in pg_data.items():
+            setattr(result, table_name, df)
 
-    if not client.bucket_exists(MINIO_BUCKET_RAW):
-        client.make_bucket(MINIO_BUCKET_RAW)
-        logger.info(f"Da tao bucket: {MINIO_BUCKET_RAW}")
+        # Nguồn 2
+        result.ctsv_data = self.csv.extract_all()
 
-    today       = datetime.now().strftime("%Y-%m-%d")
-    object_path = f"raw/{table_name}/{today}/data.parquet"
+        # Nguồn 3
+        if semester_list is None and not result.hoc_ky_nam_hoc.empty:
+            semester_list = result.hoc_ky_nam_hoc["ma_hoc_ky"].tolist()
+        if semester_list:
+            result.tai_chinh_data = self.api.extract_all_semesters(semester_list)
 
-    buffer = io.BytesIO()
-    df.to_parquet(buffer, index=False)
-    buffer.seek(0)
-    size = buffer.getbuffer().nbytes
+        # ── Lưu staging vào MinIO ──────────────────────────────────────
+        # Gọi sau khi đã có đủ data từ 3 nguồn
+        # Nếu MinIO lỗi → chỉ log warning, KHÔNG crash pipeline
+        self._save_to_staging(result)
+        # ──────────────────────────────────────────────────────────────
 
-    client.put_object(
-        bucket_name  = MINIO_BUCKET_RAW,
-        object_name  = object_path,
-        data         = buffer,
-        length       = size,
-        content_type = "application/octet-stream"
-    )
-    logger.info(f"  -> MinIO: {MINIO_BUCKET_RAW}/{object_path} ({size:,} bytes)")
-    return object_path
+        # Summary
+        logger.info("=" * 70)
+        logger.info("✅ FULL EXTRACT HOÀN TẤT")
+        for name, count in result.summary().items():
+            logger.info(f"   {name:<25s}: {count:>8,}")
+        logger.info("=" * 70)
+
+        return result
+
+    def extract_incremental(self, ma_hoc_ky: str) -> ExtractedData:
+        """Incremental extract cho 1 HK → lưu staging vào MinIO → trả ExtractedData."""
+        logger.info(f"🔄 INCREMENTAL EXTRACT — {ma_hoc_ky}")
+
+        result = ExtractedData()
+        result.extract_timestamp = pd.Timestamp.now().isoformat()
+
+        pg_data = self.pg.extract_by_semester(ma_hoc_ky)
+        for table_name, df in pg_data.items():
+            setattr(result, table_name, df)
+
+        result.ctsv_data      = self.csv.extract_by_semester(ma_hoc_ky)
+        result.tai_chinh_data = self.api.extract_by_semester(ma_hoc_ky)
+
+        # ── Lưu staging vào MinIO ──────────────────────────────────────
+        self._save_to_staging(result)
+        # ──────────────────────────────────────────────────────────────
+
+        logger.info(f"✅ INCREMENTAL EXTRACT HOÀN TẤT — {ma_hoc_ky}")
+        return result
+
+    # ══════════════════════════════════════════════════
+    # MINIO STAGING
+    # ══════════════════════════════════════════════════
+
+    def _save_to_staging(self, data: ExtractedData) -> None:
+        """
+        Lưu toàn bộ raw data vào MinIO bucket 'raw-data' sau Extract.
+
+        Mỗi lần chạy tạo 1 folder theo timestamp:
+          raw-data/
+            2024-01-15_02-00/
+              nguon1_sinh_vien.parquet
+              nguon1_dang_ky.parquet
+              ...
+              nguon2_ctsv.parquet
+              nguon3_tai_chinh.parquet
+
+        Không raise exception — MinIO lỗi chỉ log warning,
+        pipeline vẫn tiếp tục bình thường vì data đang có trong RAM.
+        """
+        try:
+            client = MinIOClient()
+            run_id = MinIOClient.make_run_id()   # VD: "2024-01-15_02-00"
+
+            results = client.upload_all_extracted(data, run_id)
+
+            # Lưu run_id để DAG hoặc hàm khác có thể đọc sau
+            self._last_run_id = run_id
+
+            success = sum(results.values())
+            total   = len(results)
+            logger.info(
+                f"  MinIO staging: {success}/{total} files OK"
+                f" → run_id={run_id}"
+            )
+
+        except Exception as e:
+            # Staging thất bại KHÔNG phải lỗi nghiêm trọng
+            # Data vẫn đang có trong RAM (ExtractedData) để tiếp tục
+            logger.warning(f"  MinIO staging thất bại (pipeline vẫn tiếp tục): {e}")
+
+    def load_from_staging(self, run_id: str = None) -> ExtractedData:
+        """
+        Đọc ExtractedData từ MinIO thay vì query lại DB.
+
+        Dùng trong 2 trường hợp:
+          1. Pipeline crash ở Transform/Load:
+               extractor = DataExtractor()
+               data = extractor.load_from_staging()   # lấy lần mới nhất
+               # rồi chạy tiếp từ Transform...
+
+          2. Debug với data của ngày cụ thể:
+               data = extractor.load_from_staging(run_id='2024-01-14_02-00')
+
+        Args:
+            run_id: timestamp folder. None = tự lấy lần mới nhất.
+
+        Returns:
+            ExtractedData đọc từ MinIO.
+
+        Raises:
+            FileNotFoundError: nếu không tìm thấy staging data nào.
+        """
+        client = MinIOClient()
+
+        # Tự lấy run_id mới nhất nếu không chỉ định
+        if run_id is None:
+            run_id = client.get_latest_run_id(bucket="raw")
+            if run_id is None:
+                raise FileNotFoundError(
+                    "Không tìm thấy staging data trong MinIO. "
+                    "Hãy chạy extract_full() ít nhất 1 lần trước."
+                )
+
+        logger.info(f"  Load from MinIO staging: run_id={run_id}")
+
+        # Đọc từng file Parquet, ghép lại thành ExtractedData
+        data = ExtractedData(
+            khoa             = client.download_df("nguon1_khoa.parquet",             run_id),
+            nganh            = client.download_df("nguon1_nganh.parquet",            run_id),
+            giang_vien       = client.download_df("nguon1_giang_vien.parquet",       run_id),
+            lop_hanh_chinh   = client.download_df("nguon1_lop_hanh_chinh.parquet",   run_id),
+            sinh_vien        = client.download_df("nguon1_sinh_vien.parquet",        run_id),
+            hoc_phan         = client.download_df("nguon1_hoc_phan.parquet",         run_id),
+            hoc_ky_nam_hoc   = client.download_df("nguon1_hoc_ky.parquet",           run_id),
+            dang_ky_hoc_phan = client.download_df("nguon1_dang_ky.parquet",          run_id),
+            diem_hoc_phan    = client.download_df("nguon1_diem.parquet",             run_id),
+            tong_hop_ket_qua = client.download_df("nguon1_tong_hop_ket_qua.parquet", run_id),
+            ctsv_data        = client.download_df("nguon2_ctsv.parquet",             run_id),
+            tai_chinh_data   = client.download_df("nguon3_tai_chinh.parquet",        run_id),
+        )
+
+        logger.info(f"✅ Load from staging OK — run_id={run_id}")
+        return data

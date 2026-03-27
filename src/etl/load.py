@@ -1,761 +1,838 @@
-# src/etl/load.py
 """
-load.py - Load dữ liệu đã transform vào Data Warehouse.
+=============================================
+TẦNG LOAD — Nạp dữ liệu vào Data Warehouse
+=============================================
+Đồng bộ với warehouse_models.py v2.0:
+  - Tạo bảng bằng WarehouseBase.metadata.create_all()
+  - Dimension: Upsert + SCD Type 2 (DimSinhVien)
+  - Fact: Lookup surrogate key → Insert
+  - Agg: Tổng hợp cuối cùng
+"""
 
-Thứ tự load BẮT BUỘC (theo FK dependency):
-  1. dim_hoc_ky          → fact cần hoc_ky_key
-  2. dim_giang_vien      → fact cần giang_vien_key
-  3. dim_hoc_phan        → fact cần hoc_phan_key
-  4. dim_sinh_vien       → fact cần sinh_vien_key
-  5. fact_hoc_tap        → Nguồn 1 PostgreSQL
-  6. fact_ctsv           → Nguồn 2 CSV CTSV
-  7. fact_tai_chinh      → Nguồn 3 API Portal
-  8. agg_student_summary → tổng hợp 3 nguồn (load cuối)
-"""
+from typing import Dict, List, Optional, Tuple
+from datetime import date
 
 import pandas as pd
-from datetime import datetime, date
-from sqlalchemy import create_engine, text
-from src.config.settings import WAREHOUSE_DB_URL
+import numpy as np
+from sqlalchemy import text
+
+from src.config.database import warehouse_engine, WarehouseSession
+from src.config.settings import ETL_BATCH_SIZE
+from src.models.warehouse_models import (
+    WarehouseBase,
+    DimDate, DimSinhVien, DimHocPhan, DimGiangVien, DimHocKy,
+    FactHocTap, FactDangKy, FactCtsv, FactTaiChinh,
+    AggStudentSummary,
+)
+from src.etl.transform import TransformedData
 from src.utils.logger import get_logger
 
-logger    = get_logger(__name__)
-wh_engine = create_engine(WAREHOUSE_DB_URL, pool_pre_ping=True)
+logger = get_logger("etl.load")
 
 
-# ══════════════════════════════════════════════════════════════════
-# TIỆN ÍCH DÙNG CHUNG
-# ══════════════════════════════════════════════════════════════════
-
-def _count_table(table: str) -> int:
-    """Đếm số bản ghi trong bảng warehouse."""
-    with wh_engine.connect() as conn:
-        return conn.execute(text(f"SELECT COUNT(*) FROM {table}")).scalar()
-
-
-def _lookup_key(conn, table: str, key_col: str,
-                natural_col: str, natural_val: str):
+class DataLoader:
     """
-    Tìm surrogate key trong dimension.
-    Ví dụ: _lookup_key(conn, 'dim_sinh_vien', 'sinh_vien_key',
-                       'ma_sinh_vien', 'B21DCAT001')
-    Trả về: int key hoặc None nếu không tìm thấy
+    Nạp TransformedData vào Data Warehouse.
+    Sử dụng ORM models từ warehouse_models.py làm schema chính.
     """
-    row = conn.execute(text(
-        f"SELECT {key_col} FROM {table} WHERE {natural_col} = :val"
-    ), {"val": natural_val}).fetchone()
-    return row[0] if row else None
 
+    def __init__(self):
+        self.engine = warehouse_engine
+        self.batch_size = ETL_BATCH_SIZE
+        # Cache surrogate keys: {natural_key: surrogate_key}
+        self._sv_key_cache: Dict[str, int] = {}
+        self._hp_key_cache: Dict[str, int] = {}
+        self._gv_key_cache: Dict[str, int] = {}
+        self._hk_key_cache: Dict[str, int] = {}
+        self._hp_tc_cache:  Dict[int, int] = {}   # hoc_phan_key → so_tin_chi
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 1 — LOAD DIMENSIONS
-# ══════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════
+    # ENTRY POINTS
+    # ═══════════════════════════════════════════
 
-def load_dim_hoc_ky(df: pd.DataFrame):
-    """
-    Load học kỳ vào dim_hoc_ky. Dùng UPSERT.
-    Input: DataFrame từ bảng hoc_ky_nam_hoc (source)
-    """
-    logger.info(f"Load dim_hoc_ky: {len(df)} rows...")
+    def load_all(self, data: TransformedData) -> dict:
+        """Nạp toàn bộ dữ liệu đã transform vào warehouse."""
+        logger.info("📥 BẮT ĐẦU LOAD VÀO DATA WAREHOUSE")
+        logger.info("=" * 70)
 
-    with wh_engine.begin() as conn:
-        for _, row in df.iterrows():
-            # Tính nam_bat_dau / nam_ket_thuc từ nam_hoc (vd: '2023-2024')
-            nam_bd, nam_kt = None, None
-            if pd.notna(row.get("nam_hoc")):
-                parts = str(row["nam_hoc"]).split("-")
-                if len(parts) == 2:
-                    try:
-                        nam_bd = int(parts[0])
-                        nam_kt = int(parts[1])
-                    except ValueError:
-                        pass
+        stats = {}
 
-            conn.execute(text("""
-                INSERT INTO dim_hoc_ky (
-                    ma_hoc_ky, nam_hoc, hoc_ky,
-                    ngay_bat_dau, ngay_ket_thuc,
-                    nam_bat_dau, nam_ket_thuc
-                ) VALUES (
-                    :ma_hk, :nam_hoc, :hoc_ky,
-                    :ngay_bd, :ngay_kt,
-                    :nam_bd, :nam_kt
-                )
-                ON CONFLICT (ma_hoc_ky) DO UPDATE SET
-                    nam_hoc       = EXCLUDED.nam_hoc,
-                    hoc_ky        = EXCLUDED.hoc_ky,
-                    ngay_bat_dau  = EXCLUDED.ngay_bat_dau,
-                    ngay_ket_thuc = EXCLUDED.ngay_ket_thuc,
-                    nam_bat_dau   = EXCLUDED.nam_bat_dau,
-                    nam_ket_thuc  = EXCLUDED.nam_ket_thuc
-            """), {
-                "ma_hk"  : row["ma_hoc_ky"],
-                "nam_hoc": row.get("nam_hoc"),
-                "hoc_ky" : row.get("hoc_ky"),  # cột thực tế trong DB là 'hoc_ky'
-                "ngay_bd": row.get("ngay_bat_dau"),
-                "ngay_kt": row.get("ngay_ket_thuc"),
-                "nam_bd" : nam_bd,
-                "nam_kt" : nam_kt,
-            })
+        # 1. Tạo schema nếu chưa có
+        self._ensure_schema()
 
-    total = _count_table("dim_hoc_ky")
-    logger.info(f"  → dim_hoc_ky: {total} bản ghi")
+        # 2. Load Dimensions (thứ tự phụ thuộc)
+        logger.info("── Bước 1: Load Dimension Tables ──")
+        stats["dim_hoc_ky"]     = self._load_dim_hoc_ky(data.dim_thoi_gian)
+        stats["dim_giang_vien"] = self._load_dim_giang_vien(data.dim_giang_vien)
+        stats["dim_hoc_phan"]   = self._load_dim_hoc_phan(data.dim_hoc_phan)
+        stats["dim_sinh_vien"]  = self._load_dim_sinh_vien(data.dim_sinh_vien)
 
+        # 3. Build surrogate key caches
+        logger.info("── Bước 2: Build Surrogate Key Cache ──")
+        self._build_key_caches()
 
-def load_dim_giang_vien(df: pd.DataFrame):
-    """
-    Load giảng viên vào dim_giang_vien. Dùng UPSERT.
-    Input: DataFrame từ transform_giang_vien()
-    """
-    logger.info(f"Load dim_giang_vien: {len(df)} rows...")
+        # 4. Load Facts
+        logger.info("── Bước 3: Load Fact Tables ──")
+        stats["fact_hoc_tap"]   = self._load_fact_hoc_tap(data.fact_diem)
+        stats["fact_ctsv"]      = self._load_fact_ctsv(data.fact_ren_luyen)
+        stats["fact_tai_chinh"] = self._load_fact_tai_chinh(data.fact_tai_chinh)
 
-    with wh_engine.begin() as conn:
-        for _, row in df.iterrows():
-            conn.execute(text("""
-                INSERT INTO dim_giang_vien (
-                    ma_giang_vien, ho, ten, ho_ten, email,
-                    chuc_danh, trang_thai_cong_tac,
-                    ma_khoa, ma_co_so
-                ) VALUES (
-                    :mgv, :ho, :ten, :ho_ten, :email,
-                    :chuc_danh, :trang_thai,
-                    :ma_khoa, :ma_co_so
-                )
-                ON CONFLICT (ma_giang_vien) DO UPDATE SET
-                    ho_ten              = EXCLUDED.ho_ten,
-                    chuc_danh           = EXCLUDED.chuc_danh,
-                    trang_thai_cong_tac = EXCLUDED.trang_thai_cong_tac,
-                    ma_khoa             = EXCLUDED.ma_khoa
-            """), {
-                "mgv"       : row["ma_giang_vien"],
-                "ho"        : row.get("ho"),
-                "ten"       : row.get("ten"),
-                "ho_ten"    : row["ho_ten"],
-                "email"     : row.get("email"),
-                "chuc_danh" : row.get("chuc_danh"),
-                "trang_thai": row.get("trang_thai_cong_tac", "Đang công tác"),
-                "ma_khoa"   : row.get("ma_khoa"),
-                "ma_co_so"  : row.get("ma_co_so"),
-            })
+        # 5. Load Aggregation
+        logger.info("── Bước 4: Load Aggregation ──")
+        stats["agg_student_summary"] = self._load_agg_summary(data.fact_tong_hop_sv)
 
-    total = _count_table("dim_giang_vien")
-    logger.info(f"  → dim_giang_vien: {total} bản ghi")
+        # Summary
+        logger.info("=" * 70)
+        logger.info("✅ LOAD HOÀN TẤT")
+        total = 0
+        for name, count in stats.items():
+            logger.info(f"   {name:<25s}: {count:>8,} records")
+            total += count
+        logger.info(f"   {'TỔNG':<25s}: {total:>8,} records")
+        logger.info("=" * 70)
 
+        return stats
 
-def load_dim_hoc_phan(df: pd.DataFrame):
-    """
-    Load học phần vào dim_hoc_phan. Dùng UPSERT.
-    Lưu ý: warehouse dùng 'loai_mon' (warehouse_models.py line 114)
-    Input: DataFrame từ bảng hoc_phan (source)
-    """
-    logger.info(f"Load dim_hoc_phan: {len(df)} rows...")
+    def load_incremental(self, data: TransformedData, ma_hoc_ky: str) -> dict:
+        """Load incremental cho 1 học kỳ."""
+        logger.info(f"📥 INCREMENTAL LOAD — Học kỳ: {ma_hoc_ky}")
 
-    with wh_engine.begin() as conn:
-        for _, row in df.iterrows():
-            loai = "Bắt buộc" if row.get("bat_buoc", True) else "Tự chọn"
-            conn.execute(text("""
-                INSERT INTO dim_hoc_phan (
-                    ma_hoc_phan, ma_mon, ten_mon,
-                    so_tin_chi, so_gio_ly_thuyet, so_gio_thuc_hanh,
-                    hoc_ky_de_xuat, bat_buoc, loai_hoc_phan, ma_khoa
-                ) VALUES (
-                    :mhp, :ma_mon, :ten_mon,
-                    :tc, :gio_lt, :gio_th,
-                    :hk_de_xuat, :bat_buoc, :loai_hoc_phan, :ma_khoa
-                )
-                ON CONFLICT (ma_hoc_phan) DO UPDATE SET
-                    ten_mon       = EXCLUDED.ten_mon,
-                    so_tin_chi    = EXCLUDED.so_tin_chi,
-                    bat_buoc      = EXCLUDED.bat_buoc,
-                    loai_hoc_phan = EXCLUDED.loai_hoc_phan
-            """), {
-                "mhp"       : row["ma_hoc_phan"],
-                "ma_mon"    : row.get("ma_mon"),
-                "ten_mon"   : row["ten_mon"],
-                "tc"        : row.get("so_tin_chi"),
-                "gio_lt"    : row.get("so_gio_ly_thuyet", 0),
-                "gio_th"    : row.get("so_gio_thuc_hanh", 0),
-                "hk_de_xuat": row.get("hoc_ky_de_xuat"),
-                "bat_buoc"  : bool(row.get("bat_buoc", True)),
-                "loai_hoc_phan": loai,
-                "ma_khoa"   : row.get("ma_khoa"),
-            })
+        stats = {}
+        self._ensure_schema()
 
-    total = _count_table("dim_hoc_phan")
-    logger.info(f"  → dim_hoc_phan: {total} bản ghi")
+        # Dimensions — upsert
+        stats["dim_hoc_ky"]     = self._load_dim_hoc_ky(data.dim_thoi_gian)
+        stats["dim_giang_vien"] = self._load_dim_giang_vien(data.dim_giang_vien)
+        stats["dim_hoc_phan"]   = self._load_dim_hoc_phan(data.dim_hoc_phan)
+        stats["dim_sinh_vien"]  = self._load_dim_sinh_vien(data.dim_sinh_vien)
 
+        self._build_key_caches()
 
-def load_dim_sinh_vien(df: pd.DataFrame):
-    """
-    Load sinh viên vào dim_sinh_vien theo chuẩn SCD Type 2.
+        # Xóa dữ liệu cũ của HK → insert mới
+        hk_key = self._hk_key_cache.get(ma_hoc_ky)
+        if hk_key:
+            self._delete_fact_by_hk(hk_key, ma_hoc_ky)
 
-    SCD Type 2 hoạt động như thế nào?
-    - Lần đầu: INSERT bản ghi mới, la_ban_hien_tai=TRUE, phien_ban=1
-    - Lần sau nếu trang_thai hoặc ma_lop THAY ĐỔI:
-        → Đóng bản ghi cũ: la_ban_hien_tai=FALSE, ngay_het_hieu_luc=hôm nay
-        → INSERT bản ghi mới, phien_ban tăng thêm 1
-    → Warehouse giữ toàn bộ lịch sử thay đổi
+        stats["fact_hoc_tap"]        = self._load_fact_hoc_tap(data.fact_diem)
+        stats["fact_ctsv"]           = self._load_fact_ctsv(data.fact_ren_luyen)
+        stats["fact_tai_chinh"]      = self._load_fact_tai_chinh(data.fact_tai_chinh)
+        stats["agg_student_summary"] = self._load_agg_summary(data.fact_tong_hop_sv)
 
-    Input: DataFrame từ transform_sinh_vien()
-    """
-    logger.info(f"Load dim_sinh_vien: {len(df)} rows...")
-    today    = date.today()
-    inserted = 0
-    updated  = 0
+        logger.info(f"✅ INCREMENTAL LOAD HOÀN TẤT — {ma_hoc_ky}")
+        return stats
 
-    with wh_engine.begin() as conn:
-        for _, row in df.iterrows():
-            existing = conn.execute(text("""
-                SELECT sinh_vien_key, trang_thai_hoc_tap, ma_lop, phien_ban
-                FROM dim_sinh_vien
-                WHERE ma_sinh_vien    = :msv
-                  AND la_ban_hien_tai = TRUE
-            """), {"msv": row["ma_sinh_vien"]}).fetchone()
+    # ═══════════════════════════════════════════
+    # SCHEMA
+    # ═══════════════════════════════════════════
 
-            params = {
-                "msv"       : row["ma_sinh_vien"],
-                "ho"        : row.get("ho"),
-                "ten"       : row.get("ten"),
-                "ho_ten"    : row["ho_ten"],
-                "ngay_sinh" : row.get("ngay_sinh"),
-                "gioi_tinh" : row.get("gioi_tinh"),
-                "email"     : row.get("email"),
-                "khoa_hoc"  : row.get("khoa_hoc"),
-                # v2.0: bo he_dao_tao, hoc_ky_hien_tai
-                "ma_khoa"   : row.get("ma_khoa"),
-                "ten_khoa"  : row.get("ten_khoa"),
-                "ma_nganh"  : row.get("ma_nganh"),
-                "ten_nganh" : row.get("ten_nganh"),
-                "ma_lop"    : row.get("ma_lop"),
-                "ten_lop"   : row.get("ten_lop"),
-                "trang_thai": row.get("trang_thai_hoc_tap"),
-                "ma_co_van" : row.get("ma_co_van"),
-                "ten_co_van": row.get("ten_co_van"),
-                "today"     : today,
-            }
+    def _ensure_schema(self):
+        """Tạo tất cả bảng warehouse từ ORM models."""
+        logger.info("  Tạo schema warehouse từ warehouse_models.py...")
+        WarehouseBase.metadata.create_all(self.engine)
+        logger.info("  Schema warehouse OK ✓")
 
-            if existing is None:
-                params["phien_ban"] = 1
-                conn.execute(text("""
-                    INSERT INTO dim_sinh_vien (
-                        ma_sinh_vien, ho, ten, ho_ten,
-                        ngay_sinh, gioi_tinh, email,
-                        khoa_hoc,
-                        ma_khoa, ten_khoa,
-                        ma_nganh, ten_nganh,
-                        ma_lop, ten_lop,
-                        trang_thai_hoc_tap,
-                        ma_co_van, ten_co_van,
-                        ngay_hieu_luc, ngay_het_hieu_luc,
-                        la_ban_hien_tai, phien_ban
-                    ) VALUES (
-                        :msv, :ho, :ten, :ho_ten,
-                        :ngay_sinh, :gioi_tinh, :email,
-                        :khoa_hoc,
-                        :ma_khoa, :ten_khoa,
-                        :ma_nganh, :ten_nganh,
-                        :ma_lop, :ten_lop,
-                        :trang_thai,
-                        :ma_co_van, :ten_co_van,
-                        :today, NULL,
-                        TRUE, :phien_ban
+    # ═══════════════════════════════════════════
+    # SURROGATE KEY CACHE
+    # ═══════════════════════════════════════════
+
+    def _build_key_caches(self):
+        """Load toàn bộ mapping natural_key → surrogate_key."""
+        logger.info("  Building surrogate key caches...")
+
+        # DimSinhVien: ma_sinh_vien → sinh_vien_key (chỉ bản hiện tại)
+        df = pd.read_sql(
+            "SELECT sinh_vien_key, ma_sinh_vien FROM dim_sinh_vien "
+            "WHERE la_ban_hien_tai = TRUE",
+            self.engine,
+        )
+        self._sv_key_cache = dict(zip(df["ma_sinh_vien"], df["sinh_vien_key"]))
+
+        # DimHocPhan: ma_hoc_phan → hoc_phan_key + so_tin_chi cache
+        df = pd.read_sql(
+            "SELECT hoc_phan_key, ma_hoc_phan, so_tin_chi FROM dim_hoc_phan",
+            self.engine,
+        )
+        self._hp_key_cache = dict(zip(df["ma_hoc_phan"], df["hoc_phan_key"]))
+        self._hp_tc_cache  = dict(zip(df["hoc_phan_key"], df["so_tin_chi"]))
+
+        # DimGiangVien: ma_giang_vien → giang_vien_key
+        df = pd.read_sql(
+            "SELECT giang_vien_key, ma_giang_vien FROM dim_giang_vien",
+            self.engine,
+        )
+        self._gv_key_cache = dict(zip(df["ma_giang_vien"], df["giang_vien_key"]))
+
+        # DimHocKy: ma_hoc_ky → hoc_ky_key
+        df = pd.read_sql(
+            "SELECT hoc_ky_key, ma_hoc_ky FROM dim_hoc_ky",
+            self.engine,
+        )
+        self._hk_key_cache = dict(zip(df["ma_hoc_ky"], df["hoc_ky_key"]))
+
+        logger.info(
+            f"    SV={len(self._sv_key_cache)}, "
+            f"HP={len(self._hp_key_cache)}, "
+            f"GV={len(self._gv_key_cache)}, "
+            f"HK={len(self._hk_key_cache)}"
+        )
+
+    def _lookup_sv_key(self, ma_sv: str) -> Optional[int]:
+        return self._sv_key_cache.get(ma_sv)
+
+    def _lookup_hp_key(self, ma_hp: str) -> Optional[int]:
+        return self._hp_key_cache.get(ma_hp)
+
+    def _lookup_gv_key(self, ma_gv: str) -> Optional[int]:
+        return self._gv_key_cache.get(ma_gv) if ma_gv else None
+
+    def _lookup_hk_key(self, ma_hk: str) -> Optional[int]:
+        return self._hk_key_cache.get(ma_hk)
+
+    # ═══════════════════════════════════════════
+    # LOAD DIMENSIONS
+    # ═══════════════════════════════════════════
+
+    def _load_dim_hoc_ky(self, df: pd.DataFrame) -> int:
+        """Load DimHocKy — upsert theo ma_hoc_ky."""
+        if df.empty:
+            return 0
+
+        session = WarehouseSession()
+        count = 0
+        try:
+            for _, row in df.iterrows():
+                ma_hk = row.get("ma_hoc_ky")
+                if not ma_hk:
+                    continue
+
+                existing = session.query(DimHocKy).filter_by(
+                    ma_hoc_ky=ma_hk
+                ).first()
+
+                if existing:
+                    existing.nam_hoc      = row.get("nam_hoc", existing.nam_hoc)
+                    existing.hoc_ky       = row.get("hoc_ky", existing.hoc_ky)
+                    existing.ngay_bat_dau = self._to_date(row.get("ngay_bat_dau"))
+                    existing.ngay_ket_thuc = self._to_date(row.get("ngay_ket_thuc"))
+                    existing.nam_bat_dau  = row.get("nam_bat_dau")
+                    existing.nam_ket_thuc = row.get("nam_ket_thuc")
+                else:
+                    obj = DimHocKy(
+                        ma_hoc_ky=ma_hk,
+                        nam_hoc=row.get("nam_hoc", ""),
+                        hoc_ky=row.get("hoc_ky", ""),
+                        ngay_bat_dau=self._to_date(row.get("ngay_bat_dau")),
+                        ngay_ket_thuc=self._to_date(row.get("ngay_ket_thuc")),
+                        nam_bat_dau=row.get("nam_bat_dau"),
+                        nam_ket_thuc=row.get("nam_ket_thuc"),
                     )
-                """), params)
-                inserted += 1
+                    session.add(obj)
+                    count += 1
 
-            else:
-                changed = (
-                    existing.trang_thai_hoc_tap != row.get("trang_thai_hoc_tap") or
-                    existing.ma_lop             != row.get("ma_lop")
-                )
-                if changed:
-                    conn.execute(text("""
-                        UPDATE dim_sinh_vien
-                        SET la_ban_hien_tai   = FALSE,
-                            ngay_het_hieu_luc = :today
-                        WHERE sinh_vien_key   = :sk
-                    """), {"sk": existing.sinh_vien_key, "today": today})
+            session.commit()
+            logger.info(f"  dim_hoc_ky       → {len(df):>6,} records (new: {count})")
+            return len(df)
 
-                    params["phien_ban"] = existing.phien_ban + 1
-                    conn.execute(text("""
-                        INSERT INTO dim_sinh_vien (
-                            ma_sinh_vien, ho, ten, ho_ten,
-                            ngay_sinh, gioi_tinh, email,
-                            khoa_hoc,
-                            ma_khoa, ten_khoa,
-                            ma_nganh, ten_nganh,
-                            ma_lop, ten_lop,
-                            trang_thai_hoc_tap,
-                            ma_co_van, ten_co_van,
-                            ngay_hieu_luc, ngay_het_hieu_luc,
-                            la_ban_hien_tai, phien_ban
-                        ) VALUES (
-                            :msv, :ho, :ten, :ho_ten,
-                            :ngay_sinh, :gioi_tinh, :email,
-                            :khoa_hoc,
-                            :ma_khoa, :ten_khoa,
-                            :ma_nganh, :ten_nganh,
-                            :ma_lop, :ten_lop,
-                            :trang_thai,
-                            :ma_co_van, :ten_co_van,
-                            :today, NULL,
-                            TRUE, :phien_ban
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  dim_hoc_ky | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
+
+    def _load_dim_giang_vien(self, df: pd.DataFrame) -> int:
+        """Load DimGiangVien — upsert theo ma_giang_vien."""
+        if df.empty:
+            return 0
+
+        session = WarehouseSession()
+        count = 0
+        try:
+            for _, row in df.iterrows():
+                ma_gv = row.get("ma_giang_vien")
+                if not ma_gv:
+                    continue
+
+                existing = session.query(DimGiangVien).filter_by(
+                    ma_giang_vien=ma_gv
+                ).first()
+
+                if existing:
+                    existing.ho_ten              = row.get("ho_ten", existing.ho_ten)
+                    existing.chuc_danh           = row.get("chuc_danh", existing.chuc_danh)
+                    existing.trang_thai_cong_tac = row.get("trang_thai_cong_tac", existing.trang_thai_cong_tac)
+                    existing.ma_khoa             = row.get("ma_khoa", existing.ma_khoa)
+                    existing.ten_khoa            = row.get("ten_khoa", existing.ten_khoa)
+                else:
+                    obj = DimGiangVien(
+                        ma_giang_vien=ma_gv,
+                        ho=row.get("ho", ""),
+                        ten=row.get("ten", ""),
+                        ho_ten=row.get("ho_ten", ""),
+                        email=row.get("email"),
+                        chuc_danh=row.get("chuc_danh"),
+                        trang_thai_cong_tac=row.get("trang_thai_cong_tac"),
+                        ma_khoa=row.get("ma_khoa"),
+                        ten_khoa=row.get("ten_khoa"),
+                    )
+                    session.add(obj)
+                    count += 1
+
+            session.commit()
+            logger.info(f"  dim_giang_vien   → {len(df):>6,} records (new: {count})")
+            return len(df)
+
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  dim_giang_vien | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
+
+    def _load_dim_hoc_phan(self, df: pd.DataFrame) -> int:
+        """Load DimHocPhan — upsert theo ma_hoc_phan."""
+        if df.empty:
+            return 0
+
+        session = WarehouseSession()
+        count = 0
+        try:
+            for _, row in df.iterrows():
+                ma_hp = row.get("ma_hoc_phan")
+                if not ma_hp:
+                    continue
+
+                existing = session.query(DimHocPhan).filter_by(
+                    ma_hoc_phan=ma_hp
+                ).first()
+
+                if existing:
+                    existing.ten_mon   = row.get("ten_mon", existing.ten_mon)
+                    existing.so_tin_chi = row.get("so_tin_chi", existing.so_tin_chi)
+                    existing.ma_khoa   = row.get("ma_khoa", existing.ma_khoa)
+                    existing.ten_khoa  = row.get("ten_khoa", existing.ten_khoa)
+                else:
+                    obj = DimHocPhan(
+                        ma_hoc_phan=ma_hp,
+                        ma_mon=row.get("ma_mon"),
+                        ten_mon=row.get("ten_mon", ""),
+                        so_tin_chi=row.get("so_tin_chi"),
+                        so_gio_ly_thuyet=row.get("so_gio_ly_thuyet"),
+                        so_gio_thuc_hanh=row.get("so_gio_thuc_hanh"),
+                        hoc_ky_de_xuat=row.get("hoc_ky_de_xuat"),
+                        bat_buoc=row.get("bat_buoc"),
+                        ma_khoa=row.get("ma_khoa"),
+                        ten_khoa=row.get("ten_khoa"),
+                    )
+                    session.add(obj)
+                    count += 1
+
+            session.commit()
+            logger.info(f"  dim_hoc_phan     → {len(df):>6,} records (new: {count})")
+            return len(df)
+
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  dim_hoc_phan | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
+
+    def _load_dim_sinh_vien(self, df: pd.DataFrame) -> int:
+        """
+        Load DimSinhVien — SCD Type 2.
+
+        Nếu SV đã có và dữ liệu thay đổi:
+          1. Đóng bản ghi cũ (ngay_het_hieu_luc, la_ban_hien_tai=False)
+          2. Insert bản ghi mới (phien_ban += 1)
+        Nếu SV chưa có:
+          Insert bản ghi mới (phien_ban=1)
+        """
+        if df.empty:
+            return 0
+
+        session  = WarehouseSession()
+        inserted = 0
+        updated  = 0
+
+        # Các cột trigger SCD2
+        scd2_cols = ["trang_thai_hoc_tap", "ma_nganh", "ma_lop", "ma_khoa"]
+
+        try:
+            for _, row in df.iterrows():
+                ma_sv = row.get("ma_sinh_vien")
+                if not ma_sv:
+                    continue
+
+                current = session.query(DimSinhVien).filter(
+                    DimSinhVien.ma_sinh_vien == ma_sv,
+                    DimSinhVien.la_ban_hien_tai == True,
+                ).first()
+
+                if current is None:
+                    # INSERT mới
+                    obj = DimSinhVien(
+                        ma_sinh_vien=ma_sv,
+                        ho=row.get("ho"),
+                        ten=row.get("ten"),
+                        ho_ten=row.get("ho_ten", ""),
+                        ngay_sinh=self._to_date(row.get("ngay_sinh")),
+                        gioi_tinh=row.get("gioi_tinh"),
+                        email=row.get("email"),
+                        khoa_hoc=row.get("khoa_hoc"),
+                        trang_thai_hoc_tap=row.get("trang_thai_hoc_tap"),
+                        ma_nganh=row.get("ma_nganh"),
+                        ten_nganh=row.get("ten_nganh"),
+                        ma_khoa=row.get("ma_khoa"),
+                        ten_khoa=row.get("ten_khoa"),
+                        ma_co_van=row.get("ma_co_van"),
+                        ten_co_van=row.get("ten_co_van"),
+                        ma_lop=row.get("ma_lop"),
+                        ten_lop=row.get("ten_lop"),
+                        la_ban_hien_tai=True,
+                        phien_ban=1,
+                    )
+                    session.add(obj)
+                    inserted += 1
+
+                else:
+                    # Kiểm tra thay đổi SCD2
+                    changed = any(
+                        getattr(current, col, None) != row.get(col)
+                        and row.get(col) is not None
+                        for col in scd2_cols
+                    )
+
+                    if changed:
+                        # Đóng bản ghi cũ
+                        current.la_ban_hien_tai  = False
+                        current.ngay_het_hieu_luc = date.today()
+
+                        # Insert bản ghi mới
+                        new_obj = DimSinhVien(
+                            ma_sinh_vien=ma_sv,
+                            ho=row.get("ho"),
+                            ten=row.get("ten"),
+                            ho_ten=row.get("ho_ten", ""),
+                            ngay_sinh=self._to_date(row.get("ngay_sinh")),
+                            gioi_tinh=row.get("gioi_tinh"),
+                            email=row.get("email"),
+                            khoa_hoc=row.get("khoa_hoc"),
+                            trang_thai_hoc_tap=row.get("trang_thai_hoc_tap"),
+                            ma_nganh=row.get("ma_nganh"),
+                            ten_nganh=row.get("ten_nganh"),
+                            ma_khoa=row.get("ma_khoa"),
+                            ten_khoa=row.get("ten_khoa"),
+                            ma_co_van=row.get("ma_co_van"),
+                            ten_co_van=row.get("ten_co_van"),
+                            ma_lop=row.get("ma_lop"),
+                            ten_lop=row.get("ten_lop"),
+                            la_ban_hien_tai=True,
+                            phien_ban=current.phien_ban + 1,
                         )
-                    """), params)
-                    updated += 1
+                        session.add(new_obj)
+                        updated += 1
+                    else:
+                        # Cập nhật cột không phải SCD2 (Type 1)
+                        current.ho_ten    = row.get("ho_ten",   current.ho_ten)
+                        current.email     = row.get("email",    current.email)
+                        current.ten_nganh = row.get("ten_nganh", current.ten_nganh)
+                        current.ten_khoa  = row.get("ten_khoa",  current.ten_khoa)
+                        current.ten_lop   = row.get("ten_lop",   current.ten_lop)
 
-    total = _count_table("dim_sinh_vien")
-    logger.info(f"  → dim_sinh_vien: +{inserted} mới, ~{updated} cập nhật | Tổng: {total}")
+            session.commit()
+            logger.info(
+                f"  dim_sinh_vien    → {len(df):>6,} records "
+                f"(new: {inserted}, SCD2 update: {updated})"
+            )
+            return inserted + updated
 
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  dim_sinh_vien | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 2 — LOAD FACT
-# ══════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════
+    # LOAD FACTS
+    # ═══════════════════════════════════════════
 
-def load_fact_hoc_tap(df_diem: pd.DataFrame):
-    """
-    Load điểm vào fact_hoc_tap.
+    def _load_fact_hoc_tap(self, df: pd.DataFrame) -> int:
+        """Load FactHocTap từ fact_diem (đã transform)."""
+        if df.empty:
+            logger.info("  fact_hoc_tap     → SKIP (empty)")
+            return 0
 
-    Quy trình mỗi dòng:
-      1. Lookup sinh_vien_key  từ dim_sinh_vien (la_ban_hien_tai=TRUE)
-      2. Lookup hoc_phan_key   từ dim_hoc_phan
-      3. Lookup hoc_ky_key     từ dim_hoc_ky
-      4. Lookup giang_vien_key từ dim_giang_vien (có thể NULL)
-      5. INSERT, bỏ qua nếu đã tồn tại (uq_fact_ht_sv_hp_hk)
+        session = WarehouseSession()
+        count = 0
 
-    Input: DataFrame từ transform_diem()
-    """
-    logger.info(f"Load fact_hoc_tap: {len(df_diem)} rows...")
-    inserted = 0
-    skipped  = 0
+        try:
+            for _, row in df.iterrows():
+                ma_sv = row.get("ma_sinh_vien")
+                ma_hp = row.get("ma_hoc_phan")
+                ma_hk = row.get("ma_hoc_ky")
+                ma_gv = row.get("ma_giang_vien")
 
-    with wh_engine.begin() as conn:
-        for _, row in df_diem.iterrows():
+                sv_key = self._lookup_sv_key(ma_sv)
+                hp_key = self._lookup_hp_key(ma_hp)
+                hk_key = self._lookup_hk_key(ma_hk)
+                gv_key = self._lookup_gv_key(ma_gv)
 
-            # Lookup surrogate key sinh viên (bản hiện tại)
-            sv_sk = conn.execute(text("""
-                SELECT sinh_vien_key FROM dim_sinh_vien
-                WHERE ma_sinh_vien    = :msv
-                  AND la_ban_hien_tai = TRUE
-            """), {"msv": row["ma_sinh_vien"]}).scalar()
+                if not all([sv_key, hp_key, hk_key]):
+                    continue
 
-            if sv_sk is None:
-                skipped += 1
-                continue
+                existing = session.query(FactHocTap).filter(
+                    FactHocTap.ma_sinh_vien == ma_sv,
+                    FactHocTap.ma_hoc_phan  == ma_hp,
+                    FactHocTap.hoc_ky_key   == hk_key,
+                ).first()
 
-            hp_sk = _lookup_key(conn, "dim_hoc_phan", "hoc_phan_key",
-                                 "ma_hoc_phan", row["ma_hoc_phan"])
-            if hp_sk is None:
-                skipped += 1
-                continue
+                if existing:
+                    existing.diem_chuyen_can = self._to_decimal(row.get("diem_chuyen_can"))
+                    existing.diem_bai_tap    = self._to_decimal(row.get("diem_bai_tap"))
+                    existing.diem_giua_ky    = self._to_decimal(row.get("diem_giua_ky"))
+                    existing.diem_cuoi_ky    = self._to_decimal(row.get("diem_cuoi_ky"))
+                    existing.diem_tong_ket   = self._to_decimal(row.get("diem_tong_ket"))
+                    existing.diem_chu        = row.get("diem_chu")
+                    existing.diem_he_4       = self._to_decimal(row.get("diem_he_4"))
+                    existing.dat_mon         = row.get("dat_mon")
+                    existing.hoc_lai         = row.get("hoc_lai")
+                else:
+                    so_tc    = self._hp_tc_cache.get(hp_key)
+                    diem_he4 = self._to_decimal(row.get("diem_he_4"))
+                    diem_cl  = (float(diem_he4) * so_tc) if diem_he4 and so_tc else None
 
-            hk_sk = _lookup_key(conn, "dim_hoc_ky", "hoc_ky_key",
-                                 "ma_hoc_ky", row["ma_hoc_ky"])
-            if hk_sk is None:
-                skipped += 1
-                continue
+                    obj = FactHocTap(
+                        sinh_vien_key=sv_key,
+                        hoc_phan_key=hp_key,
+                        giang_vien_key=gv_key,
+                        hoc_ky_key=hk_key,
+                        ma_sinh_vien=ma_sv,
+                        ma_hoc_phan=ma_hp,
+                        ma_dang_ky=row.get("ma_dang_ky"),
+                        diem_chuyen_can=self._to_decimal(row.get("diem_chuyen_can")),
+                        diem_bai_tap=self._to_decimal(row.get("diem_bai_tap")),
+                        diem_giua_ky=self._to_decimal(row.get("diem_giua_ky")),
+                        diem_cuoi_ky=self._to_decimal(row.get("diem_cuoi_ky")),
+                        diem_tong_ket=self._to_decimal(row.get("diem_tong_ket")),
+                        diem_chu=row.get("diem_chu"),
+                        diem_he_4=diem_he4,
+                        dat_mon=row.get("dat_mon"),
+                        hoc_lai=row.get("hoc_lai"),
+                        so_tin_chi=so_tc,
+                        diem_chat_luong=diem_cl,
+                        nguon_du_lieu="postgresql",
+                    )
+                    session.add(obj)
+                    count += 1
 
-            # giang_vien_key: NULL được chấp nhận (FK không bắt buộc)
-            gv_sk = None
-            if pd.notna(row.get("ma_giang_vien")):
-                gv_sk = _lookup_key(conn, "dim_giang_vien", "giang_vien_key",
-                                    "ma_giang_vien", row["ma_giang_vien"])
+                if count % self.batch_size == 0:
+                    session.flush()
 
-            # date_key từ ngay_cham
-            date_key = None
-            if pd.notna(row.get("ngay_cham")):
-                d  = pd.to_datetime(row["ngay_cham"]).date()
-                dk = conn.execute(text(
-                    "SELECT date_key FROM dim_date WHERE full_date = :d"
-                ), {"d": d}).scalar()
-                date_key = dk
+            session.commit()
+            logger.info(f"  fact_hoc_tap     → {count:>6,} records")
+            return count
 
-            # diem_chat_luong = diem_he_4 × so_tin_chi
-            diem_cl = None
-            if pd.notna(row.get("diem_he_4")) and pd.notna(row.get("so_tin_chi")):
-                diem_cl = round(float(row["diem_he_4"]) * float(row["so_tin_chi"]), 4)
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  fact_hoc_tap | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
 
-            result = conn.execute(text("""
-                INSERT INTO fact_hoc_tap (
-                    sinh_vien_key, hoc_phan_key, giang_vien_key,
-                    hoc_ky_key, date_key,
-                    ma_sinh_vien, ma_hoc_phan, ma_dang_ky,
-                    diem_chuyen_can, diem_bai_tap,
-                    diem_giua_ky,   diem_cuoi_ky,
-                    diem_tong_ket,  diem_he_4,
-                    diem_chu, dat_mon, hoc_lai,
-                    so_tin_chi, diem_chat_luong
-                ) VALUES (
-                    :sv_sk, :hp_sk, :gv_sk,
-                    :hk_sk, :date_key,
-                    :msv, :mhp, :ma_dk,
-                    :cc, :bt, :gk, :ck,
-                    :dtk, :he4,
-                    :chu, :dat, :hoc_lai,
-                    :tc, :chat_luong
-                )
-                ON CONFLICT (ma_sinh_vien, ma_hoc_phan, hoc_ky_key) DO NOTHING
-            """), {
-                "sv_sk"     : sv_sk,
-                "hp_sk"     : hp_sk,
-                "gv_sk"     : gv_sk,
-                "hk_sk"     : hk_sk,
-                "date_key"  : date_key,
-                "msv"       : row["ma_sinh_vien"],
-                "mhp"       : row["ma_hoc_phan"],
-                "ma_dk"     : row.get("ma_dang_ky"),
-                "cc"        : row.get("diem_chuyen_can"),
-                "bt"        : row.get("diem_bai_tap"),
-                "gk"        : row.get("diem_giua_ky"),
-                "ck"        : row.get("diem_cuoi_ky"),
-                "dtk"       : row.get("diem_tong_ket"),
-                "he4"       : row.get("diem_he_4"),
-                "chu"       : row.get("diem_chu"),
-                "dat"       : bool(row.get("dat_mon", False)),
-                "hoc_lai"   : bool(row.get("hoc_lai", False)),
-                "tc"        : row.get("so_tin_chi", 3),
-                "chat_luong": diem_cl,
-            })
-            inserted += result.rowcount
+    def _load_fact_ctsv(self, df: pd.DataFrame) -> int:
+        """Load FactCtsv từ fact_ren_luyen (CSV Phòng CTSV)."""
+        if df.empty:
+            logger.info("  fact_ctsv        → SKIP (empty)")
+            return 0
 
-    total = _count_table("fact_hoc_tap")
-    logger.info(f"  → fact_hoc_tap: +{inserted} mới, {skipped} bỏ qua | Tổng: {total}")
+        session = WarehouseSession()
+        count = 0
 
+        try:
+            for _, row in df.iterrows():
+                ma_sv = row.get("ma_sinh_vien")
+                ma_hk = row.get("hoc_ky")
 
-# ══════════════════════════════════════════════════════════════════
-# PHẦN 3 — LOAD AGGREGATE
-# ══════════════════════════════════════════════════════════════════
+                sv_key = self._lookup_sv_key(ma_sv)
+                hk_key = self._lookup_hk_key(ma_hk)
 
-def load_agg_summary(df_agg: pd.DataFrame):
-    """
-    Cập nhật agg_student_summary — tổng hợp từ 3 nguồn.
+                if not all([sv_key, hk_key]):
+                    continue
 
-    Input: DataFrame từ calculate_agg_summary() (không phải calculate_gpa).
-    calculate_agg_summary() đã merge GPA (Nguồn 1) + RL (Nguồn 2) + HP (Nguồn 3).
+                existing = session.query(FactCtsv).filter(
+                    FactCtsv.ma_sinh_vien == ma_sv,
+                    FactCtsv.hoc_ky_key  == hk_key,
+                ).first()
 
-    Cột bắt buộc từ df_agg:
-      ma_sinh_vien, gpa_he_4, gpa_he_10, xep_loai,
-      tong_tc, tc_tich_luy, tong_mon, so_mon_truot,
-      diem_rl_tb, xep_loai_rl_last,         ← Nguồn 2
-      tong_no, co_no_hp, co_mien_giam,       ← Nguồn 3
-      muc_do_rui_ro, canh_bao
-    """
-    logger.info(f"Load agg_student_summary: {len(df_agg)} rows...")
+                if existing:
+                    existing.diem_rl      = self._to_int(row.get("diem_ren_luyen"))
+                    existing.xep_loai_rl  = row.get("xep_loai_rl")
+                    existing.loai_hoc_bong = row.get("loai_hoc_bong")
+                    existing.muc_tien_hb  = self._to_int(row.get("muc_tien_hb")) or 0
+                    existing.hinh_thuc_kl = row.get("hinh_thuc_ky_luat")
+                    existing.ly_do_kl     = row.get("ly_do_ky_luat")
+                    existing.co_hoc_bong  = bool(row.get("co_hoc_bong", False))
+                    existing.bi_ky_luat   = bool(row.get("bi_ky_luat", False))
+                else:
+                    obj = FactCtsv(
+                        sinh_vien_key=sv_key,
+                        hoc_ky_key=hk_key,
+                        ma_sinh_vien=ma_sv,
+                        ma_hoc_ky=ma_hk,
+                        diem_rl=self._to_int(row.get("diem_ren_luyen")),
+                        xep_loai_rl=row.get("xep_loai_rl"),
+                        loai_hoc_bong=row.get("loai_hoc_bong"),
+                        muc_tien_hb=self._to_int(row.get("muc_tien_hb")) or 0,
+                        hinh_thuc_kl=row.get("hinh_thuc_ky_luat"),
+                        ly_do_kl=row.get("ly_do_ky_luat"),
+                        co_hoc_bong=bool(row.get("co_hoc_bong", False)),
+                        bi_ky_luat=bool(row.get("bi_ky_luat", False)),
+                        nguon_du_lieu="csv_ctsv",
+                    )
+                    session.add(obj)
+                    count += 1
 
-    with wh_engine.begin() as conn:
-        for _, row in df_agg.iterrows():
-            sv_sk = conn.execute(text("""
-                SELECT sinh_vien_key FROM dim_sinh_vien
-                WHERE ma_sinh_vien    = :msv
-                  AND la_ban_hien_tai = TRUE
-            """), {"msv": row["ma_sinh_vien"]}).scalar()
+            session.commit()
+            logger.info(f"  fact_ctsv        → {count:>6,} records")
+            return count
 
-            if sv_sk is None:
-                continue
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  fact_ctsv | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
 
-            tong_tc  = int(row.get("tong_tc", 0))
-            tc_dat   = int(row.get("tc_tich_luy", 0))
-            tc_k_dat = tong_tc - tc_dat
-            tong_mon = int(row.get("tong_mon", 0))
-            so_truot = int(row.get("so_mon_truot", 0))
-            so_dat   = tong_mon - so_truot
-            ty_le    = round(so_dat / tong_mon, 4) if tong_mon > 0 else 0.0
-            gpa4     = float(row.get("gpa_he_4", 0) or 0)
+    def _load_fact_tai_chinh(self, df: pd.DataFrame) -> int:
+        """Load FactTaiChinh từ fact_tai_chinh (API Portal)."""
+        if df.empty:
+            logger.info("  fact_tai_chinh   → SKIP (empty)")
+            return 0
 
-            conn.execute(text("""
-                INSERT INTO agg_student_summary (
-                    sinh_vien_key, ma_sinh_vien,
-                    gpa_he_4, gpa_he_10, xep_loai_hoc_luc,
-                    tong_tin_chi_dang_ky, tin_chi_dat,
-                    tin_chi_khong_dat, ty_le_dat,
-                    tong_mon_dang_ky, so_mon_dat, so_mon_khong_dat,
-                    diem_rl_trung_binh, xep_loai_rl_gan_nhat,
-                    tong_no_hoc_phi, co_no_hoc_phi, duoc_mien_giam,
-                    canh_bao_hoc_vu, muc_do_rui_ro, co_the_tot_nghiep,
-                    ngay_cap_nhat
-                ) VALUES (
-                    :sv_sk, :msv,
-                    :gpa4, :gpa10, :xep_loai,
-                    :tong_tc, :tc_dat, :tc_k_dat, :ty_le,
-                    :tong_mon, :so_dat, :so_truot,
-                    :drl_tb, :xep_rl,
-                    :tong_no, :co_no, :mien_giam,
-                    :canh_bao, :rui_ro, :co_the_tn,
-                    CURRENT_TIMESTAMP
-                )
-                ON CONFLICT (ma_sinh_vien) DO UPDATE SET
-                    gpa_he_4             = EXCLUDED.gpa_he_4,
-                    gpa_he_10            = EXCLUDED.gpa_he_10,
-                    xep_loai_hoc_luc     = EXCLUDED.xep_loai_hoc_luc,
-                    tong_tin_chi_dang_ky = EXCLUDED.tong_tin_chi_dang_ky,
-                    tin_chi_dat          = EXCLUDED.tin_chi_dat,
-                    tin_chi_khong_dat    = EXCLUDED.tin_chi_khong_dat,
-                    ty_le_dat            = EXCLUDED.ty_le_dat,
-                    tong_mon_dang_ky     = EXCLUDED.tong_mon_dang_ky,
-                    so_mon_dat           = EXCLUDED.so_mon_dat,
-                    so_mon_khong_dat     = EXCLUDED.so_mon_khong_dat,
-                    diem_rl_trung_binh   = EXCLUDED.diem_rl_trung_binh,
-                    xep_loai_rl_gan_nhat = EXCLUDED.xep_loai_rl_gan_nhat,
-                    tong_no_hoc_phi      = EXCLUDED.tong_no_hoc_phi,
-                    co_no_hoc_phi        = EXCLUDED.co_no_hoc_phi,
-                    duoc_mien_giam       = EXCLUDED.duoc_mien_giam,
-                    canh_bao_hoc_vu      = EXCLUDED.canh_bao_hoc_vu,
-                    muc_do_rui_ro        = EXCLUDED.muc_do_rui_ro,
-                    co_the_tot_nghiep    = EXCLUDED.co_the_tot_nghiep,
-                    ngay_cap_nhat        = CURRENT_TIMESTAMP
-            """), {
-                "sv_sk"    : sv_sk,
-                "msv"      : row["ma_sinh_vien"],
-                "gpa4"     : gpa4,
-                "gpa10"    : float(row.get("gpa_he_10", 0) or 0),
-                "xep_loai" : row.get("xep_loai"),
-                "tong_tc"  : tong_tc,
-                "tc_dat"   : tc_dat,
-                "tc_k_dat" : tc_k_dat,
-                "ty_le"    : ty_le,
-                "tong_mon" : tong_mon,
-                "so_dat"   : so_dat,
-                "so_truot" : so_truot,
-                # Nguồn 2 — từ calculate_agg_summary()
-                "drl_tb"   : float(row.get("diem_rl_tb", 0) or 0),
-                "xep_rl"   : row.get("xep_loai_rl_last", ""),
-                # Nguồn 3 — từ calculate_agg_summary()
-                "tong_no"  : int(row.get("tong_no", 0) or 0),
-                "co_no"    : bool(row.get("co_no_hp", False)),
-                "mien_giam": bool(row.get("co_mien_giam", False)),
-                # Tổng hợp
-                "canh_bao" : bool(row.get("canh_bao", False)),
-                "rui_ro"   : row.get("muc_do_rui_ro", "Thấp"),  # FIX: muc_nguy_co → muc_do_rui_ro
-                "co_the_tn": tc_dat >= 130,
-            })
+        session = WarehouseSession()
+        count = 0
 
-    total = _count_table("agg_student_summary")
-    logger.info(f"  → agg_student_summary: {total} bản ghi")
+        try:
+            for _, row in df.iterrows():
+                ma_sv = row.get("ma_sinh_vien")
+                ma_hk = row.get("hoc_ky")
 
+                sv_key = self._lookup_sv_key(ma_sv)
+                hk_key = self._lookup_hk_key(ma_hk)
 
-# ══════════════════════════════════════════════════════════════════
-# CHẠY TOÀN BỘ PIPELINE LOAD
-# ══════════════════════════════════════════════════════════════════
+                if not all([sv_key, hk_key]):
+                    continue
 
-def load_fact_ctsv(df: pd.DataFrame):
-    """
-    Load dữ liệu từ CSV Phòng Công tác Sinh viên vào fact_ctsv.
+                existing = session.query(FactTaiChinh).filter(
+                    FactTaiChinh.ma_sinh_vien == ma_sv,
+                    FactTaiChinh.hoc_ky_key  == hk_key,
+                ).first()
 
-    Bảng fact_ctsv đã được tạo bởi create_facts.sql — KHÔNG tạo lại ở đây.
-    Cần lookup surrogate key: sinh_vien_key, hoc_ky_key từ dimension.
+                if existing:
+                    existing.hoc_phi_phai_dong = self._to_int(row.get("hoc_phi_phai_dong")) or 0
+                    existing.da_dong           = self._to_int(row.get("da_dong")) or 0
+                    existing.con_no            = self._to_int(row.get("con_no")) or 0
+                    existing.duoc_mien_giam    = bool(row.get("duoc_mien_giam", False))
+                    existing.ly_do_mien_giam   = row.get("ly_do_mien_giam")
+                    existing.so_tien_mien_giam = self._to_int(row.get("so_tien_mien_giam")) or 0
+                    existing.ngay_dong_cuoi    = self._to_date(row.get("ngay_dong_cuoi"))
+                else:
+                    obj = FactTaiChinh(
+                        sinh_vien_key=sv_key,
+                        hoc_ky_key=hk_key,
+                        ma_sinh_vien=ma_sv,
+                        ma_hoc_ky=ma_hk,
+                        hoc_phi_phai_dong=self._to_int(row.get("hoc_phi_phai_dong")) or 0,
+                        da_dong=self._to_int(row.get("da_dong")) or 0,
+                        con_no=self._to_int(row.get("con_no")) or 0,
+                        duoc_mien_giam=bool(row.get("duoc_mien_giam", False)),
+                        ly_do_mien_giam=row.get("ly_do_mien_giam"),
+                        so_tien_mien_giam=self._to_int(row.get("so_tien_mien_giam")) or 0,
+                        ngay_dong_cuoi=self._to_date(row.get("ngay_dong_cuoi")),
+                        nguon_du_lieu="api_portal",
+                    )
+                    session.add(obj)
+                    count += 1
 
-    Mỗi dòng = 1 sinh viên × 1 học kỳ, gồm:
-      - diem_rl, xep_loai_rl   : điểm rèn luyện
-      - loai_hoc_bong, muc_tien: học bổng (nếu có)
-      - hinh_thuc_kl, ly_do_kl : kỷ luật (nếu có)
+            session.commit()
+            logger.info(f"  fact_tai_chinh   → {count:>6,} records")
+            return count
 
-    Input: DataFrame từ transform_ctsv() — cột ma_hoc_ky (đã rename)
-    """
-    logger.info(f"Load fact_ctsv: {len(df)} rows...")
-    inserted = 0
-    skipped  = 0
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  fact_tai_chinh | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
 
-    with wh_engine.begin() as conn:
-        for _, row in df.iterrows():
-            # Lookup sinh_vien_key từ dim_sinh_vien
-            sv_sk = conn.execute(text("""
-                SELECT sinh_vien_key FROM dim_sinh_vien
-                WHERE ma_sinh_vien    = :msv
-                  AND la_ban_hien_tai = TRUE
-            """), {"msv": row["ma_sinh_vien"]}).scalar()
-            if sv_sk is None:
-                skipped += 1
-                continue
+    # ═══════════════════════════════════════════
+    # LOAD AGGREGATION
+    # ═══════════════════════════════════════════
 
-            # Lookup hoc_ky_key từ dim_hoc_ky
-            hk_sk = _lookup_key(conn, "dim_hoc_ky", "hoc_ky_key",
-                                 "ma_hoc_ky", row["ma_hoc_ky"])
-            if hk_sk is None:
-                skipped += 1
-                continue
+    def _load_agg_summary(self, df: pd.DataFrame) -> int:
+        """Load AggStudentSummary — tổng hợp 3 nguồn."""
+        if df.empty:
+            logger.info("  agg_student_summary → SKIP (empty)")
+            return 0
 
-            result = conn.execute(text("""
-                INSERT INTO fact_ctsv (
-                    sinh_vien_key, hoc_ky_key,
-                    ma_sinh_vien,  ma_hoc_ky,
-                    diem_rl,       xep_loai_rl,
-                    loai_hoc_bong, muc_tien_hb,
-                    hinh_thuc_kl,  ly_do_kl,
-                    co_hoc_bong,   bi_ky_luat
-                ) VALUES (
-                    :sv_sk, :hk_sk,
-                    :msv,   :ma_hk,
-                    :diem_rl, :xep_loai,
-                    :loai_hb, :muc_tien,
-                    :hinh_thuc_kl, :ly_do_kl,
-                    :co_hb, :bi_kl
-                )
-                ON CONFLICT (ma_sinh_vien, hoc_ky_key) DO UPDATE SET
-                    diem_rl       = EXCLUDED.diem_rl,
-                    xep_loai_rl   = EXCLUDED.xep_loai_rl,
-                    loai_hoc_bong = EXCLUDED.loai_hoc_bong,
-                    muc_tien_hb   = EXCLUDED.muc_tien_hb,
-                    hinh_thuc_kl  = EXCLUDED.hinh_thuc_kl,
-                    ly_do_kl      = EXCLUDED.ly_do_kl,
-                    co_hoc_bong   = EXCLUDED.co_hoc_bong,
-                    bi_ky_luat    = EXCLUDED.bi_ky_luat,
-                    ngay_load     = CURRENT_TIMESTAMP
-            """), {
-                "sv_sk"        : sv_sk,
-                "hk_sk"        : hk_sk,
-                "msv"          : row["ma_sinh_vien"],
-                "ma_hk"        : row["ma_hoc_ky"],
-                "diem_rl"      : int(row.get("diem_rl", 0) or 0),
-                "xep_loai"     : row.get("xep_loai_rl", ""),
-                "loai_hb"      : row.get("loai_hoc_bong", ""),
-                "muc_tien"     : int(row.get("muc_tien_hb", 0) or 0),
-                "hinh_thuc_kl" : row.get("hinh_thuc_kl", ""),
-                "ly_do_kl"     : row.get("ly_do_kl", ""),
-                "co_hb"        : bool(row.get("co_hoc_bong", False)),
-                "bi_kl"        : bool(row.get("bi_ky_luat", False)),
-            })
-            inserted += result.rowcount
+        session = WarehouseSession()
+        count = 0
 
-    logger.info(f"  → fact_ctsv: +{inserted} | bỏ qua {skipped} | Tổng: {_count_table('fact_ctsv')}")
+        try:
+            if "ma_hoc_ky" in df.columns:
+                latest = df.sort_values("ma_hoc_ky").groupby("ma_sinh_vien").last().reset_index()
+            else:
+                latest = df.drop_duplicates(subset=["ma_sinh_vien"], keep="last")
 
+            for _, row in latest.iterrows():
+                ma_sv  = row.get("ma_sinh_vien")
+                sv_key = self._lookup_sv_key(ma_sv)
+                if not sv_key:
+                    continue
 
-def load_fact_tai_chinh(df: pd.DataFrame):
-    """
-    Load dữ liệu từ API Portal Tài chính vào fact_tai_chinh.
+                hk_key   = self._lookup_hk_key(row.get("ma_hoc_ky"))
+                gpa4     = row.get("gpa_hoc_ky_he4")
+                xep_loai = self._classify_gpa(gpa4) if gpa4 else None
 
-    Bảng fact_tai_chinh đã được tạo bởi create_facts.sql — KHÔNG tạo lại ở đây.
-    Cần lookup surrogate key: sinh_vien_key, hoc_ky_key từ dimension.
+                muc_rui_ro = "Thap"
+                if row.get("nguy_co_bo_hoc"):
+                    muc_rui_ro = "Rat cao"
+                elif row.get("canh_bao_hoc_vu"):
+                    muc_rui_ro = "Cao"
+                elif gpa4 and gpa4 < 2.0:
+                    muc_rui_ro = "Trung binh"
 
-    Mỗi dòng = 1 sinh viên × 1 học kỳ, gồm:
-      - hoc_phi_phai_dong, da_dong, con_no
-      - duoc_mien_giam, ly_do_mien_giam, so_tien_mien_giam
-      - ngay_dong_cuoi
+                existing = session.query(AggStudentSummary).filter_by(
+                    ma_sinh_vien=ma_sv
+                ).first()
 
-    Input: DataFrame từ transform_tai_chinh() — cột ma_hoc_ky (đã rename)
-    """
-    logger.info(f"Load fact_tai_chinh: {len(df)} rows...")
-    inserted = 0
-    skipped  = 0
+                if existing:
+                    existing.gpa_he_4              = self._to_decimal(gpa4)
+                    existing.gpa_he_10             = self._to_decimal(row.get("gpa_hoc_ky_he10"))
+                    existing.xep_loai_hoc_luc      = xep_loai
+                    existing.tong_tin_chi_dang_ky  = self._to_int(row.get("tong_tin_chi")) or 0
+                    existing.so_mon_khong_dat      = self._to_int(row.get("so_mon_rot")) or 0
+                    existing.tong_mon_dang_ky      = self._to_int(row.get("so_mon_hoc")) or 0
+                    existing.diem_rl_trung_binh    = self._to_decimal(row.get("diem_ren_luyen"))
+                    existing.xep_loai_rl_gan_nhat  = row.get("xep_loai_rl")
+                    existing.tong_no_hoc_phi       = self._to_int(row.get("con_no")) or 0
+                    existing.co_no_hoc_phi         = bool(row.get("con_no", 0) > 0)
+                    existing.duoc_mien_giam        = bool(row.get("duoc_mien_giam", False))
+                    existing.muc_do_rui_ro         = muc_rui_ro
+                    existing.canh_bao_hoc_vu       = bool(row.get("canh_bao_hoc_vu", False))
+                    existing.hoc_ky_key_gan_nhat   = hk_key
+                else:
+                    obj = AggStudentSummary(
+                        sinh_vien_key=sv_key,
+                        ma_sinh_vien=ma_sv,
+                        gpa_he_4=self._to_decimal(gpa4),
+                        gpa_he_10=self._to_decimal(row.get("gpa_hoc_ky_he10")),
+                        xep_loai_hoc_luc=xep_loai,
+                        tong_tin_chi_dang_ky=self._to_int(row.get("tong_tin_chi")) or 0,
+                        so_mon_khong_dat=self._to_int(row.get("so_mon_rot")) or 0,
+                        tong_mon_dang_ky=self._to_int(row.get("so_mon_hoc")) or 0,
+                        diem_rl_trung_binh=self._to_decimal(row.get("diem_ren_luyen")),
+                        xep_loai_rl_gan_nhat=row.get("xep_loai_rl"),
+                        tong_no_hoc_phi=self._to_int(row.get("con_no")) or 0,
+                        co_no_hoc_phi=bool(row.get("con_no", 0) > 0),
+                        duoc_mien_giam=bool(row.get("duoc_mien_giam", False)),
+                        muc_do_rui_ro=muc_rui_ro,
+                        canh_bao_hoc_vu=bool(row.get("canh_bao_hoc_vu", False)),
+                        hoc_ky_key_gan_nhat=hk_key,
+                    )
+                    session.add(obj)
+                    count += 1
 
-    with wh_engine.begin() as conn:
-        for _, row in df.iterrows():
-            # Lookup sinh_vien_key từ dim_sinh_vien
-            sv_sk = conn.execute(text("""
-                SELECT sinh_vien_key FROM dim_sinh_vien
-                WHERE ma_sinh_vien    = :msv
-                  AND la_ban_hien_tai = TRUE
-            """), {"msv": row["ma_sinh_vien"]}).scalar()
-            if sv_sk is None:
-                skipped += 1
-                continue
+            session.commit()
+            logger.info(f"  agg_student_summary → {len(latest):>6,} records")
+            return len(latest)
 
-            # Lookup hoc_ky_key từ dim_hoc_ky
-            hk_sk = _lookup_key(conn, "dim_hoc_ky", "hoc_ky_key",
-                                 "ma_hoc_ky", row["ma_hoc_ky"])
-            if hk_sk is None:
-                skipped += 1
-                continue
+        except Exception as e:
+            session.rollback()
+            logger.error(f"  agg_student_summary | Lỗi: {e}")
+            return 0
+        finally:
+            session.close()
 
-            # Xử lý ngay_dong_cuoi — có thể NULL (chưa đóng)
-            ngay_dong = None
-            val = row.get("ngay_dong_cuoi")
-            if val and str(val).strip() not in ("", "None", "NaT", "nan"):
+    # ═══════════════════════════════════════════
+    # DELETE FOR INCREMENTAL
+    # ═══════════════════════════════════════════
+
+    def _delete_fact_by_hk(self, hk_key: int, ma_hoc_ky: str):
+        """Xóa dữ liệu fact cũ theo học kỳ."""
+        tables_and_cols = [
+            ("fact_hoc_tap",   "hoc_ky_key"),
+            ("fact_ctsv",      "hoc_ky_key"),
+            ("fact_tai_chinh", "hoc_ky_key"),
+        ]
+        with self.engine.begin() as conn:
+            for table, col in tables_and_cols:
                 try:
-                    ngay_dong = pd.to_datetime(str(val)).date()
-                except Exception:
-                    pass
+                    result = conn.execute(
+                        text(f"DELETE FROM {table} WHERE {col} = :hk_key"),
+                        {"hk_key": hk_key},
+                    )
+                    if result.rowcount > 0:
+                        logger.info(f"  {table} | Xóa {result.rowcount} records cũ (HK: {ma_hoc_ky})")
+                except Exception as e:
+                    logger.debug(f"  {table} | Skip delete: {e}")
 
-            result = conn.execute(text("""
-                INSERT INTO fact_tai_chinh (
-                    sinh_vien_key,  hoc_ky_key,
-                    ma_sinh_vien,   ma_hoc_ky,
-                    hoc_phi_phai_dong, da_dong, con_no,
-                    duoc_mien_giam, ly_do_mien_giam, so_tien_mien_giam,
-                    ngay_dong_cuoi
-                ) VALUES (
-                    :sv_sk, :hk_sk,
-                    :msv,   :ma_hk,
-                    :phai_dong, :da_dong, :con_no,
-                    :mien_giam, :ly_do_mg, :so_tien_mg,
-                    :ngay_dong
-                )
-                ON CONFLICT (ma_sinh_vien, hoc_ky_key) DO UPDATE SET
-                    hoc_phi_phai_dong = EXCLUDED.hoc_phi_phai_dong,
-                    da_dong           = EXCLUDED.da_dong,
-                    con_no            = EXCLUDED.con_no,
-                    duoc_mien_giam    = EXCLUDED.duoc_mien_giam,
-                    ly_do_mien_giam   = EXCLUDED.ly_do_mien_giam,
-                    so_tien_mien_giam = EXCLUDED.so_tien_mien_giam,
-                    ngay_dong_cuoi    = EXCLUDED.ngay_dong_cuoi,
-                    ngay_load         = CURRENT_TIMESTAMP
-            """), {
-                "sv_sk"      : sv_sk,
-                "hk_sk"      : hk_sk,
-                "msv"        : row["ma_sinh_vien"],
-                "ma_hk"      : row["ma_hoc_ky"],
-                "phai_dong"  : int(row.get("hoc_phi_phai_dong", 0) or 0),
-                "da_dong"    : int(row.get("da_dong", 0) or 0),
-                "con_no"     : int(row.get("con_no", 0) or 0),
-                "mien_giam"  : bool(row.get("duoc_mien_giam", False)),
-                "ly_do_mg"   : row.get("ly_do_mien_giam", ""),
-                "so_tien_mg" : int(row.get("so_tien_mien_giam", 0) or 0),
-                "ngay_dong"  : ngay_dong,
-            })
-            inserted += result.rowcount
+    # ═══════════════════════════════════════════
+    # UTILITIES
+    # ═══════════════════════════════════════════
 
-    logger.info(f"  → fact_tai_chinh: +{inserted} | bỏ qua {skipped} | Tổng: {_count_table('fact_tai_chinh')}")
+    @staticmethod
+    def _to_date(val) -> Optional[date]:
+        """Convert to Python date safely."""
+        if val is None or (isinstance(val, float) and np.isnan(val)):
+            return None
+        if isinstance(val, date):
+            return val
+        if isinstance(val, pd.Timestamp):
+            return val.date()
+        try:
+            return pd.to_datetime(val).date()
+        except Exception:
+            return None
 
+    @staticmethod
+    def _to_decimal(val):
+        """Convert to numeric safely."""
+        if val is None:
+            return None
+        if isinstance(val, float) and np.isnan(val):
+            return None
+        try:
+            return round(float(val), 2)
+        except (ValueError, TypeError):
+            return None
 
-# ══════════════════════════════════════════════════════════════════
-# CHẠY TOÀN BỘ PIPELINE LOAD
-# ══════════════════════════════════════════════════════════════════
+    @staticmethod
+    def _to_int(val) -> Optional[int]:
+        """Convert to int safely."""
+        if val is None:
+            return None
+        if isinstance(val, float) and np.isnan(val):
+            return None
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return None
 
-def run_full_load(df_hk, df_gv, df_hp, df_sv, df_diem, df_agg,
-                  df_ctsv=None, df_tai_chinh=None):
-    """
-    Chạy toàn bộ bước load theo đúng thứ tự FK.
-
-    Tham số bắt buộc (từ PostgreSQL source):
-        df_hk   : DataFrame bảng hoc_ky_nam_hoc
-        df_gv   : DataFrame từ transform_giang_vien()
-        df_hp   : DataFrame bảng hoc_phan
-        df_sv   : DataFrame từ transform_sinh_vien()
-        df_diem : DataFrame từ transform_diem()
-        df_agg  : DataFrame từ calculate_agg_summary() — tổng hợp 3 nguồn
-                  (KHÔNG phải calculate_gpa, phải merge xong 3 nguồn trước)
-
-    Tham số tùy chọn (nguồn bổ sung — pipeline vẫn chạy nếu thiếu):
-        df_ctsv      : DataFrame từ transform_ctsv()       (Nguồn 2 CSV)
-        df_tai_chinh : DataFrame từ transform_tai_chinh()  (Nguồn 3 API)
-    """
-    logger.info("=" * 55)
-    logger.info("BẮT ĐẦU LOAD VÀO WAREHOUSE — 3 NGUỒN")
-    logger.info("=" * 55)
-
-    # Dimensions (phải load trước facts)
-    load_dim_hoc_ky(df_hk)
-    load_dim_giang_vien(df_gv)
-    load_dim_hoc_phan(df_hp)
-    load_dim_sinh_vien(df_sv)
-
-    # Fact Nguồn 1: PostgreSQL
-    load_fact_hoc_tap(df_diem)
-
-    # Fact Nguồn 2: CSV CTSV
-    if df_ctsv is not None and not df_ctsv.empty:
-        load_fact_ctsv(df_ctsv)
-    else:
-        logger.warning("Bỏ qua load_fact_ctsv: không có dữ liệu CSV CTSV")
-
-    # Fact Nguồn 3: API Portal
-    if df_tai_chinh is not None and not df_tai_chinh.empty:
-        load_fact_tai_chinh(df_tai_chinh)
-    else:
-        logger.warning("Bỏ qua load_fact_tai_chinh: không có dữ liệu API Portal")
-
-    # Aggregate tổng hợp 3 nguồn — load CUỐI CÙNG
-    load_agg_summary(df_agg)
-
-    logger.info("=" * 55)
-    logger.info("LOAD HOÀN THÀNH ✅")
-    logger.info("=" * 55)
+    @staticmethod
+    def _classify_gpa(gpa4: float) -> str:
+        """Xếp loại học lực theo GPA hệ 4."""
+        if gpa4 >= 3.6:
+            return "Xuat sac"
+        elif gpa4 >= 3.2:
+            return "Gioi"
+        elif gpa4 >= 2.5:
+            return "Kha"
+        elif gpa4 >= 2.0:
+            return "Trung binh"
+        elif gpa4 >= 1.0:
+            return "Yeu"
+        else:
+            return "Kem"
