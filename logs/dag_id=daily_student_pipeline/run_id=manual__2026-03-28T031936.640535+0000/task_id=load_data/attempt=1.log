@@ -1,0 +1,94 @@
+[2026-03-28T03:19:52.257+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-03-28T03:19:36.640535+00:00 [queued]>
+[2026-03-28T03:19:52.269+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-03-28T03:19:36.640535+00:00 [queued]>
+[2026-03-28T03:19:52.270+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-03-28T03:19:52.289+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): load_data> on 2026-03-28 03:19:36.640535+00:00
+[2026-03-28T03:19:52.295+0000] {standard_task_runner.py:60} INFO - Started process 1329 to run task
+[2026-03-28T03:19:52.299+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'load_data', 'manual__2026-03-28T03:19:36.640535+00:00', '--job-id', '36', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpldxy94mu']
+[2026-03-28T03:19:52.302+0000] {standard_task_runner.py:88} INFO - Job 36: Subtask load_data
+[2026-03-28T03:19:52.404+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.load_data manual__2026-03-28T03:19:36.640535+00:00 [running]> on host 8474c56aea3d
+[2026-03-28T03:19:52.535+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='load_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-28T03:19:36.640535+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-28T03:19:36.640535+00:00'
+[2026-03-28T03:19:53.349+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.transform :   Load TransformedData từ MinIO staging: run_id=2026-03-28_03-19
+[2026-03-28T03:19:53.349+0000] {transform.py:285} INFO -   Load TransformedData từ MinIO staging: run_id=2026-03-28_03-19
+[2026-03-28T03:19:53.384+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_hoc_ky.parquet (9 rows)
+[2026-03-28T03:19:53.384+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_hoc_ky.parquet (9 rows)
+[2026-03-28T03:19:53.397+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_giang_vien.parquet (45 rows)
+[2026-03-28T03:19:53.396+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_giang_vien.parquet (45 rows)
+[2026-03-28T03:19:53.411+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_hoc_phan.parquet (121 rows)
+[2026-03-28T03:19:53.411+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_hoc_phan.parquet (121 rows)
+[2026-03-28T03:19:53.426+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_sinh_vien.parquet (1,695 rows)
+[2026-03-28T03:19:53.426+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/dim_sinh_vien.parquet (1,695 rows)
+[2026-03-28T03:19:53.446+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_diem.parquet (47,969 rows)
+[2026-03-28T03:19:53.445+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_diem.parquet (47,969 rows)
+[2026-03-28T03:19:53.460+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_ren_luyen.parquet (8,247 rows)
+[2026-03-28T03:19:53.460+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_ren_luyen.parquet (8,247 rows)
+[2026-03-28T03:19:53.474+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_tai_chinh.parquet (8,247 rows)
+[2026-03-28T03:19:53.474+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_tai_chinh.parquet (8,247 rows)
+[2026-03-28T03:19:53.489+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_tong_hop_sv.parquet (8,247 rows)
+[2026-03-28T03:19:53.489+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-03-28_03-19/fact_tong_hop_sv.parquet (8,247 rows)
+[2026-03-28T03:19:53.491+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.transform : ✅ Load from staging-data OK — run_id=2026-03-28_03-19
+[2026-03-28T03:19:53.491+0000] {transform.py:298} INFO - ✅ Load from staging-data OK — run_id=2026-03-28_03-19
+[2026-03-28T03:19:53.493+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load : 📥 BẮT ĐẦU LOAD VÀO DATA WAREHOUSE
+[2026-03-28T03:19:53.493+0000] {load.py:55} INFO - 📥 BẮT ĐẦU LOAD VÀO DATA WAREHOUSE
+[2026-03-28T03:19:53.494+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load : ======================================================================
+[2026-03-28T03:19:53.494+0000] {load.py:56} INFO - ======================================================================
+[2026-03-28T03:19:53.495+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load :   Tạo schema warehouse từ warehouse_models.py...
+[2026-03-28T03:19:53.495+0000] {load.py:130} INFO -   Tạo schema warehouse từ warehouse_models.py...
+[2026-03-28T03:19:53.510+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load :   Schema warehouse OK ✓
+[2026-03-28T03:19:53.510+0000] {load.py:132} INFO -   Schema warehouse OK ✓
+[2026-03-28T03:19:53.512+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-03-28T03:19:53.512+0000] {load.py:64} INFO - ── Bước 1: Load Dimension Tables ──
+[2026-03-28T03:19:53.539+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load :   dim_hoc_ky       →      9 records (new: 0)
+[2026-03-28T03:19:53.539+0000] {load.py:233} INFO -   dim_hoc_ky       →      9 records (new: 0)
+[2026-03-28T03:19:53.580+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load :   dim_giang_vien   →     45 records (new: 0)
+[2026-03-28T03:19:53.580+0000] {load.py:282} INFO -   dim_giang_vien   →     45 records (new: 0)
+[2026-03-28T03:19:53.694+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:53] INFO    etl.load :   dim_hoc_phan     →    121 records (new: 0)
+[2026-03-28T03:19:53.694+0000] {load.py:331} INFO -   dim_hoc_phan     →    121 records (new: 0)
+[2026-03-28T03:19:55.112+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:55] INFO    etl.load :   dim_sinh_vien    →  1,695 records (new: 0, SCD2 update: 0)
+[2026-03-28T03:19:55.112+0000] {load.py:444} INFO -   dim_sinh_vien    →  1,695 records (new: 0, SCD2 update: 0)
+[2026-03-28T03:19:55.114+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:55] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-03-28T03:19:55.114+0000] {load.py:71} INFO - ── Bước 2: Build Surrogate Key Cache ──
+[2026-03-28T03:19:55.115+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:55] INFO    etl.load :   Building surrogate key caches...
+[2026-03-28T03:19:55.115+0000] {load.py:140} INFO -   Building surrogate key caches...
+[2026-03-28T03:19:55.135+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:55] INFO    etl.load :     SV=1695, HP=121, GV=45, HK=9
+[2026-03-28T03:19:55.135+0000] {load.py:172} INFO -     SV=1695, HP=121, GV=45, HK=9
+[2026-03-28T03:19:55.136+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:19:55] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-03-28T03:19:55.136+0000] {load.py:75} INFO - ── Bước 3: Load Fact Tables ──
+[2026-03-28T03:21:05.970+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:05] INFO    etl.load :   fact_hoc_tap     →      0 records
+[2026-03-28T03:21:05.969+0000] {load.py:534} INFO -   fact_hoc_tap     →      0 records
+[2026-03-28T03:21:14.394+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:14] INFO    etl.load :   fact_ctsv        →      0 records
+[2026-03-28T03:21:14.394+0000] {load.py:598} INFO -   fact_ctsv        →      0 records
+[2026-03-28T03:21:22.860+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:22] INFO    etl.load :   fact_tai_chinh   →      0 records
+[2026-03-28T03:21:22.858+0000] {load.py:660} INFO -   fact_tai_chinh   →      0 records
+[2026-03-28T03:21:22.862+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:22] INFO    etl.load : ── Bước 4: Load Aggregation ──
+[2026-03-28T03:21:22.862+0000] {load.py:81} INFO - ── Bước 4: Load Aggregation ──
+[2026-03-28T03:21:24.506+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :   agg_student_summary →  1,695 records
+[2026-03-28T03:21:24.506+0000] {load.py:749} INFO -   agg_student_summary →  1,695 records
+[2026-03-28T03:21:24.508+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load : ======================================================================
+[2026-03-28T03:21:24.508+0000] {load.py:85} INFO - ======================================================================
+[2026-03-28T03:21:24.509+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load : ✅ LOAD HOÀN TẤT
+[2026-03-28T03:21:24.509+0000] {load.py:86} INFO - ✅ LOAD HOÀN TẤT
+[2026-03-28T03:21:24.510+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    dim_hoc_ky               :        9 records
+[2026-03-28T03:21:24.510+0000] {load.py:89} INFO -    dim_hoc_ky               :        9 records
+[2026-03-28T03:21:24.511+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    dim_giang_vien           :       45 records
+[2026-03-28T03:21:24.511+0000] {load.py:89} INFO -    dim_giang_vien           :       45 records
+[2026-03-28T03:21:24.511+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    dim_hoc_phan             :      121 records
+[2026-03-28T03:21:24.511+0000] {load.py:89} INFO -    dim_hoc_phan             :      121 records
+[2026-03-28T03:21:24.512+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    dim_sinh_vien            :        0 records
+[2026-03-28T03:21:24.512+0000] {load.py:89} INFO -    dim_sinh_vien            :        0 records
+[2026-03-28T03:21:24.512+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    fact_hoc_tap             :        0 records
+[2026-03-28T03:21:24.512+0000] {load.py:89} INFO -    fact_hoc_tap             :        0 records
+[2026-03-28T03:21:24.513+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    fact_ctsv                :        0 records
+[2026-03-28T03:21:24.513+0000] {load.py:89} INFO -    fact_ctsv                :        0 records
+[2026-03-28T03:21:24.514+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    fact_tai_chinh           :        0 records
+[2026-03-28T03:21:24.514+0000] {load.py:89} INFO -    fact_tai_chinh           :        0 records
+[2026-03-28T03:21:24.515+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    agg_student_summary      :    1,695 records
+[2026-03-28T03:21:24.515+0000] {load.py:89} INFO -    agg_student_summary      :    1,695 records
+[2026-03-28T03:21:24.516+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load :    TỔNG                     :    1,870 records
+[2026-03-28T03:21:24.516+0000] {load.py:91} INFO -    TỔNG                     :    1,870 records
+[2026-03-28T03:21:24.517+0000] {logging_mixin.py:188} WARNING - [2026-03-28 03:21:24] INFO    etl.load : ======================================================================
+[2026-03-28T03:21:24.517+0000] {load.py:92} INFO - ======================================================================
+[2026-03-28T03:21:24.532+0000] {logging_mixin.py:188} INFO - Load xong: {'dim_hoc_ky': 9, 'dim_giang_vien': 45, 'dim_hoc_phan': 121, 'dim_sinh_vien': 0, 'fact_hoc_tap': 0, 'fact_ctsv': 0, 'fact_tai_chinh': 0, 'agg_student_summary': 1695}
+[2026-03-28T03:21:24.534+0000] {python.py:201} INFO - Done. Returned value was: {'dim_hoc_ky': 9, 'dim_giang_vien': 45, 'dim_hoc_phan': 121, 'dim_sinh_vien': 0, 'fact_hoc_tap': 0, 'fact_ctsv': 0, 'fact_tai_chinh': 0, 'agg_student_summary': 1695}
+[2026-03-28T03:21:24.558+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=load_data, execution_date=20260328T031936, start_date=20260328T031952, end_date=20260328T032124
+[2026-03-28T03:21:24.589+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-28T03:21:24.615+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

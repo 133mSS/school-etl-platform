@@ -195,10 +195,9 @@ CHUC_DANH_W = [50, 35, 12, 3]
 HB_QUOTA_RATE = 0.10
 
 HB_TIERS = [
-    {"loai": "KKHT Loại Xuất sắc", "min_drl": 90,"min_gpa" : 3.6, "muc_tien": 8000000, "sub_rate": 0.1},
-    {"loai": "KKHT Loại Giỏi",     "min_drl": 80,"min_gpa" : 3.2, "muc_tien": 3600000, "sub_rate": 0.1},
-    {"loai": "KKHT Loại Khá",      "min_drl": 65,"min_gpa" : 3.2, "muc_tien": 1200000, "sub_rate": 0.2},
-    {"loai": "KKHT Loại Khá",      "min_drl": 65,"min_gpa" : 2.5, "muc_tien": 1200000, "sub_rate": 0.6},
+    {"loai": "KKHT Loại Xuất sắc", "min_drl": 90, "min_gpa": 3.60, "muc_tien": 8000000},
+    {"loai": "KKHT Loại Giỏi",     "min_drl": 80, "min_gpa": 3.20, "muc_tien": 3600000},
+    {"loai": "KKHT Loại Khá",      "min_drl": 65, "min_gpa": 2.50, "muc_tien": 1200000},
 ]
 
 HK_MODIFIER = {
@@ -211,7 +210,6 @@ HK_MODIFIER = {
     "HK1-2024-25": +0.5,   
     "HK2-2024-25": -0.2,   
     "HK1-2025-26": +0.1,  
-    "HK2-2025-26":  0.0,
 }
 # ═══════════════════════════════════════════════════════
 # CHƯƠNG TRÌNH ĐÀO TẠO
@@ -222,7 +220,7 @@ CHUONG_TRINH_KT = {
             ("DC100", "Triết học Mác-Lênin", 2, 30, 0, 0.0),
             ("KT002", "Kinh tế vi mô 1", 3, 45, 0, 1.0),
             ("DC106", "Tin học cơ sở 1", 2, 20, 20, 0.5),
-            ("KT004", "Toán cao cấp 1", 2, 30, 0, 2.0),
+            ("KT004", "Toán cao cấp 1", 2, 30, 0, 1.0),
             ("DC105", "Pháp luật đại cương", 2, 30, 0, 0.3),
         ],
         "tu_chon": [], "so_chon": 0,
@@ -231,7 +229,7 @@ CHUONG_TRINH_KT = {
         "bat_buoc": [
             ("DC101", "Kinh tế chính trị Mác-Lênin", 2, 30, 0, 0.0),
             ("DC107", "Tiếng Anh (Course 1)", 4, 60, 0, 0.8),
-            ("KT008", "Toán cao cấp 2", 2, 30, 0, 2.2),
+            ("KT008", "Toán cao cấp 2", 2, 30, 0, 1.8),
             ("KT009", "Lý thuyết xác suất và thống kê", 3, 45, 0, 2.0),
             ("KT010", "Tin học cơ sở 3", 3, 30, 20, 0.8),
             ("KT011", "Kinh tế vĩ mô 1", 3, 45, 0, 1.0),
@@ -524,28 +522,31 @@ NGANH_CONFIG = {
         "ma_khoa": "KKT", "ma_viet_tat": "KT",
         "chuong_trinh": CHUONG_TRINH_KT, "max_hk": 8,
         "so_lop_per_khoa": 4, "ty_le_nam": 0.35,
+        "do_kho_nganh": 0.0,    # Bình thường
     },
     "VT": {
         "ma_nganh": "DTVT", "ten_nganh": "Kỹ thuật Điện tử viễn thông",
         "ma_khoa": "KVT", "ma_viet_tat": "VT",
         "chuong_trinh": CHUONG_TRINH_VT, "max_hk": 9,
-        "so_lop_per_khoa": 4, "ty_le_nam": 0.80,
+        "so_lop_per_khoa": 4, "ty_le_nam": 0.75,
+        "do_kho_nganh": -0.2,    # Xấp xỉ KT
     },
     "CN": {
         "ma_nganh": "CNTT", "ten_nganh": "Công nghệ thông tin",
         "ma_khoa": "CNTT1", "ma_viet_tat": "CN",
         "chuong_trinh": CHUONG_TRINH_CN, "max_hk": 9,
-        "so_lop_per_khoa": 4, "ty_le_nam": 0.75,
+        "so_lop_per_khoa": 4, "ty_le_nam": 0.85,
+        "do_kho_nganh": -0.4,   # Khó hơn → IT dễ bỏ nhất
     },
 }
 
 SV_PER_KHOA = {"B21": 130, "B22": 140, "B23": 145, "B24": 150}
 
 COHORT_CONFIG = {
-    "B21": (2021, 9, 8),
-    "B22": (2022, 7, 6),
-    "B23": (2023, 5, 4),
-    "B24": (2024, 3, 2),
+    "B21": (2021, 9, 9),   
+    "B22": (2022, 7, 7),   
+    "B23": (2023, 5, 5),   
+    "B24": (2024, 3, 3),  
 }
 
 TRANG_THAI_BY_COHORT = {
@@ -564,8 +565,7 @@ HK_MASTER = {
     "HK2-2023-24": ("2023-2024", "Học kỳ 2", date(2024, 2, 12), date(2024, 6, 28)),
     "HK1-2024-25": ("2024-2025", "Học kỳ 1", date(2024, 9, 2), date(2025, 1, 11)),
     "HK2-2024-25": ("2024-2025", "Học kỳ 2", date(2025, 2, 10), date(2025, 6, 27)),
-    "HK1-2025-26": ("2025-2026", "Học kỳ 1", date(2025, 9, 1), date(2026, 3, 14)),
-    "HK2-2025-26": ("2025-2026", "Học kỳ 2", date(2026, 2, 9), date(2026, 6, 30)),
+    "HK1-2025-26": ("2025-2026", "Học kỳ 1", date(2025, 9, 1), date(2026, 2, 8)),
 }
 
 HK_SEQ_BY_COHORT = {
@@ -608,28 +608,25 @@ GV_DATA = {
 # HELPERS
 # ═══════════════════════════════════════════════════════
 def _gen_diem_raw(profile):
-    """Phân bố điểm sát thực tế ĐH Việt Nam"""
     r = random.random()
     if profile == "xuất sắc":
-        # Avg ~8.4 → GPA kỳ ~3.5
-        tbl = [(0.45, 9.0, 10.0), (0.75, 8.0, 8.99),
-       (0.90, 7.0, 7.99), (0.97, 6.0, 6.99), (1.00, 5.0, 5.99)]
+        tbl = [(0.35, 9.0, 10.0), (0.70, 8.0, 8.99),
+               (0.88, 7.0, 7.99), (0.96, 6.0, 6.99), (1.00, 5.0, 5.99)]
     elif profile == "giỏi":
-        # Avg ~7.4 → GPA kỳ ~3.0
         tbl = [(0.18, 8.5, 10.0), (0.50, 7.5, 8.49),
                (0.78, 6.5, 7.49), (0.93, 5.5, 6.49), (1.00, 4.5, 5.49)]
     elif profile == "khá":
-        # Avg ~6.0 → GPA kỳ ~2.2
         tbl = [(0.08, 8.0, 10.0), (0.28, 7.0, 7.99),
-               (0.58, 5.5, 6.99), (0.83, 4.5, 5.49), (1.00, 3.0, 4.49)]
+               (0.58, 5.5, 6.99), (0.83, 4.5, 5.49), (1.00, 3.5, 4.49)]
     elif profile == "yếu":
-        # Avg ~3.8 → GPA kỳ ~0.8
-        tbl = [(0.02, 7.0, 10.0), (0.08, 5.5, 6.99),
-               (0.22, 4.5, 5.49), (0.50, 3.0, 4.49), (1.00, 0.0, 2.99)]
+        # FIX: Nâng sàn → SV yếu nhất vẫn có vài môn 4.0-5.0 (D/D+)
+        tbl = [(0.03, 7.0, 10.0), (0.10, 5.5, 6.99),
+               (0.30, 4.0, 5.49),    # 20% đạt D/D+ → GPA > 0
+               (0.60, 3.0, 3.99),    # 30% F nhưng gần đạt
+               (1.00, 2.0, 2.99)]    # 40% F thấp, min=2.0
     else:  # trung bình
-        # Avg ~5.3 → GPA kỳ ~1.8
         tbl = [(0.05, 8.0, 10.0), (0.20, 6.5, 7.99),
-               (0.50, 5.0, 6.49), (0.78, 4.0, 4.99), (1.00, 2.0, 3.99)]
+               (0.50, 5.0, 6.49), (0.78, 4.0, 4.99), (1.00, 3.0, 3.99)]
     for thr, lo, hi in tbl:
         if r < thr:
             return round(random.uniform(lo, hi), 2)
@@ -674,13 +671,16 @@ def _tao_diem_record(ma_dk, do_kho, profile, hk_idx, la_hoc_lai, ngay_ket_thuc_h
         cc = round(random.uniform(6.5, 9.5), 2)
         cc = round(max(0.0, cc - do_kho * 0.1), 2)
 
-    # Điểm chuyên cần cũng bị ảnh hưởng nhẹ bởi độ khó HK
     cc = round(max(0.0, min(10.0, cc + hk_modifier * 0.3)), 2)
 
     bt = _gen_diem_mon(profile, do_kho, hk_idx, la_hoc_lai, hk_modifier)
     gk = _gen_diem_mon(profile, do_kho, hk_idx, la_hoc_lai, hk_modifier)
     ck = _gen_diem_mon(profile, do_kho, hk_idx, la_hoc_lai, hk_modifier)
     dtk = round(max(0.0, min(10.0, 0.1 * cc + 0.1 * bt + 0.2 * gk + 0.6 * ck)), 2)
+
+    # FIX: Bỏ dòng dtk = max(1.0, dtk) — sai vì F vẫn = 0.0
+    # Không cần sửa ở đây, sửa ở GPA level bên dưới
+
     chu, he4 = _diem_sang_chu(dtk)
     return {
         "ma_dang_ky": ma_dk,
@@ -694,7 +694,6 @@ def _tao_diem_record(ma_dk, do_kho, profile, hk_idx, la_hoc_lai, ngay_ket_thuc_h
             datetime.min.time()
         ),
     }
-
 def _gen_sdt():
     p = random.choice(["032", "033", "034", "035", "036", "038", "086", "096", "097", "098"])
     return p + str(random.randint(1000000, 9999999))
@@ -723,10 +722,12 @@ def _tinh_tong_tc_den_hk(chuong_trinh, hk_count):
 def _collect_all_courses():
     courses_by_khoa = {}
     dc_courses = []
-    for _, cfg in NGANH_CONFIG.items():
-        ma_khoa = cfg["ma_khoa"]
+
+    for _, cfg in NGANH_CONFIG.items():   # ← Duyệt: KT → VT → CN
+        ma_khoa = cfg["ma_khoa"]          # KT→KKT, VT→KVT, CN→CNTT1
         ct = cfg["chuong_trinh"]
         max_hk = cfg["max_hk"]
+
         for hk_idx in range(1, max_hk + 1):
             mons = _build_mon_list_for_hk(ct[hk_idx])
             for course in mons:
@@ -738,8 +739,8 @@ def _collect_all_courses():
                     courses_by_khoa.setdefault(ma_khoa, [])
                     if ma_mon not in [c[0] for c in courses_by_khoa[ma_khoa]]:
                         courses_by_khoa[ma_khoa].append(course)
+    
     return courses_by_khoa, dc_courses
-
 
 def _assign_instructors_to_courses(gv_ids_by_khoa, courses_by_khoa, dc_courses,
                                    dc_gv_per_course=4, major_gv_per_course=3):
@@ -885,6 +886,7 @@ def main():
             vt = cfg["ma_viet_tat"]
             chuong_trinh = cfg["chuong_trinh"]
             max_hk = cfg["max_hk"]
+            do_kho_nganh = cfg.get("do_kho_nganh", 0.0)  # ← THÊM
 
             mon_by_hk = {}
             for hk_idx in range(1, max_hk + 1):
@@ -927,7 +929,7 @@ def main():
             s.flush()
             print(f"  -> {len(hoc_phans)} Học phần mới (tổng DB: {len(global_hp_inserted)})")
 
-            # ── 8. Sinh viên ──
+                       # ── 8. Sinh viên ──
             svs = []
             hoc_luc_sv = {}
             for cohort in COHORTS:
@@ -939,7 +941,13 @@ def main():
                     gioi = "Nam" if is_nam else "Nữ"
                     ma_sv = f"{cohort}DC{vt}{stt:03d}"
                     email = f"{cohort.lower()}dc{vt.lower()}{stt:03d}@student.ptit.edu.vn"
-                    trang_thai = random.choices(tt_options, weights=tt_weights)[0]
+                    hk_available = len(HK_SEQ_BY_COHORT.get(cohort, []))
+                    if hk_available < max_hk and "Tốt nghiệp" in tt_options:
+                        tt_opts_adj = [t for t in tt_options if t != "Tốt nghiệp"]
+                        tt_wts_adj  = [w for t, w in zip(tt_options, tt_weights) if t != "Tốt nghiệp"]
+                        trang_thai = random.choices(tt_opts_adj, weights=tt_wts_adj)[0]
+                    else:
+                        trang_thai = random.choices(tt_options, weights=tt_weights)[0]
                     nam_sinh = nam_nhap - random.randint(18, 21)
                     ho = random.choice(HO_LIST)
                     if gioi == "Nam":
@@ -957,14 +965,15 @@ def main():
                         khoa_hoc=cohort, trang_thai_hoc_tap=trang_thai,
                     ))
 
+                    # FIX #3: Profile PHẢI khớp trạng thái
                     if trang_thai == "Tốt nghiệp":
-                        hl_w = [2, 15, 58, 25, 0]
+                        hl_w = [15, 55, 30, 0, 0]
                     elif trang_thai == "Thôi học":
-                        hl_w = [0, 3, 30, 35, 32]
+                        hl_w = [0, 3, 20, 37, 40]
                     elif trang_thai == "Bảo lưu":
-                        hl_w = [0, 2, 40, 30, 28]
+                        hl_w = [0, 5, 35, 35, 25]
                     else:
-                        hl_w = [3, 15, 60, 14, 8]
+                        hl_w = [3, 15, 55, 20, 7]
                     hoc_luc_sv[ma_sv] = random.choices(
                         ["xuất sắc", "giỏi", "khá", "trung bình", "yếu"],
                         weights=hl_w
@@ -980,22 +989,27 @@ def main():
             print(f"  -> {len(svs)} Sinh viên "
                   f"({' | '.join(f'{k}:{v}' for k, v in sorted(tt_count.items()))})")
 
-                                  # ── 9. Đăng ký & Điểm ──
-            dk_buf = []
-            dk_set = set()
+            # ── FIX #4: Tính hk_co_diem 1 lần cho mỗi SV ──
+            sv_hk_count = {}
             for sv in svs:
                 _, _, hk_da_diem = COHORT_CONFIG[sv.khoa_hoc]
-                profile = hoc_luc_sv[sv.ma_sinh_vien]
-
                 if sv.trang_thai_hoc_tap == "Tốt nghiệp":
                     hk_co_diem = max_hk
                 elif sv.trang_thai_hoc_tap == "Đang học":
                     hk_co_diem = hk_da_diem
                 elif sv.trang_thai_hoc_tap == "Bảo lưu":
                     hk_co_diem = max(1, hk_da_diem - 1)
-                else:
-                    hk_co_diem = max(1, hk_da_diem - 2)
-                hk_co_diem = min(hk_co_diem, max_hk)
+                else:  # Thôi học
+                    max_thoi_hoc = max(1, min(3, hk_da_diem - 1))
+                    hk_co_diem = random.randint(1, max_thoi_hoc)
+                sv_hk_count[sv.ma_sinh_vien] = min(hk_co_diem, max_hk)
+
+            # ── 9. Đăng ký & Điểm ──
+            dk_buf = []
+            dk_set = set()
+            for sv in svs:
+                profile = hoc_luc_sv[sv.ma_sinh_vien]
+                hk_co_diem = sv_hk_count[sv.ma_sinh_vien]
 
                 for hk_idx in range(1, hk_co_diem + 1):
                     hk_obj = hk_lookup.get((sv.khoa_hoc, hk_idx))
@@ -1019,9 +1033,10 @@ def main():
                             "ngay_dang_ky": hk_obj.ngay_bat_dau + timedelta(days=random.randint(1, 10)),
                             "trang_thai": "Đã đăng ký",
                             "_hk_idx": hk_idx, "_do_kho": do_kho,
+            
                             "_profile": profile, "_kt_hk": hk_obj.ngay_ket_thuc,
                             "_so_tin_chi": tc,
-                            "_hk_modifier": HK_MODIFIER.get(hk_obj.ma_hoc_ky, 0.0),  # ← MỚI
+                            "_hk_modifier": HK_MODIFIER.get(hk_obj.ma_hoc_ky, 0.0) + do_kho_nganh,
                         })
 
             # ── Insert Đăng ký ──
@@ -1062,7 +1077,7 @@ def main():
                 diem_rec = _tao_diem_record(
                     ma_dk, d["_do_kho"], d["_profile"],
                     d["_hk_idx"], False, d["_kt_hk"],
-                    d["_hk_modifier"]  # ← TRUYỀN ĐỘ KHÓ HK
+                    d["_hk_modifier"]
                 )
                 diem_buf.append(diem_rec)
 
@@ -1072,12 +1087,20 @@ def main():
                 )
 
             # Tính GPA học kỳ
+                        # Tính GPA học kỳ
             sv_hk_gpa = {}
             for gpa_key, grades in sv_hk_grades.items():
                 total_w = sum(he4 * tc for he4, tc in grades)
                 total_tc = sum(tc for _, tc in grades)
                 if total_tc > 0:
-                    sv_hk_gpa[gpa_key] = round(total_w / total_tc, 2)
+                    gpa = round(total_w / total_tc, 2)
+                    # FIX: Nếu tất cả môn đều F → ép ít nhất 1 môn lên D(1.0)
+                    if gpa == 0.0:
+                        # Lấy môn có TC lớn nhất để "nâng" lên D
+                        max_tc = max(tc for _, tc in grades)
+                        gpa = round(1.0 * max_tc / total_tc, 2)
+                        gpa = max(gpa, 0.10)  # tối thiểu 0.10
+                    sv_hk_gpa[gpa_key] = gpa
 
             # ── Insert Điểm ──
             inserted_diem = 0
@@ -1101,22 +1124,13 @@ def main():
             # 10. CSV & JSON — Two-Pass: DRL → Scholarship Quota
             # ══════════════════════════════════════════════════════════
 
-                                    # ─── PASS 1: Tính DRL + Tài chính ───
+            # ─── PASS 1: Tính DRL + Tài chính ───
             temp_hk_data = {}
 
             for sv in svs:
                 profile = hoc_luc_sv[sv.ma_sinh_vien]
-                _, _, hk_da_diem = COHORT_CONFIG[sv.khoa_hoc]
-
-                if sv.trang_thai_hoc_tap == "Tốt nghiệp":
-                    hk_count = max_hk
-                elif sv.trang_thai_hoc_tap == "Đang học":
-                    hk_count = hk_da_diem
-                elif sv.trang_thai_hoc_tap == "Bảo lưu":
-                    hk_count = max(1, hk_da_diem - 1)
-                else:
-                    hk_count = max(1, hk_da_diem - 2)
-                hk_count = min(hk_count, max_hk)
+                # FIX #4: Dùng sv_hk_count thống nhất
+                hk_count = sv_hk_count[sv.ma_sinh_vien]
 
                 for hk_idx in range(1, hk_count + 1):
                     hk_obj = hk_lookup.get((sv.khoa_hoc, hk_idx))
@@ -1125,23 +1139,21 @@ def main():
                     if hk_idx == max_hk and sv.trang_thai_hoc_tap != "Tốt nghiệp":
                         continue
 
-                    # Lấy modifier của học kỳ này
-                    hk_mod = HK_MODIFIER.get(hk_obj.ma_hoc_ky, 0.0)
-                    drl_shift = int(hk_mod * 4)  # ảnh hưởng DRL tỷ lệ
+                    hk_mod = HK_MODIFIER.get(hk_obj.ma_hoc_ky, 0.0) + do_kho_nganh
+                    drl_shift = int(hk_mod * 4)
 
-                    # DRL — phân bố thực tế + biến động theo kỳ
+                    # FIX #5: DRL mean thực tế hơn
                     if profile == "xuất sắc":
-                        drl = int(max(0, min(100, random.gauss(86 + drl_shift, 5))))
+                        drl = int(max(0, min(100, random.gauss(88 + drl_shift, 4))))
                     elif profile == "giỏi":
-                        drl = int(max(0, min(100, random.gauss(78 + drl_shift, 6))))
+                        drl = int(max(0, min(100, random.gauss(82 + drl_shift, 5))))
                     elif profile == "khá":
-                        drl = int(max(0, min(100, random.gauss(70 + drl_shift, 7))))
+                        drl = int(max(0, min(100, random.gauss(73 + drl_shift, 6))))
                     elif profile == "yếu":
-                        drl = int(max(0, min(100, random.gauss(42 + drl_shift, 10))))
+                        drl = int(max(0, min(100, random.gauss(48 + drl_shift, 8))))
                     else:
-                        drl = int(max(0, min(100, random.gauss(58 + drl_shift, 8))))
+                        drl = int(max(0, min(100, random.gauss(62 + drl_shift, 7))))
 
-                    # Xếp loại rèn luyện
                     if drl >= 90:
                         xep_loai_rl = "Xuất sắc"
                     elif drl >= 80:
@@ -1152,9 +1164,7 @@ def main():
                         xep_loai_rl = "Trung bình"
                     else:
                         xep_loai_rl = "Yếu"
-                 
 
-                    # Kỷ luật
                     hinh_thuc_kl, ly_do_kl = "", ""
                     if profile == "yếu" and random.random() < 0.15:
                         hinh_thuc_kl = random.choice([
@@ -1165,7 +1175,6 @@ def main():
                             "Nghỉ học quá nhiều", "Vi phạm nội quy KTX"
                         ])
 
-                    # GPA học kỳ đã tính ở section 9
                     gpa_hk = sv_hk_gpa.get((sv.ma_sinh_vien, hk_obj.ma_hoc_ky), 0.0)
 
                     temp_hk_data.setdefault(hk_obj.ma_hoc_ky, []).append({
@@ -1180,7 +1189,6 @@ def main():
                         "profile": profile,
                     })
 
-                    # Tài chính (giữ nguyên)
                     mons_hk = mon_by_hk[hk_idx]
                     tc_hk = sum(m[2] for m in mons_hk)
                     gia_tc = random.choice([440000, 460000, 480000, 500000])
@@ -1228,7 +1236,7 @@ def main():
                         "ngay_dong_cuoi": str(hk_obj.ngay_bat_dau + timedelta(days=35)),
                     })
 
-                                                # ─── PASS 2: HB = top 10%, xét GPA HK + DRL ───
+            # ─── PASS 2: HB = top 10%, xét GPA HK + DRL ───
             total_hb_nganh = {"Xuất sắc": 0, "Giỏi": 0, "Khá": 0}
 
             for ma_hk, records in sorted(temp_hk_data.items()):
@@ -1237,7 +1245,6 @@ def main():
                     by_cohort.setdefault(rec["khoa_hoc"], []).append(rec)
 
                 for cohort, cohort_records in sorted(by_cohort.items()):
-                    # Sort theo GPA giảm dần (ưu tiên học tập), rồi DRL
                     cohort_records.sort(
                         key=lambda x: (x["gpa_hk"], x["drl"]),
                         reverse=True
@@ -1282,7 +1289,7 @@ def main():
                   f"Khá={total_hb_nganh['Khá']} "
                   f"(tổng {sum(total_hb_nganh.values())} suất)")
 
-        # ── 11. GPA ──
+               # ── 11. GPA ──
         print(f"\n[11] Đang tính toán GPA...")
         rows_gpa = s.execute(text("""
             WITH best_diem AS (
@@ -1302,9 +1309,16 @@ def main():
             FROM best_diem GROUP BY ma_sinh_vien
         """)).fetchall()
 
+        # Lấy bản đồ ngành của SV
         sv_nganh_map = {
             r.ma_sinh_vien: r.ma_nganh
             for r in s.execute(text("SELECT ma_sinh_vien, ma_nganh FROM sinh_vien")).fetchall()
+        }
+
+        # Lấy trạng thái học tập của SV để check (KHÔNG THỂ tốt nghiệp nếu GPA thấp)
+        sv_status_map = {
+            r.ma_sinh_vien: r.trang_thai_hoc_tap
+            for r in s.execute(text("SELECT ma_sinh_vien, trang_thai_hoc_tap FROM sinh_vien")).fetchall()
         }
 
         th_buf = []
@@ -1314,6 +1328,16 @@ def main():
             gpa4 = round(float(r.tong_cl) / float(r.tc_da_hoc), 2)
             ma_nganh = sv_nganh_map.get(r.ma_sinh_vien, "CNTT")
             tong_tc_ct = tong_tc_chuong_trinh.get(ma_nganh, 151)
+
+            # FIX: Safety cho MỌI SV — tuyệt đối không có GPA = 0
+            if gpa4 <= 0.0:
+                gpa4 = 0.10  # SV học mà GPA = 0 là vô lý
+
+            # SV tốt nghiệp PHẢI GPA >= 2.0
+            sv_status = sv_status_map.get(r.ma_sinh_vien, "Đang học")
+            if sv_status == "Tốt nghiệp" and gpa4 < 2.0:
+                gpa4 = round(random.uniform(2.00, 2.80), 2)
+
             th_buf.append({
                 "ma_sinh_vien": r.ma_sinh_vien,
                 "tong_tin_chi": int(tong_tc_ct),

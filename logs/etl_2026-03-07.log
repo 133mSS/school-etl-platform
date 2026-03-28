@@ -1,0 +1,15 @@
+[2026-03-07 20:42:04] INFO    test : Logger hoat dong binh thuong
+[2026-03-07 20:42:04] WARNING test : Day la canh bao thu
+[2026-03-07 20:42:04] ERROR   test : Day la loi thu
+[2026-03-07 21:56:09] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-07 21:56:09] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-07 21:57:09] INFO    src.etl.extract : Extract Mock API (offline mode)
+[2026-03-07 21:57:09] INFO    src.etl.extract :   → 5 rows từ Mock API
+[2026-03-07 21:58:08] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-07 21:58:08] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-07 22:08:14] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-07 22:08:14] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-07 22:11:33] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-07 22:11:34] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-07 22:11:34] INFO    src.etl.extract : Đã tạo bucket: raw-data
+[2026-03-07 22:11:34] INFO    src.etl.extract :   → Upload MinIO: raw-data/raw/sinh_vien/2026-03-07/data.parquet (27,403 bytes)

@@ -1,14 +1,3 @@
-"""
-=============================================
-TẦNG LOAD — Nạp dữ liệu vào Data Warehouse
-=============================================
-Đồng bộ với warehouse_models.py v2.0:
-  - Tạo bảng bằng WarehouseBase.metadata.create_all()
-  - Dimension: Upsert + SCD Type 2 (DimSinhVien)
-  - Fact: Lookup surrogate key → Insert
-  - Agg: Tổng hợp cuối cùng
-"""
-
 from typing import Dict, List, Optional, Tuple
 from datetime import date
 
@@ -29,78 +18,59 @@ from src.utils.logger import get_logger
 
 logger = get_logger("etl.load")
 
-
 class DataLoader:
-    """
-    Nạp TransformedData vào Data Warehouse.
-    Sử dụng ORM models từ warehouse_models.py làm schema chính.
-    """
-
     def __init__(self):
         self.engine = warehouse_engine
         self.batch_size = ETL_BATCH_SIZE
-        # Cache surrogate keys: {natural_key: surrogate_key}
+
         self._sv_key_cache: Dict[str, int] = {}
         self._hp_key_cache: Dict[str, int] = {}
         self._gv_key_cache: Dict[str, int] = {}
         self._hk_key_cache: Dict[str, int] = {}
-        self._hp_tc_cache:  Dict[int, int] = {}   # hoc_phan_key → so_tin_chi
-
-    # ═══════════════════════════════════════════
-    # ENTRY POINTS
-    # ═══════════════════════════════════════════
+        self._hp_tc_cache: Dict[int, int] = {}
 
     def load_all(self, data: TransformedData) -> dict:
-        """Nạp toàn bộ dữ liệu đã transform vào warehouse."""
-        logger.info("📥 BẮT ĐẦU LOAD VÀO DATA WAREHOUSE")
+        logger.info("==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==")
         logger.info("=" * 70)
 
         stats = {}
 
-        # 1. Tạo schema nếu chưa có
         self._ensure_schema()
 
-        # 2. Load Dimensions (thứ tự phụ thuộc)
         logger.info("── Bước 1: Load Dimension Tables ──")
         stats["dim_hoc_ky"]     = self._load_dim_hoc_ky(data.dim_thoi_gian)
         stats["dim_giang_vien"] = self._load_dim_giang_vien(data.dim_giang_vien)
         stats["dim_hoc_phan"]   = self._load_dim_hoc_phan(data.dim_hoc_phan)
         stats["dim_sinh_vien"]  = self._load_dim_sinh_vien(data.dim_sinh_vien)
 
-        # 3. Build surrogate key caches
         logger.info("── Bước 2: Build Surrogate Key Cache ──")
         self._build_key_caches()
 
-        # 4. Load Facts
         logger.info("── Bước 3: Load Fact Tables ──")
         stats["fact_hoc_tap"]   = self._load_fact_hoc_tap(data.fact_diem)
         stats["fact_ctsv"]      = self._load_fact_ctsv(data.fact_ren_luyen)
         stats["fact_tai_chinh"] = self._load_fact_tai_chinh(data.fact_tai_chinh)
 
-        # 5. Load Aggregation
         logger.info("── Bước 4: Load Aggregation ──")
         stats["agg_student_summary"] = self._load_agg_summary(data.fact_tong_hop_sv)
 
-        # Summary
         logger.info("=" * 70)
-        logger.info("✅ LOAD HOÀN TẤT")
+        logger.info("LOAD HOÀN TẤT")
         total = 0
         for name, count in stats.items():
-            logger.info(f"   {name:<25s}: {count:>8,} records")
+            logger.info(f"  {name:<25s}: {count:>8,} records")
             total += count
-        logger.info(f"   {'TỔNG':<25s}: {total:>8,} records")
+        logger.info(f"  {'TỔNG':<25s}: {total:>8,} records")
         logger.info("=" * 70)
 
         return stats
 
     def load_incremental(self, data: TransformedData, ma_hoc_ky: str) -> dict:
-        """Load incremental cho 1 học kỳ."""
-        logger.info(f"📥 INCREMENTAL LOAD — Học kỳ: {ma_hoc_ky}")
+        logger.info(f"INCREMENTAL LOAD — Học kỳ: {ma_hoc_ky}")
 
         stats = {}
         self._ensure_schema()
 
-        # Dimensions — upsert
         stats["dim_hoc_ky"]     = self._load_dim_hoc_ky(data.dim_thoi_gian)
         stats["dim_giang_vien"] = self._load_dim_giang_vien(data.dim_giang_vien)
         stats["dim_hoc_phan"]   = self._load_dim_hoc_phan(data.dim_hoc_phan)
@@ -108,7 +78,6 @@ class DataLoader:
 
         self._build_key_caches()
 
-        # Xóa dữ liệu cũ của HK → insert mới
         hk_key = self._hk_key_cache.get(ma_hoc_ky)
         if hk_key:
             self._delete_fact_by_hk(hk_key, ma_hoc_ky)
@@ -118,28 +87,17 @@ class DataLoader:
         stats["fact_tai_chinh"]      = self._load_fact_tai_chinh(data.fact_tai_chinh)
         stats["agg_student_summary"] = self._load_agg_summary(data.fact_tong_hop_sv)
 
-        logger.info(f"✅ INCREMENTAL LOAD HOÀN TẤT — {ma_hoc_ky}")
+        logger.info(f"INCREMENTAL LOAD HOÀN TẤT — {ma_hoc_ky}")
         return stats
 
-    # ═══════════════════════════════════════════
-    # SCHEMA
-    # ═══════════════════════════════════════════
-
     def _ensure_schema(self):
-        """Tạo tất cả bảng warehouse từ ORM models."""
-        logger.info("  Tạo schema warehouse từ warehouse_models.py...")
+        logger.info("🔧 Tạo schema warehouse từ warehouse_models.py...")
         WarehouseBase.metadata.create_all(self.engine)
         logger.info("  Schema warehouse OK ✓")
 
-    # ═══════════════════════════════════════════
-    # SURROGATE KEY CACHE
-    # ═══════════════════════════════════════════
-
     def _build_key_caches(self):
-        """Load toàn bộ mapping natural_key → surrogate_key."""
-        logger.info("  Building surrogate key caches...")
+        logger.info(" Building surrogate key caches...")
 
-        # DimSinhVien: ma_sinh_vien → sinh_vien_key (chỉ bản hiện tại)
         df = pd.read_sql(
             "SELECT sinh_vien_key, ma_sinh_vien FROM dim_sinh_vien "
             "WHERE la_ban_hien_tai = TRUE",
@@ -147,7 +105,6 @@ class DataLoader:
         )
         self._sv_key_cache = dict(zip(df["ma_sinh_vien"], df["sinh_vien_key"]))
 
-        # DimHocPhan: ma_hoc_phan → hoc_phan_key + so_tin_chi cache
         df = pd.read_sql(
             "SELECT hoc_phan_key, ma_hoc_phan, so_tin_chi FROM dim_hoc_phan",
             self.engine,
@@ -155,14 +112,12 @@ class DataLoader:
         self._hp_key_cache = dict(zip(df["ma_hoc_phan"], df["hoc_phan_key"]))
         self._hp_tc_cache  = dict(zip(df["hoc_phan_key"], df["so_tin_chi"]))
 
-        # DimGiangVien: ma_giang_vien → giang_vien_key
         df = pd.read_sql(
             "SELECT giang_vien_key, ma_giang_vien FROM dim_giang_vien",
             self.engine,
         )
         self._gv_key_cache = dict(zip(df["ma_giang_vien"], df["giang_vien_key"]))
 
-        # DimHocKy: ma_hoc_ky → hoc_ky_key
         df = pd.read_sql(
             "SELECT hoc_ky_key, ma_hoc_ky FROM dim_hoc_ky",
             self.engine,
@@ -170,7 +125,7 @@ class DataLoader:
         self._hk_key_cache = dict(zip(df["ma_hoc_ky"], df["hoc_ky_key"]))
 
         logger.info(
-            f"    SV={len(self._sv_key_cache)}, "
+            f"  SV={len(self._sv_key_cache)}, "
             f"HP={len(self._hp_key_cache)}, "
             f"GV={len(self._gv_key_cache)}, "
             f"HK={len(self._hk_key_cache)}"
@@ -188,12 +143,7 @@ class DataLoader:
     def _lookup_hk_key(self, ma_hk: str) -> Optional[int]:
         return self._hk_key_cache.get(ma_hk)
 
-    # ═══════════════════════════════════════════
-    # LOAD DIMENSIONS
-    # ═══════════════════════════════════════════
-
     def _load_dim_hoc_ky(self, df: pd.DataFrame) -> int:
-        """Load DimHocKy — upsert theo ma_hoc_ky."""
         if df.empty:
             return 0
 
@@ -210,12 +160,12 @@ class DataLoader:
                 ).first()
 
                 if existing:
-                    existing.nam_hoc      = row.get("nam_hoc", existing.nam_hoc)
-                    existing.hoc_ky       = row.get("hoc_ky", existing.hoc_ky)
-                    existing.ngay_bat_dau = self._to_date(row.get("ngay_bat_dau"))
+                    existing.nam_hoc       = row.get("nam_hoc", existing.nam_hoc)
+                    existing.hoc_ky        = row.get("hoc_ky", existing.hoc_ky)
+                    existing.ngay_bat_dau  = self._to_date(row.get("ngay_bat_dau"))
                     existing.ngay_ket_thuc = self._to_date(row.get("ngay_ket_thuc"))
-                    existing.nam_bat_dau  = row.get("nam_bat_dau")
-                    existing.nam_ket_thuc = row.get("nam_ket_thuc")
+                    existing.nam_bat_dau   = row.get("nam_bat_dau")
+                    existing.nam_ket_thuc  = row.get("nam_ket_thuc")
                 else:
                     obj = DimHocKy(
                         ma_hoc_ky=ma_hk,
@@ -230,7 +180,7 @@ class DataLoader:
                     count += 1
 
             session.commit()
-            logger.info(f"  dim_hoc_ky       → {len(df):>6,} records (new: {count})")
+            logger.info(f"  dim_hoc_ky     → {len(df):>6,} records (new: {count})")
             return len(df)
 
         except Exception as e:
@@ -241,7 +191,6 @@ class DataLoader:
             session.close()
 
     def _load_dim_giang_vien(self, df: pd.DataFrame) -> int:
-        """Load DimGiangVien — upsert theo ma_giang_vien."""
         if df.empty:
             return 0
 
@@ -258,11 +207,12 @@ class DataLoader:
                 ).first()
 
                 if existing:
-                    existing.ho_ten              = row.get("ho_ten", existing.ho_ten)
-                    existing.chuc_danh           = row.get("chuc_danh", existing.chuc_danh)
-                    existing.trang_thai_cong_tac = row.get("trang_thai_cong_tac", existing.trang_thai_cong_tac)
-                    existing.ma_khoa             = row.get("ma_khoa", existing.ma_khoa)
-                    existing.ten_khoa            = row.get("ten_khoa", existing.ten_khoa)
+                    existing.ho_ten             = row.get("ho_ten", existing.ho_ten)
+                    existing.chuc_danh          = row.get("chuc_danh", existing.chuc_danh)
+                    existing.trang_thai_cong_tac = row.get("trang_thai_cong_tac",
+                                                           existing.trang_thai_cong_tac)
+                    existing.ma_khoa            = row.get("ma_khoa", existing.ma_khoa)
+                    existing.ten_khoa           = row.get("ten_khoa", existing.ten_khoa)
                 else:
                     obj = DimGiangVien(
                         ma_giang_vien=ma_gv,
@@ -279,7 +229,7 @@ class DataLoader:
                     count += 1
 
             session.commit()
-            logger.info(f"  dim_giang_vien   → {len(df):>6,} records (new: {count})")
+            logger.info(f"  dim_giang_vien → {len(df):>6,} records (new: {count})")
             return len(df)
 
         except Exception as e:
@@ -290,7 +240,6 @@ class DataLoader:
             session.close()
 
     def _load_dim_hoc_phan(self, df: pd.DataFrame) -> int:
-        """Load DimHocPhan — upsert theo ma_hoc_phan."""
         if df.empty:
             return 0
 
@@ -328,7 +277,7 @@ class DataLoader:
                     count += 1
 
             session.commit()
-            logger.info(f"  dim_hoc_phan     → {len(df):>6,} records (new: {count})")
+            logger.info(f"  dim_hoc_phan   → {len(df):>6,} records (new: {count})")
             return len(df)
 
         except Exception as e:
@@ -339,23 +288,14 @@ class DataLoader:
             session.close()
 
     def _load_dim_sinh_vien(self, df: pd.DataFrame) -> int:
-        """
-        Load DimSinhVien — SCD Type 2.
-
-        Nếu SV đã có và dữ liệu thay đổi:
-          1. Đóng bản ghi cũ (ngay_het_hieu_luc, la_ban_hien_tai=False)
-          2. Insert bản ghi mới (phien_ban += 1)
-        Nếu SV chưa có:
-          Insert bản ghi mới (phien_ban=1)
-        """
         if df.empty:
             return 0
 
-        session  = WarehouseSession()
+        session = WarehouseSession()
         inserted = 0
-        updated  = 0
+        updated = 0
+        cascaded_facts = 0
 
-        # Các cột trigger SCD2
         scd2_cols = ["trang_thai_hoc_tap", "ma_nganh", "ma_lop", "ma_khoa"]
 
         try:
@@ -370,7 +310,6 @@ class DataLoader:
                 ).first()
 
                 if current is None:
-                    # INSERT mới
                     obj = DimSinhVien(
                         ma_sinh_vien=ma_sv,
                         ho=row.get("ho"),
@@ -394,21 +333,17 @@ class DataLoader:
                     )
                     session.add(obj)
                     inserted += 1
-
                 else:
-                    # Kiểm tra thay đổi SCD2
-                    changed = any(
-                        getattr(current, col, None) != row.get(col)
-                        and row.get(col) is not None
-                        for col in scd2_cols
+                    changed = self._check_scd2_changed(
+                        current, row, scd2_cols
                     )
 
                     if changed:
-                        # Đóng bản ghi cũ
-                        current.la_ban_hien_tai  = False
+                        old_key = current.sinh_vien_key
+
+                        current.la_ban_hien_tai = False
                         current.ngay_het_hieu_luc = date.today()
 
-                        # Insert bản ghi mới
                         new_obj = DimSinhVien(
                             ma_sinh_vien=ma_sv,
                             ho=row.get("ho"),
@@ -431,19 +366,29 @@ class DataLoader:
                             phien_ban=current.phien_ban + 1,
                         )
                         session.add(new_obj)
+                        session.flush()
+
+                        new_key = new_obj.sinh_vien_key
+
+                        n = self._cascade_sv_key_update(
+                            session, old_key, new_key
+                        )
+                        cascaded_facts += n
                         updated += 1
                     else:
-                        # Cập nhật cột không phải SCD2 (Type 1)
-                        current.ho_ten    = row.get("ho_ten",   current.ho_ten)
-                        current.email     = row.get("email",    current.email)
+                        current.ho_ten = row.get("ho_ten", current.ho_ten)
+                        current.email = row.get("email", current.email)
                         current.ten_nganh = row.get("ten_nganh", current.ten_nganh)
-                        current.ten_khoa  = row.get("ten_khoa",  current.ten_khoa)
-                        current.ten_lop   = row.get("ten_lop",   current.ten_lop)
+                        current.ten_khoa = row.get("ten_khoa", current.ten_khoa)
+                        current.ten_lop = row.get("ten_lop", current.ten_lop)
+                        current.ten_co_van = row.get("ten_co_van", current.ten_co_van)
+                        current.ma_co_van = row.get("ma_co_van", current.ma_co_van)
 
             session.commit()
             logger.info(
-                f"  dim_sinh_vien    → {len(df):>6,} records "
-                f"(new: {inserted}, SCD2 update: {updated})"
+                f"  dim_sinh_vien → {len(df):>6,} records "
+                f"(new: {inserted}, SCD2: {updated}, "
+                f"fact cascade: {cascaded_facts})"
             )
             return inserted + updated
 
@@ -454,19 +399,60 @@ class DataLoader:
         finally:
             session.close()
 
-    # ═══════════════════════════════════════════
-    # LOAD FACTS
-    # ═══════════════════════════════════════════
+    @staticmethod
+    def _normalize_scd2_val(val):
+        if val is None:
+            return None
+        if isinstance(val, float) and np.isnan(val):
+            return None
+        s = str(val).strip()
+        if s == "" or s.lower() in ("none", "nan"):
+            return None
+        return s
+
+    def _check_scd2_changed(self, current, row, scd2_cols) -> bool:
+        for col in scd2_cols:
+            old_val = self._normalize_scd2_val(
+                getattr(current, col, None)
+            )
+            new_val = self._normalize_scd2_val(row.get(col))
+            if new_val is not None and old_val != new_val:
+                return True
+        return False
+
+    def _cascade_sv_key_update(
+        self, session, old_key: int, new_key: int
+    ) -> int:
+        
+        total = 0
+        fact_models = [
+            FactHocTap,
+            FactCtsv,
+            FactTaiChinh,
+            AggStudentSummary,
+        ]
+        for Model in fact_models:
+            try:
+                n = (
+                    session.query(Model)
+                    .filter(Model.sinh_vien_key == old_key)
+                    .update(
+                        {Model.sinh_vien_key: new_key},
+                        synchronize_session=False,
+                    )
+                )
+                total += n
+            except Exception:
+                pass
+        return total
 
     def _load_fact_hoc_tap(self, df: pd.DataFrame) -> int:
-        """Load FactHocTap từ fact_diem (đã transform)."""
         if df.empty:
-            logger.info("  fact_hoc_tap     → SKIP (empty)")
+            logger.info("  fact_hoc_tap   → SKIP (empty)")
             return 0
 
         session = WarehouseSession()
         count = 0
-
         try:
             for _, row in df.iterrows():
                 ma_sv = row.get("ma_sinh_vien")
@@ -499,7 +485,7 @@ class DataLoader:
                     existing.dat_mon         = row.get("dat_mon")
                     existing.hoc_lai         = row.get("hoc_lai")
                 else:
-                    so_tc    = self._hp_tc_cache.get(hp_key)
+                    so_tc   = self._hp_tc_cache.get(hp_key)
                     diem_he4 = self._to_decimal(row.get("diem_he_4"))
                     diem_cl  = (float(diem_he4) * so_tc) if diem_he4 and so_tc else None
 
@@ -531,7 +517,7 @@ class DataLoader:
                     session.flush()
 
             session.commit()
-            logger.info(f"  fact_hoc_tap     → {count:>6,} records")
+            logger.info(f"  fact_hoc_tap   → {count:>6,} records")
             return count
 
         except Exception as e:
@@ -542,16 +528,28 @@ class DataLoader:
             session.close()
 
     def _load_fact_ctsv(self, df: pd.DataFrame) -> int:
-        """Load FactCtsv từ fact_ren_luyen (CSV Phòng CTSV)."""
         if df.empty:
-            logger.info("  fact_ctsv        → SKIP (empty)")
+            logger.info("  fact_ctsv      → SKIP (empty)")
             return 0
+
+        expected_cols = [
+            "ma_sinh_vien", "hoc_ky", "diem_ren_luyen",
+            "xep_loai_rl", "loai_hoc_bong", "muc_tien_hb",
+            "hinh_thuc_ky_luat", "ly_do_ky_luat",
+        ]
+        missing = [c for c in expected_cols if c not in df.columns]
+        if missing:
+            logger.warning(
+                f"  fact_ctsv | ⚠ Thiếu cột: {missing}  — "
+                f"Cột hiện có: {list(df.columns)}"
+            )
 
         session = WarehouseSession()
         count = 0
+        skipped = 0
 
         try:
-            for _, row in df.iterrows():
+            for idx, row in df.iterrows():
                 ma_sv = row.get("ma_sinh_vien")
                 ma_hk = row.get("hoc_ky")
 
@@ -561,41 +559,84 @@ class DataLoader:
                 if not all([sv_key, hk_key]):
                     continue
 
-                existing = session.query(FactCtsv).filter(
-                    FactCtsv.ma_sinh_vien == ma_sv,
-                    FactCtsv.hoc_ky_key  == hk_key,
-                ).first()
+                raw_diem_rl    = row.get("diem_ren_luyen")
+                raw_muc_tien   = row.get("muc_tien_hb")
+                raw_xep_loai   = row.get("xep_loai_rl")
+                raw_loai_hb    = row.get("loai_hoc_bong")
+                raw_hinh_thuc  = row.get("hinh_thuc_ky_luat")
+                raw_ly_do      = row.get("ly_do_ky_luat")
 
-                if existing:
-                    existing.diem_rl      = self._to_int(row.get("diem_ren_luyen"))
-                    existing.xep_loai_rl  = row.get("xep_loai_rl")
-                    existing.loai_hoc_bong = row.get("loai_hoc_bong")
-                    existing.muc_tien_hb  = self._to_int(row.get("muc_tien_hb")) or 0
-                    existing.hinh_thuc_kl = row.get("hinh_thuc_ky_luat")
-                    existing.ly_do_kl     = row.get("ly_do_ky_luat")
-                    existing.co_hoc_bong  = bool(row.get("co_hoc_bong", False))
-                    existing.bi_ky_luat   = bool(row.get("bi_ky_luat", False))
-                else:
-                    obj = FactCtsv(
-                        sinh_vien_key=sv_key,
-                        hoc_ky_key=hk_key,
-                        ma_sinh_vien=ma_sv,
-                        ma_hoc_ky=ma_hk,
-                        diem_rl=self._to_int(row.get("diem_ren_luyen")),
-                        xep_loai_rl=row.get("xep_loai_rl"),
-                        loai_hoc_bong=row.get("loai_hoc_bong"),
-                        muc_tien_hb=self._to_int(row.get("muc_tien_hb")) or 0,
-                        hinh_thuc_kl=row.get("hinh_thuc_ky_luat"),
-                        ly_do_kl=row.get("ly_do_ky_luat"),
-                        co_hoc_bong=bool(row.get("co_hoc_bong", False)),
-                        bi_ky_luat=bool(row.get("bi_ky_luat", False)),
-                        nguon_du_lieu="csv_ctsv",
+                diem_rl_val    = self._to_int(raw_diem_rl)
+                muc_tien_val   = self._to_int(raw_muc_tien) or 0
+
+                if raw_diem_rl is not None and diem_rl_val is None:
+                    try:
+                        float(raw_diem_rl)
+                    except (ValueError, TypeError):
+                        skipped += 1
+                        if skipped <= 5:
+                            logger.warning(
+                                f"  fact_ctsv | Row {idx}: "
+                                f"diem_ren_luyen='{raw_diem_rl}' "
+                                f"(không phải số — có thể cột CSV bị "
+                                f"lệch). Skip row."
+                            )
+                        continue
+
+                xep_loai_rl_val = str(raw_xep_loai) if raw_xep_loai and not pd.isna(raw_xep_loai) else None
+                loai_hb_val     = str(raw_loai_hb) if raw_loai_hb and not pd.isna(raw_loai_hb) else None
+                hinh_thuc_val   = str(raw_hinh_thuc) if raw_hinh_thuc and not pd.isna(raw_hinh_thuc) else None
+                ly_do_val       = str(raw_ly_do) if raw_ly_do and not pd.isna(raw_ly_do) else None
+
+                co_hoc_bong_val = bool(loai_hb_val)
+                bi_ky_luat_val  = bool(hinh_thuc_val)
+
+                try:
+                    existing = session.query(FactCtsv).filter(
+                        FactCtsv.ma_sinh_vien == ma_sv,
+                        FactCtsv.hoc_ky_key   == hk_key,
+                    ).first()
+
+                    if existing:
+                        existing.diem_rl       = diem_rl_val
+                        existing.xep_loai_rl   = xep_loai_rl_val
+                        existing.loai_hoc_bong = loai_hb_val
+                        existing.muc_tien_hb   = muc_tien_val
+                        existing.hinh_thuc_kl  = hinh_thuc_val
+                        existing.ly_do_kl      = ly_do_val
+                        existing.co_hoc_bong   = co_hoc_bong_val
+                        existing.bi_ky_luat    = bi_ky_luat_val
+                    else:
+                        obj = FactCtsv(
+                            sinh_vien_key=sv_key,
+                            hoc_ky_key=hk_key,
+                            ma_sinh_vien=ma_sv,
+                            ma_hoc_ky=ma_hk,
+                            diem_rl=diem_rl_val,
+                            xep_loai_rl=xep_loai_rl_val,
+                            loai_hoc_bong=loai_hb_val,
+                            muc_tien_hb=muc_tien_val,
+                            hinh_thuc_kl=hinh_thuc_val,
+                            ly_do_kl=ly_do_val,
+                            co_hoc_bong=co_hoc_bong_val,
+                            bi_ky_luat=bi_ky_luat_val,
+                            nguon_du_lieu="csv_ctsv",
+                        )
+                        session.add(obj)
+                        count += 1
+
+                except Exception as row_err:
+                    logger.warning(
+                        f"  fact_ctsv | Row {idx} lỗi: {row_err} "
+                        f"| ma_sv={ma_sv}, diem_rl={raw_diem_rl}, "
+                        f"loai_hb={raw_loai_hb}"
                     )
-                    session.add(obj)
-                    count += 1
+                    continue
 
             session.commit()
-            logger.info(f"  fact_ctsv        → {count:>6,} records")
+            if skipped > 0:
+                logger.warning(f"  fact_ctsv | ⚠ Skipped {skipped} rows (cột lệch)")
+            logger.info(f"  fact_ctsv      → {count:>6,} records")
             return count
 
         except Exception as e:
@@ -606,9 +647,8 @@ class DataLoader:
             session.close()
 
     def _load_fact_tai_chinh(self, df: pd.DataFrame) -> int:
-        """Load FactTaiChinh từ fact_tai_chinh (API Portal)."""
         if df.empty:
-            logger.info("  fact_tai_chinh   → SKIP (empty)")
+            logger.info("  fact_tai_chinh → SKIP (empty)")
             return 0
 
         session = WarehouseSession()
@@ -627,7 +667,7 @@ class DataLoader:
 
                 existing = session.query(FactTaiChinh).filter(
                     FactTaiChinh.ma_sinh_vien == ma_sv,
-                    FactTaiChinh.hoc_ky_key  == hk_key,
+                    FactTaiChinh.hoc_ky_key   == hk_key,
                 ).first()
 
                 if existing:
@@ -657,7 +697,7 @@ class DataLoader:
                     count += 1
 
             session.commit()
-            logger.info(f"  fact_tai_chinh   → {count:>6,} records")
+            logger.info(f"  fact_tai_chinh → {count:>6,} records")
             return count
 
         except Exception as e:
@@ -667,12 +707,7 @@ class DataLoader:
         finally:
             session.close()
 
-    # ═══════════════════════════════════════════
-    # LOAD AGGREGATION
-    # ═══════════════════════════════════════════
-
     def _load_agg_summary(self, df: pd.DataFrame) -> int:
-        """Load AggStudentSummary — tổng hợp 3 nguồn."""
         if df.empty:
             logger.info("  agg_student_summary → SKIP (empty)")
             return 0
@@ -692,37 +727,37 @@ class DataLoader:
                 if not sv_key:
                     continue
 
-                hk_key   = self._lookup_hk_key(row.get("ma_hoc_ky"))
-                gpa4     = row.get("gpa_hoc_ky_he4")
+                hk_key  = self._lookup_hk_key(row.get("ma_hoc_ky"))
+                gpa4    = row.get("gpa_hoc_ky_he4")
                 xep_loai = self._classify_gpa(gpa4) if gpa4 else None
 
-                muc_rui_ro = "Thap"
+                muc_rui_ro = "Thấp"
                 if row.get("nguy_co_bo_hoc"):
-                    muc_rui_ro = "Rat cao"
+                    muc_rui_ro = "Rất cao"
                 elif row.get("canh_bao_hoc_vu"):
                     muc_rui_ro = "Cao"
                 elif gpa4 and gpa4 < 2.0:
-                    muc_rui_ro = "Trung binh"
+                    muc_rui_ro = "Trung bình"
 
                 existing = session.query(AggStudentSummary).filter_by(
                     ma_sinh_vien=ma_sv
                 ).first()
 
                 if existing:
-                    existing.gpa_he_4              = self._to_decimal(gpa4)
-                    existing.gpa_he_10             = self._to_decimal(row.get("gpa_hoc_ky_he10"))
-                    existing.xep_loai_hoc_luc      = xep_loai
-                    existing.tong_tin_chi_dang_ky  = self._to_int(row.get("tong_tin_chi")) or 0
-                    existing.so_mon_khong_dat      = self._to_int(row.get("so_mon_rot")) or 0
-                    existing.tong_mon_dang_ky      = self._to_int(row.get("so_mon_hoc")) or 0
-                    existing.diem_rl_trung_binh    = self._to_decimal(row.get("diem_ren_luyen"))
-                    existing.xep_loai_rl_gan_nhat  = row.get("xep_loai_rl")
-                    existing.tong_no_hoc_phi       = self._to_int(row.get("con_no")) or 0
-                    existing.co_no_hoc_phi         = bool(row.get("con_no", 0) > 0)
-                    existing.duoc_mien_giam        = bool(row.get("duoc_mien_giam", False))
-                    existing.muc_do_rui_ro         = muc_rui_ro
-                    existing.canh_bao_hoc_vu       = bool(row.get("canh_bao_hoc_vu", False))
-                    existing.hoc_ky_key_gan_nhat   = hk_key
+                    existing.gpa_he_4            = self._to_decimal(gpa4)
+                    existing.gpa_he_10           = self._to_decimal(row.get("gpa_hoc_ky_he10"))
+                    existing.xep_loai_hoc_luc    = xep_loai
+                    existing.tong_tin_chi_dang_ky = self._to_int(row.get("tong_tin_chi")) or 0
+                    existing.so_mon_khong_dat    = self._to_int(row.get("so_mon_rot")) or 0
+                    existing.tong_mon_dang_ky    = self._to_int(row.get("so_mon_hoc")) or 0
+                    existing.diem_rl_trung_binh  = self._to_decimal(row.get("diem_ren_luyen"))
+                    existing.xep_loai_rl_gan_nhat = row.get("xep_loai_rl")
+                    existing.tong_no_hoc_phi     = self._to_int(row.get("con_no")) or 0
+                    existing.co_no_hoc_phi       = bool(row.get("con_no", 0) > 0)
+                    existing.duoc_mien_giam      = bool(row.get("duoc_mien_giam", False))
+                    existing.muc_do_rui_ro       = muc_rui_ro
+                    existing.canh_bao_hoc_vu     = bool(row.get("canh_bao_hoc_vu", False))
+                    existing.hoc_ky_key_gan_nhat = hk_key
                 else:
                     obj = AggStudentSummary(
                         sinh_vien_key=sv_key,
@@ -756,15 +791,10 @@ class DataLoader:
         finally:
             session.close()
 
-    # ═══════════════════════════════════════════
-    # DELETE FOR INCREMENTAL
-    # ═══════════════════════════════════════════
-
     def _delete_fact_by_hk(self, hk_key: int, ma_hoc_ky: str):
-        """Xóa dữ liệu fact cũ theo học kỳ."""
         tables_and_cols = [
-            ("fact_hoc_tap",   "hoc_ky_key"),
-            ("fact_ctsv",      "hoc_ky_key"),
+            ("fact_hoc_tap",  "hoc_ky_key"),
+            ("fact_ctsv",     "hoc_ky_key"),
             ("fact_tai_chinh", "hoc_ky_key"),
         ]
         with self.engine.begin() as conn:
@@ -779,13 +809,8 @@ class DataLoader:
                 except Exception as e:
                     logger.debug(f"  {table} | Skip delete: {e}")
 
-    # ═══════════════════════════════════════════
-    # UTILITIES
-    # ═══════════════════════════════════════════
-
     @staticmethod
     def _to_date(val) -> Optional[date]:
-        """Convert to Python date safely."""
         if val is None or (isinstance(val, float) and np.isnan(val)):
             return None
         if isinstance(val, date):
@@ -799,7 +824,6 @@ class DataLoader:
 
     @staticmethod
     def _to_decimal(val):
-        """Convert to numeric safely."""
         if val is None:
             return None
         if isinstance(val, float) and np.isnan(val):
@@ -811,7 +835,6 @@ class DataLoader:
 
     @staticmethod
     def _to_int(val) -> Optional[int]:
-        """Convert to int safely."""
         if val is None:
             return None
         if isinstance(val, float) and np.isnan(val):
@@ -823,7 +846,6 @@ class DataLoader:
 
     @staticmethod
     def _classify_gpa(gpa4: float) -> str:
-        """Xếp loại học lực theo GPA hệ 4."""
         if gpa4 >= 3.6:
             return "Xuat sac"
         elif gpa4 >= 3.2:
@@ -832,7 +854,5 @@ class DataLoader:
             return "Kha"
         elif gpa4 >= 2.0:
             return "Trung binh"
-        elif gpa4 >= 1.0:
+        else:                          
             return "Yeu"
-        else:
-            return "Kem"

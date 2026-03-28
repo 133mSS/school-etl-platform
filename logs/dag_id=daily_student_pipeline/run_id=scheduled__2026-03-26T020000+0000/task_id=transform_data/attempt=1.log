@@ -1,0 +1,114 @@
+[2026-03-27T06:18:58.873+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.transform_data scheduled__2026-03-26T02:00:00+00:00 [queued]>
+[2026-03-27T06:18:58.883+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.transform_data scheduled__2026-03-26T02:00:00+00:00 [queued]>
+[2026-03-27T06:18:58.886+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-03-27T06:18:58.903+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): transform_data> on 2026-03-26 02:00:00+00:00
+[2026-03-27T06:18:58.910+0000] {standard_task_runner.py:60} INFO - Started process 344 to run task
+[2026-03-27T06:18:58.912+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'transform_data', 'scheduled__2026-03-26T02:00:00+00:00', '--job-id', '23', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpu2zqi5om']
+[2026-03-27T06:18:58.915+0000] {standard_task_runner.py:88} INFO - Job 23: Subtask transform_data
+[2026-03-27T06:18:59.013+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.transform_data scheduled__2026-03-26T02:00:00+00:00 [running]> on host 8474c56aea3d
+[2026-03-27T06:18:59.156+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='transform_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-26T02:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-26T02:00:00+00:00'
+[2026-03-27T06:19:00.103+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.extract :   Load from MinIO staging: run_id=2026-03-27_06-18
+[2026-03-27T06:19:00.103+0000] {extract.py:486} INFO -   Load from MinIO staging: run_id=2026-03-27_06-18
+[2026-03-27T06:19:00.146+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_khoa.parquet (4 rows)
+[2026-03-27T06:19:00.145+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_khoa.parquet (4 rows)
+[2026-03-27T06:19:00.159+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_nganh.parquet (3 rows)
+[2026-03-27T06:19:00.159+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_nganh.parquet (3 rows)
+[2026-03-27T06:19:00.173+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_giang_vien.parquet (45 rows)
+[2026-03-27T06:19:00.173+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_giang_vien.parquet (45 rows)
+[2026-03-27T06:19:00.186+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_lop_hanh_chinh.parquet (48 rows)
+[2026-03-27T06:19:00.186+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_lop_hanh_chinh.parquet (48 rows)
+[2026-03-27T06:19:00.203+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-03-27T06:19:00.202+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-03-27T06:19:00.217+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_hoc_phan.parquet (121 rows)
+[2026-03-27T06:19:00.217+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_hoc_phan.parquet (121 rows)
+[2026-03-27T06:19:00.229+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_hoc_ky.parquet (9 rows)
+[2026-03-27T06:19:00.228+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_hoc_ky.parquet (9 rows)
+[2026-03-27T06:19:00.268+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_dang_ky.parquet (46,575 rows)
+[2026-03-27T06:19:00.268+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_dang_ky.parquet (46,575 rows)
+[2026-03-27T06:19:00.309+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_diem.parquet (46,575 rows)
+[2026-03-27T06:19:00.309+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_diem.parquet (46,575 rows)
+[2026-03-27T06:19:00.320+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-03-27T06:19:00.320+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-03-27T06:19:00.336+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon2_ctsv.parquet (7,956 rows)
+[2026-03-27T06:19:00.336+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon2_ctsv.parquet (7,956 rows)
+[2026-03-27T06:19:00.348+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon3_tai_chinh.parquet (7,956 rows)
+[2026-03-27T06:19:00.348+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-27_06-18/nguon3_tai_chinh.parquet (7,956 rows)
+[2026-03-27T06:19:00.349+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.extract : ✅ Load from staging OK — run_id=2026-03-27_06-18
+[2026-03-27T06:19:00.349+0000] {extract.py:504} INFO - ✅ Load from staging OK — run_id=2026-03-27_06-18
+[2026-03-27T06:19:00.350+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform : 🔄 BẮT ĐẦU TRANSFORM
+[2026-03-27T06:19:00.350+0000] {transform.py:135} INFO - 🔄 BẮT ĐẦU TRANSFORM
+[2026-03-27T06:19:00.351+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform : ======================================================================
+[2026-03-27T06:19:00.351+0000] {transform.py:136} INFO - ======================================================================
+[2026-03-27T06:19:00.352+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform : ── Bước 1: Transform Dimension Tables ──
+[2026-03-27T06:19:00.352+0000] {transform.py:141} INFO - ── Bước 1: Transform Dimension Tables ──
+[2026-03-27T06:19:00.355+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   dim_thoi_gian (→dim_hoc_ky)  →      9 records
+[2026-03-27T06:19:00.355+0000] {transform.py:333} INFO -   dim_thoi_gian (→dim_hoc_ky)  →      9 records
+[2026-03-27T06:19:00.363+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   dim_giang_vien              →     45 records
+[2026-03-27T06:19:00.362+0000] {transform.py:370} INFO -   dim_giang_vien              →     45 records
+[2026-03-27T06:19:00.366+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   dim_hoc_phan                →    121 records
+[2026-03-27T06:19:00.366+0000] {transform.py:412} INFO -   dim_hoc_phan                →    121 records
+[2026-03-27T06:19:00.380+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   dim_sinh_vien               →  1,695 records
+[2026-03-27T06:19:00.380+0000] {transform.py:511} INFO -   dim_sinh_vien               →  1,695 records
+[2026-03-27T06:19:00.382+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform : ── Bước 2: Transform Fact Tables ──
+[2026-03-27T06:19:00.382+0000] {transform.py:161} INFO - ── Bước 2: Transform Fact Tables ──
+[2026-03-27T06:19:00.435+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   fact_diem (→fact_hoc_tap)    → 46,575 records
+[2026-03-27T06:19:00.435+0000] {transform.py:613} INFO -   fact_diem (→fact_hoc_tap)    → 46,575 records
+[2026-03-27T06:19:00.446+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   fact_ren_luyen (→fact_ctsv)  →  7,956 records
+[2026-03-27T06:19:00.446+0000] {transform.py:671} INFO -   fact_ren_luyen (→fact_ctsv)  →  7,956 records
+[2026-03-27T06:19:00.452+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform :   fact_tai_chinh               →  7,956 records
+[2026-03-27T06:19:00.452+0000] {transform.py:721} INFO -   fact_tai_chinh               →  7,956 records
+[2026-03-27T06:19:00.454+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:00] INFO    etl.transform : ── Bước 3: Tổng hợp đa nguồn ──
+[2026-03-27T06:19:00.454+0000] {transform.py:175} INFO - ── Bước 3: Tổng hợp đa nguồn ──
+[2026-03-27T06:19:04.143+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :   agg_student_summary          →  7,956 records
+[2026-03-27T06:19:04.143+0000] {transform.py:838} INFO -   agg_student_summary          →  7,956 records
+[2026-03-27T06:19:04.144+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :     → Cảnh báo học vụ:         846
+[2026-03-27T06:19:04.144+0000] {transform.py:845} INFO -     → Cảnh báo học vụ:         846
+[2026-03-27T06:19:04.145+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :     → Đủ ĐK học bổng:        1542
+[2026-03-27T06:19:04.145+0000] {transform.py:846} INFO -     → Đủ ĐK học bổng:        1542
+[2026-03-27T06:19:04.146+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :     → Nguy cơ bỏ học:          321
+[2026-03-27T06:19:04.146+0000] {transform.py:847} INFO -     → Nguy cơ bỏ học:          321
+[2026-03-27T06:19:04.146+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform : ======================================================================
+[2026-03-27T06:19:04.146+0000] {transform.py:186} INFO - ======================================================================
+[2026-03-27T06:19:04.147+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform : ✅ TRANSFORM HOÀN TẤT
+[2026-03-27T06:19:04.147+0000] {transform.py:187} INFO - ✅ TRANSFORM HOÀN TẤT
+[2026-03-27T06:19:04.148+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    dim_giang_vien           :       45 records
+[2026-03-27T06:19:04.147+0000] {transform.py:189} INFO -    dim_giang_vien           :       45 records
+[2026-03-27T06:19:04.148+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    dim_sinh_vien            :    1,695 records
+[2026-03-27T06:19:04.148+0000] {transform.py:189} INFO -    dim_sinh_vien            :    1,695 records
+[2026-03-27T06:19:04.149+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    dim_hoc_phan             :      121 records
+[2026-03-27T06:19:04.149+0000] {transform.py:189} INFO -    dim_hoc_phan             :      121 records
+[2026-03-27T06:19:04.149+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    dim_thoi_gian            :        9 records
+[2026-03-27T06:19:04.149+0000] {transform.py:189} INFO -    dim_thoi_gian            :        9 records
+[2026-03-27T06:19:04.150+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    fact_diem                :   46,575 records
+[2026-03-27T06:19:04.150+0000] {transform.py:189} INFO -    fact_diem                :   46,575 records
+[2026-03-27T06:19:04.151+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    fact_ren_luyen           :    7,956 records
+[2026-03-27T06:19:04.151+0000] {transform.py:189} INFO -    fact_ren_luyen           :    7,956 records
+[2026-03-27T06:19:04.152+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    fact_tai_chinh           :    7,956 records
+[2026-03-27T06:19:04.152+0000] {transform.py:189} INFO -    fact_tai_chinh           :    7,956 records
+[2026-03-27T06:19:04.152+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :    fact_tong_hop_sv         :    7,956 records
+[2026-03-27T06:19:04.152+0000] {transform.py:189} INFO -    fact_tong_hop_sv         :    7,956 records
+[2026-03-27T06:19:04.153+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform : ======================================================================
+[2026-03-27T06:19:04.153+0000] {transform.py:190} INFO - ======================================================================
+[2026-03-27T06:19:04.176+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_hoc_ky.parquet (5.3 KB | 9 rows)
+[2026-03-27T06:19:04.176+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_hoc_ky.parquet (5.3 KB | 9 rows)
+[2026-03-27T06:19:04.187+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_giang_vien.parquet (8.9 KB | 45 rows)
+[2026-03-27T06:19:04.187+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_giang_vien.parquet (8.9 KB | 45 rows)
+[2026-03-27T06:19:04.211+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_hoc_phan.parquet (11.0 KB | 121 rows)
+[2026-03-27T06:19:04.211+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_hoc_phan.parquet (11.0 KB | 121 rows)
+[2026-03-27T06:19:04.227+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_sinh_vien.parquet (71.7 KB | 1,695 rows)
+[2026-03-27T06:19:04.227+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/dim_sinh_vien.parquet (71.7 KB | 1,695 rows)
+[2026-03-27T06:19:04.286+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_diem.parquet (688.3 KB | 46,575 rows)
+[2026-03-27T06:19:04.285+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_diem.parquet (688.3 KB | 46,575 rows)
+[2026-03-27T06:19:04.300+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_ren_luyen.parquet (40.8 KB | 7,956 rows)
+[2026-03-27T06:19:04.300+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_ren_luyen.parquet (40.8 KB | 7,956 rows)
+[2026-03-27T06:19:04.314+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_tai_chinh.parquet (65.8 KB | 7,956 rows)
+[2026-03-27T06:19:04.314+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_tai_chinh.parquet (65.8 KB | 7,956 rows)
+[2026-03-27T06:19:04.336+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_tong_hop_sv.parquet (118.2 KB | 7,956 rows)
+[2026-03-27T06:19:04.336+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-03-27_06-19/fact_tong_hop_sv.parquet (118.2 KB | 7,956 rows)
+[2026-03-27T06:19:04.337+0000] {logging_mixin.py:188} WARNING - [2026-03-27 06:19:04] INFO    etl.transform :   MinIO staging-data: 8/8 files OK → run_id=2026-03-27_06-19
+[2026-03-27T06:19:04.337+0000] {transform.py:249} INFO -   MinIO staging-data: 8/8 files OK → run_id=2026-03-27_06-19
+[2026-03-27T06:19:04.371+0000] {logging_mixin.py:188} INFO - Transform xong: {'dim_giang_vien': 45, 'dim_sinh_vien': 1695, 'dim_hoc_phan': 121, 'dim_thoi_gian': 9, 'fact_diem': 46575, 'fact_ren_luyen': 7956, 'fact_tai_chinh': 7956, 'fact_tong_hop_sv': 7956}
+[2026-03-27T06:19:04.375+0000] {python.py:201} INFO - Done. Returned value was: {'dim_giang_vien': 45, 'dim_sinh_vien': 1695, 'dim_hoc_phan': 121, 'dim_thoi_gian': 9, 'fact_diem': 46575, 'fact_ren_luyen': 7956, 'fact_tai_chinh': 7956, 'fact_tong_hop_sv': 7956}
+[2026-03-27T06:19:04.402+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=transform_data, execution_date=20260326T020000, start_date=20260327T061858, end_date=20260327T061904
+[2026-03-27T06:19:04.461+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-27T06:19:04.494+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

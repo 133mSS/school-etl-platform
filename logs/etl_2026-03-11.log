@@ -1,0 +1,222 @@
+[2026-03-11 12:53:35] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 12:53:37] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 12:55:14] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 12:55:14] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 12:57:18] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 12:57:19] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 12:57:19] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 12:57:19] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 12:57:19] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 12:57:19] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 12:57:19] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 12:57:19] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 12:57:19] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 12:57:19] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 12:57:19] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 12:57:19] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 12:57:19] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 12:57:19] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:00:15] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:00:15] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:00:15] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:00:15] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:00:15] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:00:15] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:00:15] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:00:15] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:00:15] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:00:15] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:00:15] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:00:15] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:00:15] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:00:15] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:44:26] INFO    src.etl.extract : Full extract: hoc_ky_nam_hoc
+[2026-03-11 13:44:26] INFO    src.etl.extract :   → 6 rows extracted từ hoc_ky_nam_hoc
+[2026-03-11 13:44:26] INFO    src.etl.extract : Full extract: giang_vien
+[2026-03-11 13:44:26] INFO    src.etl.extract :   → 20 rows extracted từ giang_vien
+[2026-03-11 13:44:26] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:44:26] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:44:26] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:44:26] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:44:26] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:44:26] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:44:26] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:44:26] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:44:26] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:44:27] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:44:27] INFO    src.etl.transform : Transform giang_vien: 20 rows
+[2026-03-11 13:44:27] INFO    src.etl.transform :   → Transform xong: 20 rows
+[2026-03-11 13:44:27] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:44:27] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:44:27] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:44:27] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:44:27] INFO    src.etl.load : ==================================================
+[2026-03-11 13:44:27] INFO    src.etl.load : BẮT ĐẦU LOAD VÀO WAREHOUSE
+[2026-03-11 13:44:27] INFO    src.etl.load : ==================================================
+[2026-03-11 13:44:27] INFO    src.etl.load : Load dim_hoc_ky: 6 rows...
+[2026-03-11 13:47:06] INFO    src.etl.extract : Full extract: hoc_ky_nam_hoc
+[2026-03-11 13:47:06] INFO    src.etl.extract :   → 6 rows extracted từ hoc_ky_nam_hoc
+[2026-03-11 13:47:06] INFO    src.etl.extract : Full extract: giang_vien
+[2026-03-11 13:47:06] INFO    src.etl.extract :   → 20 rows extracted từ giang_vien
+[2026-03-11 13:47:06] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:47:06] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:47:06] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:47:06] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:47:06] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:47:06] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:47:06] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:47:06] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:47:06] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:47:06] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:47:06] INFO    src.etl.transform : Transform giang_vien: 20 rows
+[2026-03-11 13:47:06] INFO    src.etl.transform :   → Transform xong: 20 rows
+[2026-03-11 13:47:06] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:47:06] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:47:06] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:47:06] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:47:06] INFO    src.etl.load : ==================================================
+[2026-03-11 13:47:06] INFO    src.etl.load : BẮT ĐẦU LOAD VÀO WAREHOUSE
+[2026-03-11 13:47:06] INFO    src.etl.load : ==================================================
+[2026-03-11 13:47:06] INFO    src.etl.load : Load dim_hoc_ky: 6 rows...
+[2026-03-11 13:47:06] INFO    src.etl.load :   → dim_hoc_ky: 6 bản ghi
+[2026-03-11 13:47:06] INFO    src.etl.load : Load dim_giang_vien: 20 rows...
+[2026-03-11 13:47:06] INFO    src.etl.load :   → dim_giang_vien: 20 bản ghi
+[2026-03-11 13:47:06] INFO    src.etl.load : Load dim_hoc_phan: 33 rows...
+[2026-03-11 13:47:06] INFO    src.etl.load :   → dim_hoc_phan: 33 bản ghi
+[2026-03-11 13:47:06] INFO    src.etl.load : Load dim_sinh_vien: 400 rows...
+[2026-03-11 13:47:07] INFO    src.etl.load :   → dim_sinh_vien: +400 mới, ~0 cập nhật | Tổng: 400
+[2026-03-11 13:47:07] INFO    src.etl.load : Load fact_hoc_tap: 6875 rows...
+[2026-03-11 13:48:11] INFO    src.etl.extract : Full extract: hoc_ky_nam_hoc
+[2026-03-11 13:48:11] INFO    src.etl.extract :   → 6 rows extracted từ hoc_ky_nam_hoc
+[2026-03-11 13:48:11] INFO    src.etl.extract : Full extract: giang_vien
+[2026-03-11 13:48:11] INFO    src.etl.extract :   → 20 rows extracted từ giang_vien
+[2026-03-11 13:48:11] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:48:12] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:48:12] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:48:12] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:48:12] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:48:12] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:48:12] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:48:12] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:48:12] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:48:12] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:48:12] INFO    src.etl.transform : Transform giang_vien: 20 rows
+[2026-03-11 13:48:12] INFO    src.etl.transform :   → Transform xong: 20 rows
+[2026-03-11 13:48:12] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:48:12] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:48:12] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:48:12] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:48:12] INFO    src.etl.load : ==================================================
+[2026-03-11 13:48:12] INFO    src.etl.load : BẮT ĐẦU LOAD VÀO WAREHOUSE
+[2026-03-11 13:48:12] INFO    src.etl.load : ==================================================
+[2026-03-11 13:48:12] INFO    src.etl.load : Load dim_hoc_ky: 6 rows...
+[2026-03-11 13:48:12] INFO    src.etl.load :   → dim_hoc_ky: 6 bản ghi
+[2026-03-11 13:48:12] INFO    src.etl.load : Load dim_giang_vien: 20 rows...
+[2026-03-11 13:48:12] INFO    src.etl.load :   → dim_giang_vien: 20 bản ghi
+[2026-03-11 13:48:12] INFO    src.etl.load : Load dim_hoc_phan: 33 rows...
+[2026-03-11 13:48:12] INFO    src.etl.load :   → dim_hoc_phan: 33 bản ghi
+[2026-03-11 13:48:12] INFO    src.etl.load : Load dim_sinh_vien: 400 rows...
+[2026-03-11 13:48:12] INFO    src.etl.load :   → dim_sinh_vien: +0 mới, ~0 cập nhật | Tổng: 400
+[2026-03-11 13:48:12] INFO    src.etl.load : Load fact_hoc_tap: 6875 rows...
+[2026-03-11 13:49:07] INFO    src.etl.extract : Full extract: hoc_ky_nam_hoc
+[2026-03-11 13:49:07] INFO    src.etl.extract :   → 6 rows extracted từ hoc_ky_nam_hoc
+[2026-03-11 13:49:07] INFO    src.etl.extract : Full extract: giang_vien
+[2026-03-11 13:49:07] INFO    src.etl.extract :   → 20 rows extracted từ giang_vien
+[2026-03-11 13:49:07] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:49:08] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:49:08] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:49:08] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:49:08] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:49:08] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:49:08] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:49:08] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:49:08] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:49:08] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:49:08] INFO    src.etl.transform : Transform giang_vien: 20 rows
+[2026-03-11 13:49:08] INFO    src.etl.transform :   → Transform xong: 20 rows
+[2026-03-11 13:49:08] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:49:08] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:49:08] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:49:08] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:49:08] INFO    src.etl.load : ==================================================
+[2026-03-11 13:49:08] INFO    src.etl.load : BẮT ĐẦU LOAD VÀO WAREHOUSE
+[2026-03-11 13:49:08] INFO    src.etl.load : ==================================================
+[2026-03-11 13:49:08] INFO    src.etl.load : Load dim_hoc_ky: 6 rows...
+[2026-03-11 13:49:08] INFO    src.etl.load :   → dim_hoc_ky: 6 bản ghi
+[2026-03-11 13:49:08] INFO    src.etl.load : Load dim_giang_vien: 20 rows...
+[2026-03-11 13:49:08] INFO    src.etl.load :   → dim_giang_vien: 20 bản ghi
+[2026-03-11 13:49:08] INFO    src.etl.load : Load dim_hoc_phan: 33 rows...
+[2026-03-11 13:49:08] INFO    src.etl.load :   → dim_hoc_phan: 33 bản ghi
+[2026-03-11 13:49:08] INFO    src.etl.load : Load dim_sinh_vien: 400 rows...
+[2026-03-11 13:49:09] INFO    src.etl.load :   → dim_sinh_vien: +0 mới, ~0 cập nhật | Tổng: 400
+[2026-03-11 13:49:09] INFO    src.etl.load : Load fact_hoc_tap: 6875 rows...
+[2026-03-11 13:52:47] INFO    src.etl.extract : Full extract: hoc_ky_nam_hoc
+[2026-03-11 13:52:47] INFO    src.etl.extract :   → 6 rows extracted từ hoc_ky_nam_hoc
+[2026-03-11 13:52:47] INFO    src.etl.extract : Full extract: giang_vien
+[2026-03-11 13:52:47] INFO    src.etl.extract :   → 20 rows extracted từ giang_vien
+[2026-03-11 13:52:47] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:52:47] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:52:47] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:52:47] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:52:47] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:52:47] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:52:47] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:52:47] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:52:47] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:52:47] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:52:47] INFO    src.etl.transform : Transform giang_vien: 20 rows
+[2026-03-11 13:52:47] INFO    src.etl.transform :   → Transform xong: 20 rows
+[2026-03-11 13:52:47] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:52:47] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:52:47] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:52:48] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:52:48] INFO    src.etl.load : ==================================================
+[2026-03-11 13:52:48] INFO    src.etl.load : BẮT ĐẦU LOAD VÀO WAREHOUSE
+[2026-03-11 13:52:48] INFO    src.etl.load : ==================================================
+[2026-03-11 13:52:48] INFO    src.etl.load : Load dim_hoc_ky: 6 rows...
+[2026-03-11 13:52:48] INFO    src.etl.load :   → dim_hoc_ky: 6 bản ghi
+[2026-03-11 13:52:48] INFO    src.etl.load : Load dim_giang_vien: 20 rows...
+[2026-03-11 13:52:48] INFO    src.etl.load :   → dim_giang_vien: 20 bản ghi
+[2026-03-11 13:52:48] INFO    src.etl.load : Load dim_hoc_phan: 33 rows...
+[2026-03-11 13:52:48] INFO    src.etl.load :   → dim_hoc_phan: 33 bản ghi
+[2026-03-11 13:52:48] INFO    src.etl.load : Load dim_sinh_vien: 400 rows...
+[2026-03-11 13:52:48] INFO    src.etl.load :   → dim_sinh_vien: +0 mới, ~0 cập nhật | Tổng: 400
+[2026-03-11 13:52:48] INFO    src.etl.load : Load fact_hoc_tap: 6875 rows...
+[2026-03-11 13:53:19] INFO    src.etl.extract : Full extract: hoc_ky_nam_hoc
+[2026-03-11 13:53:19] INFO    src.etl.extract :   → 6 rows extracted từ hoc_ky_nam_hoc
+[2026-03-11 13:53:19] INFO    src.etl.extract : Full extract: giang_vien
+[2026-03-11 13:53:19] INFO    src.etl.extract :   → 20 rows extracted từ giang_vien
+[2026-03-11 13:53:19] INFO    src.etl.extract : Full extract: hoc_phan
+[2026-03-11 13:53:19] INFO    src.etl.extract :   → 33 rows extracted từ hoc_phan
+[2026-03-11 13:53:19] INFO    src.etl.extract : Full extract: sinh_vien
+[2026-03-11 13:53:19] INFO    src.etl.extract :   → 400 rows extracted từ sinh_vien
+[2026-03-11 13:53:19] INFO    src.etl.extract : Full extract: diem_hoc_phan
+[2026-03-11 13:53:19] INFO    src.etl.extract :   → 6,875 rows extracted từ diem_hoc_phan
+[2026-03-11 13:53:19] INFO    src.etl.extract : Full extract: dang_ky_hoc_phan
+[2026-03-11 13:53:19] INFO    src.etl.extract :   → 6,875 rows extracted từ dang_ky_hoc_phan
+[2026-03-11 13:53:19] INFO    src.etl.transform : Transform sinh_vien: 400 rows
+[2026-03-11 13:53:19] INFO    src.etl.transform :   → Transform xong: 400 rows
+[2026-03-11 13:53:19] INFO    src.etl.transform : Transform giang_vien: 20 rows
+[2026-03-11 13:53:19] INFO    src.etl.transform :   → Transform xong: 20 rows
+[2026-03-11 13:53:19] INFO    src.etl.transform : Transform diem: 6875 rows
+[2026-03-11 13:53:19] INFO    src.etl.transform :   → Transform xong: 6875 rows
+[2026-03-11 13:53:19] INFO    src.etl.transform : Tính GPA tổng hợp...
+[2026-03-11 13:53:20] INFO    src.etl.transform :   → GPA tính xong cho 383 sinh viên
+[2026-03-11 13:53:20] INFO    src.etl.load : ==================================================
+[2026-03-11 13:53:20] INFO    src.etl.load : BẮT ĐẦU LOAD VÀO WAREHOUSE
+[2026-03-11 13:53:20] INFO    src.etl.load : ==================================================
+[2026-03-11 13:53:20] INFO    src.etl.load : Load dim_hoc_ky: 6 rows...
+[2026-03-11 13:53:20] INFO    src.etl.load :   → dim_hoc_ky: 6 bản ghi
+[2026-03-11 13:53:20] INFO    src.etl.load : Load dim_giang_vien: 20 rows...
+[2026-03-11 13:53:20] INFO    src.etl.load :   → dim_giang_vien: 20 bản ghi
+[2026-03-11 13:53:20] INFO    src.etl.load : Load dim_hoc_phan: 33 rows...
+[2026-03-11 13:53:20] INFO    src.etl.load :   → dim_hoc_phan: 33 bản ghi
+[2026-03-11 13:53:20] INFO    src.etl.load : Load dim_sinh_vien: 400 rows...
+[2026-03-11 13:53:20] INFO    src.etl.load :   → dim_sinh_vien: +0 mới, ~0 cập nhật | Tổng: 400
+[2026-03-11 13:53:20] INFO    src.etl.load : Load fact_hoc_tap: 6875 rows...
+[2026-03-11 13:53:49] INFO    src.etl.load :   → fact_hoc_tap: +6875 mới, 0 bỏ qua | Tổng: 6875
+[2026-03-11 13:53:49] INFO    src.etl.load : Load agg_student_summary: 383 rows...
+[2026-03-11 13:53:50] INFO    src.etl.load :   → agg_student_summary: 383 bản ghi
+[2026-03-11 13:53:50] INFO    src.etl.load : ==================================================
+[2026-03-11 13:53:50] INFO    src.etl.load : LOAD HOÀN THÀNH ✅
+[2026-03-11 13:53:50] INFO    src.etl.load : ==================================================

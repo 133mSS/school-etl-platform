@@ -1,0 +1,268 @@
+[2026-03-26T08:44:59.781+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [queued]>
+[2026-03-26T08:44:59.792+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [queued]>
+[2026-03-26T08:44:59.793+0000] {taskinstance.py:2170} INFO - Starting attempt 2 of 2
+[2026-03-26T08:44:59.807+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_data> on 2026-03-25 02:00:00+00:00
+[2026-03-26T08:44:59.816+0000] {standard_task_runner.py:60} INFO - Started process 1017 to run task
+[2026-03-26T08:44:59.839+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_data', 'scheduled__2026-03-25T02:00:00+00:00', '--job-id', '51', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpaviaiq3b']
+[2026-03-26T08:44:59.847+0000] {standard_task_runner.py:88} INFO - Job 51: Subtask extract_data
+[2026-03-26T08:45:00.102+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [running]> on host 44ca04dda286
+[2026-03-26T08:45:00.278+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-25T02:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-25T02:00:00+00:00'
+[2026-03-26T08:45:01.129+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 30, in task_extract
+    from src.etl.extract import DataExtractor
+  File "/opt/airflow/src/etl/extract.py", line 27, in <module>
+    from src.config.database import source_engine
+  File "/opt/airflow/src/config/database.py", line 8, in <module>
+    from sqlalchemy.orm import sessionmaker, DeclarativeBase
+ImportError: cannot import name 'DeclarativeBase' from 'sqlalchemy.orm' (/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/__init__.py)
+[2026-03-26T08:45:01.199+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=extract_data, execution_date=20260325T020000, start_date=20260326T084459, end_date=20260326T084501
+[2026-03-26T08:45:01.212+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 51 for task extract_data (cannot import name 'DeclarativeBase' from 'sqlalchemy.orm' (/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/__init__.py); 1017)
+[2026-03-26T08:45:01.257+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-03-26T08:45:01.282+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-03-26T08:52:13.523+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [queued]>
+[2026-03-26T08:52:13.530+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [queued]>
+[2026-03-26T08:52:13.531+0000] {taskinstance.py:2170} INFO - Starting attempt 2 of 2
+[2026-03-26T08:52:13.541+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_data> on 2026-03-25 02:00:00+00:00
+[2026-03-26T08:52:13.545+0000] {standard_task_runner.py:60} INFO - Started process 1281 to run task
+[2026-03-26T08:52:13.548+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_data', 'scheduled__2026-03-25T02:00:00+00:00', '--job-id', '56', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpqgvannau']
+[2026-03-26T08:52:13.550+0000] {standard_task_runner.py:88} INFO - Job 56: Subtask extract_data
+[2026-03-26T08:52:13.630+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [running]> on host 44ca04dda286
+[2026-03-26T08:52:13.814+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-25T02:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-25T02:00:00+00:00'
+[2026-03-26T08:52:14.225+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 30, in task_extract
+    from src.etl.extract import DataExtractor
+  File "/opt/airflow/src/etl/extract.py", line 27, in <module>
+    from src.config.database import source_engine
+  File "/opt/airflow/src/config/database.py", line 8, in <module>
+    from sqlalchemy.orm import sessionmaker, DeclarativeBase
+ImportError: cannot import name 'DeclarativeBase' from 'sqlalchemy.orm' (/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/__init__.py)
+[2026-03-26T08:52:14.250+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=extract_data, execution_date=20260325T020000, start_date=20260326T085213, end_date=20260326T085214
+[2026-03-26T08:52:14.268+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 56 for task extract_data (cannot import name 'DeclarativeBase' from 'sqlalchemy.orm' (/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/__init__.py); 1281)
+[2026-03-26T08:52:14.282+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-03-26T08:52:14.304+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-03-26T09:10:04.275+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [queued]>
+[2026-03-26T09:10:04.286+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [queued]>
+[2026-03-26T09:10:04.287+0000] {taskinstance.py:2170} INFO - Starting attempt 2 of 2
+[2026-03-26T09:10:04.303+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_data> on 2026-03-25 02:00:00+00:00
+[2026-03-26T09:10:04.308+0000] {standard_task_runner.py:60} INFO - Started process 229 to run task
+[2026-03-26T09:10:04.312+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_data', 'scheduled__2026-03-25T02:00:00+00:00', '--job-id', '64', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmp3a4741m3']
+[2026-03-26T09:10:04.315+0000] {standard_task_runner.py:88} INFO - Job 64: Subtask extract_data
+[2026-03-26T09:10:04.409+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_data scheduled__2026-03-25T02:00:00+00:00 [running]> on host 44ca04dda286
+[2026-03-26T09:10:04.513+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-25T02:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-03-25T02:00:00+00:00'
+[2026-03-26T09:10:04.989+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:04] INFO    etl.extract : 🚀 BẮT ĐẦU FULL EXTRACT
+[2026-03-26T09:10:04.989+0000] {extract.py:356} INFO - 🚀 BẮT ĐẦU FULL EXTRACT
+[2026-03-26T09:10:04.991+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:04] INFO    etl.extract : ======================================================================
+[2026-03-26T09:10:04.991+0000] {extract.py:357} INFO - ======================================================================
+[2026-03-26T09:10:04.997+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:04] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:04.996+0000] {extract.py:120} INFO - ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:04.998+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:04] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-03-26T09:10:04.998+0000] {extract.py:121} INFO - NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-03-26T09:10:04.999+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:04] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:04.999+0000] {extract.py:122} INFO - ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:05.004+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'khoa': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.004+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'khoa': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.008+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'nganh': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.008+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'nganh': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.010+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'giang_vien': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.010+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'giang_vien': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.013+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'lop_hanh_chinh': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.013+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'lop_hanh_chinh': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.016+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'sinh_vien': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.016+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'sinh_vien': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.018+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'hoc_phan': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.018+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'hoc_phan': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.022+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'hoc_ky_nam_hoc': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.021+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'hoc_ky_nam_hoc': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.024+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'dang_ky_hoc_phan': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.024+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'dang_ky_hoc_phan': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.027+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'diem_hoc_phan': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.027+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'diem_hoc_phan': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.029+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] ERROR   etl.extract :   PostgreSQL | Lỗi đọc 'tong_hop_ket_qua': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.029+0000] {extract.py:101} ERROR -   PostgreSQL | Lỗi đọc 'tong_hop_ket_qua': (psycopg2.OperationalError) connection to server at "localhost" (::1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (127.0.0.1), port 5434 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-03-26T09:10:05.031+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   PostgreSQL | TỔNG: 0 records từ 10 bảng
+[2026-03-26T09:10:05.031+0000] {extract.py:129} INFO -   PostgreSQL | TỔNG: 0 records từ 10 bảng
+[2026-03-26T09:10:05.032+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:05.032+0000] {extract.py:215} INFO - ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:05.033+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-03-26T09:10:05.033+0000] {extract.py:216} INFO - NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-03-26T09:10:05.034+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:05.034+0000] {extract.py:217} INFO - ════════════════════════════════════════════════════════════
+[2026-03-26T09:10:05.038+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | Tìm thấy 9 file(s)
+[2026-03-26T09:10:05.038+0000] {extract.py:227} INFO -   CSV | Tìm thấy 9 file(s)
+[2026-03-26T09:10:05.044+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    390 records
+[2026-03-26T09:10:05.044+0000] {extract.py:190} INFO -   CSV | ctsv_HK1_2021_22.csv                →    390 records
+[2026-03-26T09:10:05.051+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →    810 records
+[2026-03-26T09:10:05.050+0000] {extract.py:190} INFO -   CSV | ctsv_HK1_2022_23.csv                →    810 records
+[2026-03-26T09:10:05.057+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  1,245 records
+[2026-03-26T09:10:05.057+0000] {extract.py:190} INFO -   CSV | ctsv_HK1_2023_24.csv                →  1,245 records
+[2026-03-26T09:10:05.066+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  1,580 records
+[2026-03-26T09:10:05.066+0000] {extract.py:190} INFO -   CSV | ctsv_HK1_2024_25.csv                →  1,580 records
+[2026-03-26T09:10:05.072+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →    125 records
+[2026-03-26T09:10:05.072+0000] {extract.py:190} INFO -   CSV | ctsv_HK1_2025_26.csv                →    125 records
+[2026-03-26T09:10:05.078+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    390 records
+[2026-03-26T09:10:05.078+0000] {extract.py:190} INFO -   CSV | ctsv_HK2_2021_22.csv                →    390 records
+[2026-03-26T09:10:05.084+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →    810 records
+[2026-03-26T09:10:05.084+0000] {extract.py:190} INFO -   CSV | ctsv_HK2_2022_23.csv                →    810 records
+[2026-03-26T09:10:05.092+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  1,245 records
+[2026-03-26T09:10:05.092+0000] {extract.py:190} INFO -   CSV | ctsv_HK2_2023_24.csv                →  1,245 records
+[2026-03-26T09:10:05.100+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  1,361 records
+[2026-03-26T09:10:05.099+0000] {extract.py:190} INFO -   CSV | ctsv_HK2_2024_25.csv                →  1,361 records
+[2026-03-26T09:10:05.108+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:05] INFO    etl.extract :   CSV | TỔNG: 7,956 records từ 9 file(s)
+[2026-03-26T09:10:05.108+0000] {extract.py:247} INFO -   CSV | TỔNG: 7,956 records từ 9 file(s)
+[2026-03-26T09:10:11.745+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] WARNING etl.extract :   MinIO staging thất bại (pipeline vẫn tiếp tục): Could not connect to the endpoint URL: "http://localhost:9000/raw-data"
+[2026-03-26T09:10:11.745+0000] {extract.py:451} WARNING -   MinIO staging thất bại (pipeline vẫn tiếp tục): Could not connect to the endpoint URL: "http://localhost:9000/raw-data"
+[2026-03-26T09:10:11.748+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract : ======================================================================
+[2026-03-26T09:10:11.748+0000] {extract.py:383} INFO - ======================================================================
+[2026-03-26T09:10:11.751+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract : ✅ FULL EXTRACT HOÀN TẤT
+[2026-03-26T09:10:11.751+0000] {extract.py:384} INFO - ✅ FULL EXTRACT HOÀN TẤT
+[2026-03-26T09:10:11.753+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    khoa                     :        0
+[2026-03-26T09:10:11.753+0000] {extract.py:386} INFO -    khoa                     :        0
+[2026-03-26T09:10:11.755+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    nganh                    :        0
+[2026-03-26T09:10:11.755+0000] {extract.py:386} INFO -    nganh                    :        0
+[2026-03-26T09:10:11.757+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    giang_vien               :        0
+[2026-03-26T09:10:11.757+0000] {extract.py:386} INFO -    giang_vien               :        0
+[2026-03-26T09:10:11.759+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    lop_hanh_chinh           :        0
+[2026-03-26T09:10:11.759+0000] {extract.py:386} INFO -    lop_hanh_chinh           :        0
+[2026-03-26T09:10:11.760+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    sinh_vien                :        0
+[2026-03-26T09:10:11.760+0000] {extract.py:386} INFO -    sinh_vien                :        0
+[2026-03-26T09:10:11.761+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    hoc_phan                 :        0
+[2026-03-26T09:10:11.761+0000] {extract.py:386} INFO -    hoc_phan                 :        0
+[2026-03-26T09:10:11.763+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    hoc_ky_nam_hoc           :        0
+[2026-03-26T09:10:11.763+0000] {extract.py:386} INFO -    hoc_ky_nam_hoc           :        0
+[2026-03-26T09:10:11.765+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    dang_ky_hoc_phan         :        0
+[2026-03-26T09:10:11.765+0000] {extract.py:386} INFO -    dang_ky_hoc_phan         :        0
+[2026-03-26T09:10:11.766+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    diem_hoc_phan            :        0
+[2026-03-26T09:10:11.766+0000] {extract.py:386} INFO -    diem_hoc_phan            :        0
+[2026-03-26T09:10:11.767+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    tong_hop_ket_qua         :        0
+[2026-03-26T09:10:11.767+0000] {extract.py:386} INFO -    tong_hop_ket_qua         :        0
+[2026-03-26T09:10:11.768+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    ctsv_data                :    7,956
+[2026-03-26T09:10:11.768+0000] {extract.py:386} INFO -    ctsv_data                :    7,956
+[2026-03-26T09:10:11.769+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract :    tai_chinh_data           :        0
+[2026-03-26T09:10:11.769+0000] {extract.py:386} INFO -    tai_chinh_data           :        0
+[2026-03-26T09:10:11.770+0000] {logging_mixin.py:188} WARNING - [2026-03-26 09:10:11] INFO    etl.extract : ======================================================================
+[2026-03-26T09:10:11.770+0000] {extract.py:387} INFO - ======================================================================
+[2026-03-26T09:10:11.803+0000] {logging_mixin.py:188} INFO - Extract xong: {'khoa': 0, 'nganh': 0, 'giang_vien': 0, 'lop_hanh_chinh': 0, 'sinh_vien': 0, 'hoc_phan': 0, 'hoc_ky_nam_hoc': 0, 'dang_ky_hoc_phan': 0, 'diem_hoc_phan': 0, 'tong_hop_ket_qua': 0, 'ctsv_data': 7956, 'tai_chinh_data': 0}
+[2026-03-26T09:10:11.804+0000] {python.py:201} INFO - Done. Returned value was: {'khoa': 0, 'nganh': 0, 'giang_vien': 0, 'lop_hanh_chinh': 0, 'sinh_vien': 0, 'hoc_phan': 0, 'hoc_ky_nam_hoc': 0, 'dang_ky_hoc_phan': 0, 'diem_hoc_phan': 0, 'tong_hop_ket_qua': 0, 'ctsv_data': 7956, 'tai_chinh_data': 0}
+[2026-03-26T09:10:11.827+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=extract_data, execution_date=20260325T020000, start_date=20260326T091004, end_date=20260326T091011
+[2026-03-26T09:10:11.879+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-26T09:10:11.902+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

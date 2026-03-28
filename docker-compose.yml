@@ -251,7 +251,8 @@ services:
       GF_INSTALL_PLUGINS: grafana-clock-panel
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana:/etc/grafana/provisioning
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
     depends_on:
       - prometheus
     networks:

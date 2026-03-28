@@ -1,0 +1,31 @@
+[2026-03-26T10:33:22.133+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-03-26T10:33:08.763563+00:00 [queued]>
+[2026-03-26T10:33:22.142+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-03-26T10:33:08.763563+00:00 [queued]>
+[2026-03-26T10:33:22.143+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-03-26T10:33:22.167+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): load_data> on 2026-03-26 10:33:08.763563+00:00
+[2026-03-26T10:33:22.172+0000] {standard_task_runner.py:60} INFO - Started process 365 to run task
+[2026-03-26T10:33:22.175+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'load_data', 'manual__2026-03-26T10:33:08.763563+00:00', '--job-id', '86', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpld9wimq8']
+[2026-03-26T10:33:22.177+0000] {standard_task_runner.py:88} INFO - Job 86: Subtask load_data
+[2026-03-26T10:33:22.258+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.load_data manual__2026-03-26T10:33:08.763563+00:00 [running]> on host 95f9ad9683dd
+[2026-03-26T10:33:22.358+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='load_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-26T10:33:08.763563+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-26T10:33:08.763563+00:00'
+[2026-03-26T10:33:22.985+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 91, in task_load
+    from src.etl.load      import DataLoader
+  File "/opt/airflow/src/etl/load.py", line 21, in <module>
+    from src.models.warehouse_models import (
+  File "/opt/airflow/src/models/warehouse_models.py", line 21, in <module>
+    from sqlalchemy.orm import Mapped, mapped_column, relationship
+ImportError: cannot import name 'mapped_column' from 'sqlalchemy.orm' (/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/__init__.py)
+[2026-03-26T10:33:23.011+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=load_data, execution_date=20260326T103308, start_date=20260326T103322, end_date=20260326T103323
+[2026-03-26T10:33:23.026+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 86 for task load_data (cannot import name 'mapped_column' from 'sqlalchemy.orm' (/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/__init__.py); 365)
+[2026-03-26T10:33:23.069+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-03-26T10:33:23.094+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

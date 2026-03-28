@@ -1,0 +1,27 @@
+[2026-03-26T14:38:50.587+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: weekly_summary_pipeline.aggregate_weekly manual__2026-03-26T14:30:54.389039+00:00 [queued]>
+[2026-03-26T14:38:50.599+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: weekly_summary_pipeline.aggregate_weekly manual__2026-03-26T14:30:54.389039+00:00 [queued]>
+[2026-03-26T14:38:50.600+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-03-26T14:38:50.614+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): aggregate_weekly> on 2026-03-26 14:30:54.389039+00:00
+[2026-03-26T14:38:50.620+0000] {standard_task_runner.py:60} INFO - Started process 194 to run task
+[2026-03-26T14:38:50.625+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'weekly_summary_pipeline', 'aggregate_weekly', 'manual__2026-03-26T14:30:54.389039+00:00', '--job-id', '15', '--raw', '--subdir', 'DAGS_FOLDER/weekly_summary_pipeline.py', '--cfg-path', '/tmp/tmpes5ldt9_']
+[2026-03-26T14:38:50.629+0000] {standard_task_runner.py:88} INFO - Job 15: Subtask aggregate_weekly
+[2026-03-26T14:38:50.711+0000] {task_command.py:423} INFO - Running <TaskInstance: weekly_summary_pipeline.aggregate_weekly manual__2026-03-26T14:30:54.389039+00:00 [running]> on host 8474c56aea3d
+[2026-03-26T14:38:50.807+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='weekly_summary_pipeline' AIRFLOW_CTX_TASK_ID='aggregate_weekly' AIRFLOW_CTX_EXECUTION_DATE='2026-03-26T14:30:54.389039+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-26T14:30:54.389039+00:00'
+[2026-03-26T14:38:50.832+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/weekly_summary_pipeline.py", line 23, in task_aggregate_weekly
+    from src.etl.aggregation import WeeklyAggregator
+ImportError: cannot import name 'WeeklyAggregator' from 'src.etl.aggregation' (/opt/airflow/src/etl/aggregation.py)
+[2026-03-26T14:38:50.849+0000] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=weekly_summary_pipeline, task_id=aggregate_weekly, execution_date=20260326T143054, start_date=20260326T143850, end_date=20260326T143850
+[2026-03-26T14:38:50.866+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 15 for task aggregate_weekly (cannot import name 'WeeklyAggregator' from 'src.etl.aggregation' (/opt/airflow/src/etl/aggregation.py); 194)
+[2026-03-26T14:38:50.876+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-03-26T14:38:50.899+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

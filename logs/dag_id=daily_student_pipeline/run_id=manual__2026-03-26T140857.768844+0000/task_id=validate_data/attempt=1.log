@@ -1,0 +1,26 @@
+[2026-03-26T14:09:14.511+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-03-26T14:08:57.768844+00:00 [queued]>
+[2026-03-26T14:09:14.520+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-03-26T14:08:57.768844+00:00 [queued]>
+[2026-03-26T14:09:14.521+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-03-26T14:09:14.535+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-03-26 14:08:57.768844+00:00
+[2026-03-26T14:09:14.540+0000] {standard_task_runner.py:60} INFO - Started process 1513 to run task
+[2026-03-26T14:09:14.543+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'manual__2026-03-26T14:08:57.768844+00:00', '--job-id', '6', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpe_b402t1']
+[2026-03-26T14:09:14.546+0000] {standard_task_runner.py:88} INFO - Job 6: Subtask validate_data
+[2026-03-26T14:09:14.614+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-03-26T14:08:57.768844+00:00 [running]> on host 8474c56aea3d
+[2026-03-26T14:09:14.708+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-03-26T14:08:57.768844+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-03-26T14:08:57.768844+00:00'
+[2026-03-26T14:09:15.453+0000] {logging_mixin.py:188} WARNING - [2026-03-26 14:09:15] INFO    validation.ge :   Validating staging: run_id=2026-03-26_14-09
+[2026-03-26T14:09:15.453+0000] {ge_validation.py:29} INFO -   Validating staging: run_id=2026-03-26_14-09
+[2026-03-26T14:09:15.545+0000] {logging_mixin.py:188} WARNING - [2026-03-26 14:09:15] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-03-26T14:09:15.545+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-03-26T14:09:15.562+0000] {logging_mixin.py:188} WARNING - [2026-03-26 14:09:15] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon1_diem.parquet (46,575 rows)
+[2026-03-26T14:09:15.562+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon1_diem.parquet (46,575 rows)
+[2026-03-26T14:09:15.574+0000] {logging_mixin.py:188} WARNING - [2026-03-26 14:09:15] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon2_ctsv.parquet (7,956 rows)
+[2026-03-26T14:09:15.574+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon2_ctsv.parquet (7,956 rows)
+[2026-03-26T14:09:15.586+0000] {logging_mixin.py:188} WARNING - [2026-03-26 14:09:15] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon3_tai_chinh.parquet (7,956 rows)
+[2026-03-26T14:09:15.586+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-03-26_14-09/nguon3_tai_chinh.parquet (7,956 rows)
+[2026-03-26T14:09:15.628+0000] {logging_mixin.py:188} WARNING - [2026-03-26 14:09:15] INFO    validation.ge :   Validation OK: 23/23 passed
+[2026-03-26T14:09:15.628+0000] {ge_validation.py:57} INFO -   Validation OK: 23/23 passed
+[2026-03-26T14:09:15.630+0000] {logging_mixin.py:188} INFO - Validation OK: 23 checks passed
+[2026-03-26T14:09:15.647+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-03-26T14:09:15.660+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260326T140857, start_date=20260326T140914, end_date=20260326T140915
+[2026-03-26T14:09:15.720+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-03-26T14:09:15.748+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

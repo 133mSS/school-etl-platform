@@ -42,13 +42,7 @@ logger = get_logger("scripts.run_etl")
 # ══════════════════════════════════════════════════
 
 def run_full() -> dict:
-    """
-    Full pipeline: Extract → Transform → Load.
-
-    Dùng khi:
-    - Lần đầu chạy
-    - Muốn load lại toàn bộ dữ liệu
-    """
+    
     logger.info("=" * 70)
     logger.info("MODE: FULL — Extract + Transform + Load")
     logger.info("=" * 70)
@@ -75,16 +69,7 @@ def run_full() -> dict:
 
 
 def run_incremental(ma_hoc_ky: str) -> dict:
-    """
-    Incremental pipeline cho 1 học kỳ.
-
-    Dùng khi:
-    - Chạy hàng ngày theo lịch Airflow
-    - Chỉ muốn cập nhật data của 1 HK
-
-    Args:
-        ma_hoc_ky: VD "HK1-2024-25"
-    """
+   
     logger.info("=" * 70)
     logger.info(f"MODE: INCREMENTAL — HK: {ma_hoc_ky}")
     logger.info("=" * 70)
@@ -106,17 +91,7 @@ def run_incremental(ma_hoc_ky: str) -> dict:
 
 
 def run_resume(run_id: str = None) -> dict:
-    """
-    Resume pipeline từ MinIO staging — bỏ qua bước Extract.
-
-    Dùng khi:
-    - Pipeline crash ở Transform hoặc Load
-    - Không muốn query DB lại (tiết kiệm thời gian)
-
-    Args:
-        run_id: timestamp folder trong MinIO.
-                None = tự lấy lần mới nhất.
-    """
+    
     logger.info("=" * 70)
     logger.info(f"MODE: RESUME — run_id={run_id or 'latest'}")
     logger.info("=" * 70)
@@ -144,11 +119,11 @@ def run_resume(run_id: str = None) -> dict:
 # ══════════════════════════════════════════════════
 
 def print_summary(stats: dict, start_time: datetime) -> None:
-    """In bảng tổng kết sau khi chạy xong."""
+    
     duration = (datetime.now() - start_time).total_seconds()
 
     logger.info("\n" + "=" * 70)
-    logger.info("📊 KẾT QUẢ PIPELINE")
+    logger.info(" KẾT QUẢ PIPELINE")
     logger.info("=" * 70)
     logger.info(f"  Thời gian chạy: {duration:.1f} giây")
     logger.info(f"  Timestamp     : {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -162,7 +137,7 @@ def print_summary(stats: dict, start_time: datetime) -> None:
 
     logger.info(f"    {'TỔNG':<30s}: {total:>8,}")
     logger.info("=" * 70)
-    logger.info("✅ PIPELINE HOÀN TẤT")
+    logger.info("==PIPELINE HOÀN TẤT==")
     logger.info("")
     logger.info("  Kiểm tra kết quả:")
     logger.info("  → MinIO Console  : http://localhost:9001")
@@ -211,7 +186,7 @@ def main():
     args       = parse_args()
     start_time = datetime.now()
 
-    logger.info(f"🕐 Bắt đầu lúc: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f" Bắt đầu lúc: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     try:
         if args.mode == "full":
@@ -230,18 +205,18 @@ def main():
 
     except FileNotFoundError as e:
         # load_from_staging() không tìm thấy staging data
-        logger.error(f"❌ Không tìm thấy staging: {e}")
-        logger.error("   Gợi ý: chạy 'python scripts/run_etl.py --mode full' trước.")
+        logger.error(f"Không tìm thấy staging: {e}")
+        
         sys.exit(1)
 
     except KeyboardInterrupt:
-        logger.warning("⚠️  Pipeline bị dừng thủ công (Ctrl+C)")
+        logger.warning("Pipeline bị dừng thủ công (Ctrl+C)")
         sys.exit(0)
 
     except Exception as e:
         duration = (datetime.now() - start_time).total_seconds()
-        logger.error(f"❌ Pipeline thất bại sau {duration:.1f}s: {e}")
-        logger.error("   Gợi ý: dùng --mode resume để chạy lại từ staging.")
+        logger.error(f"Pipeline thất bại sau {duration:.1f}s: {e}")
+     
         raise
 
 
