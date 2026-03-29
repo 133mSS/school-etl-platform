@@ -1,3 +1,4 @@
+from src.etl.aggregation import DataAggregator
 from typing import Dict, List, Optional, Tuple
 from datetime import date
 
@@ -51,8 +52,9 @@ class DataLoader:
         stats["fact_ctsv"]      = self._load_fact_ctsv(data.fact_ren_luyen)
         stats["fact_tai_chinh"] = self._load_fact_tai_chinh(data.fact_tai_chinh)
 
-        logger.info("── Bước 4: Load Aggregation ──")
-        stats["agg_student_summary"] = self._load_agg_summary(data.fact_tong_hop_sv)
+        logger.info("── Bước 4: Build Aggregation ──")
+        aggregator = DataAggregator()
+        stats["agg_student_summary"] = aggregator.run_all()
 
         logger.info("=" * 70)
         logger.info("LOAD HOÀN TẤT")
@@ -85,8 +87,8 @@ class DataLoader:
         stats["fact_hoc_tap"]        = self._load_fact_hoc_tap(data.fact_diem)
         stats["fact_ctsv"]           = self._load_fact_ctsv(data.fact_ren_luyen)
         stats["fact_tai_chinh"]      = self._load_fact_tai_chinh(data.fact_tai_chinh)
-        stats["agg_student_summary"] = self._load_agg_summary(data.fact_tong_hop_sv)
-
+        aggregator = DataAggregator()
+        stats["agg_student_summary"] = aggregator.run_all()
         logger.info(f"INCREMENTAL LOAD HOÀN TẤT — {ma_hoc_ky}")
         return stats
 
@@ -703,90 +705,6 @@ class DataLoader:
         except Exception as e:
             session.rollback()
             logger.error(f"  fact_tai_chinh | Lỗi: {e}")
-            return 0
-        finally:
-            session.close()
-
-    def _load_agg_summary(self, df: pd.DataFrame) -> int:
-        if df.empty:
-            logger.info("  agg_student_summary → SKIP (empty)")
-            return 0
-
-        session = WarehouseSession()
-        count = 0
-
-        try:
-            if "ma_hoc_ky" in df.columns:
-                latest = df.sort_values("ma_hoc_ky").groupby("ma_sinh_vien").last().reset_index()
-            else:
-                latest = df.drop_duplicates(subset=["ma_sinh_vien"], keep="last")
-
-            for _, row in latest.iterrows():
-                ma_sv  = row.get("ma_sinh_vien")
-                sv_key = self._lookup_sv_key(ma_sv)
-                if not sv_key:
-                    continue
-
-                hk_key  = self._lookup_hk_key(row.get("ma_hoc_ky"))
-                gpa4    = row.get("gpa_hoc_ky_he4")
-                xep_loai = self._classify_gpa(gpa4) if gpa4 else None
-
-                muc_rui_ro = "Thấp"
-                if row.get("nguy_co_bo_hoc"):
-                    muc_rui_ro = "Rất cao"
-                elif row.get("canh_bao_hoc_vu"):
-                    muc_rui_ro = "Cao"
-                elif gpa4 and gpa4 < 2.0:
-                    muc_rui_ro = "Trung bình"
-
-                existing = session.query(AggStudentSummary).filter_by(
-                    ma_sinh_vien=ma_sv
-                ).first()
-
-                if existing:
-                    existing.gpa_he_4            = self._to_decimal(gpa4)
-                    existing.gpa_he_10           = self._to_decimal(row.get("gpa_hoc_ky_he10"))
-                    existing.xep_loai_hoc_luc    = xep_loai
-                    existing.tong_tin_chi_dang_ky = self._to_int(row.get("tong_tin_chi")) or 0
-                    existing.so_mon_khong_dat    = self._to_int(row.get("so_mon_rot")) or 0
-                    existing.tong_mon_dang_ky    = self._to_int(row.get("so_mon_hoc")) or 0
-                    existing.diem_rl_trung_binh  = self._to_decimal(row.get("diem_ren_luyen"))
-                    existing.xep_loai_rl_gan_nhat = row.get("xep_loai_rl")
-                    existing.tong_no_hoc_phi     = self._to_int(row.get("con_no")) or 0
-                    existing.co_no_hoc_phi       = bool(row.get("con_no", 0) > 0)
-                    existing.duoc_mien_giam      = bool(row.get("duoc_mien_giam", False))
-                    existing.muc_do_rui_ro       = muc_rui_ro
-                    existing.canh_bao_hoc_vu     = bool(row.get("canh_bao_hoc_vu", False))
-                    existing.hoc_ky_key_gan_nhat = hk_key
-                else:
-                    obj = AggStudentSummary(
-                        sinh_vien_key=sv_key,
-                        ma_sinh_vien=ma_sv,
-                        gpa_he_4=self._to_decimal(gpa4),
-                        gpa_he_10=self._to_decimal(row.get("gpa_hoc_ky_he10")),
-                        xep_loai_hoc_luc=xep_loai,
-                        tong_tin_chi_dang_ky=self._to_int(row.get("tong_tin_chi")) or 0,
-                        so_mon_khong_dat=self._to_int(row.get("so_mon_rot")) or 0,
-                        tong_mon_dang_ky=self._to_int(row.get("so_mon_hoc")) or 0,
-                        diem_rl_trung_binh=self._to_decimal(row.get("diem_ren_luyen")),
-                        xep_loai_rl_gan_nhat=row.get("xep_loai_rl"),
-                        tong_no_hoc_phi=self._to_int(row.get("con_no")) or 0,
-                        co_no_hoc_phi=bool(row.get("con_no", 0) > 0),
-                        duoc_mien_giam=bool(row.get("duoc_mien_giam", False)),
-                        muc_do_rui_ro=muc_rui_ro,
-                        canh_bao_hoc_vu=bool(row.get("canh_bao_hoc_vu", False)),
-                        hoc_ky_key_gan_nhat=hk_key,
-                    )
-                    session.add(obj)
-                    count += 1
-
-            session.commit()
-            logger.info(f"  agg_student_summary → {len(latest):>6,} records")
-            return len(latest)
-
-        except Exception as e:
-            session.rollback()
-            logger.error(f"  agg_student_summary | Lỗi: {e}")
             return 0
         finally:
             session.close()

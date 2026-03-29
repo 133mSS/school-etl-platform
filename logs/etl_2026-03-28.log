@@ -1986,3 +1986,515 @@ LINE 1: ...(3902, 9, 'B23DCCN033', 'HK2-2024-25', 77, 'Khá', 'KKHT Loại...
 [2026-03-28 15:45:16] INFO    scripts.run_etl :   → pgAdmin        : http://localhost:5050
 [2026-03-28 15:45:16] INFO    scripts.run_etl :     DB warehouse   : SELECT COUNT(*) FROM dim_sinh_vien;
 [2026-03-28 15:45:16] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 22:51:05] INFO    scripts.run_etl :  Bắt đầu lúc: 2026-03-28 22:51:05
+[2026-03-28 22:51:05] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 22:51:05] INFO    scripts.run_etl : MODE: FULL — Extract + Transform + Load
+[2026-03-28 22:51:05] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 22:51:05] INFO    scripts.run_etl : 
+[BƯỚC 1/3] EXTRACT
+[2026-03-28 22:51:05] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-03-28 22:51:05] INFO    etl.extract : ======================================================================
+[2026-03-28 22:51:05] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 22:51:05] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-03-28 22:51:05] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 22:51:06] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-03-28 22:51:06] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-03-28 22:51:06] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-03-28 22:51:06] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-03-28 22:51:06] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-03-28 22:51:06] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-03-28 22:51:07] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →      9 records
+[2026-03-28 22:51:07] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 52,893 records
+[2026-03-28 22:51:08] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 52,893 records
+[2026-03-28 22:51:08] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-03-28 22:51:08] INFO    etl.extract :   PostgreSQL | TỔNG: 109,406 records từ 10 bảng
+[2026-03-28 22:51:08] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 22:51:08] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-03-28 22:51:08] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | Tìm thấy 9 file(s)
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    780 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,553 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,336 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,108 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,319 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    780 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,540 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,335 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,743 records
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | Loại bỏ 8757 bản ghi trùng
+[2026-03-28 22:51:08] INFO    etl.extract :   CSV | TỔNG: 8,737 records từ 9 file(s)
+[2026-03-28 22:51:12] INFO    etl.extract :   API | (JSON) taichinh_HK1_2021_22.json →    390 records
+[2026-03-28 22:51:17] INFO    etl.extract :   API | (JSON) taichinh_HK1_2022_23.json →    774 records
+[2026-03-28 22:51:21] INFO    etl.extract :   API | (JSON) taichinh_HK1_2023_24.json →  1,162 records
+[2026-03-28 22:51:25] INFO    etl.extract :   API | (JSON) taichinh_HK1_2024_25.json →  1,537 records
+[2026-03-28 22:51:29] INFO    etl.extract :   API | (JSON) taichinh_HK1_2025_26.json →  1,143 records
+[2026-03-28 22:51:33] INFO    etl.extract :   API | (JSON) taichinh_HK2_2021_22.json →    390 records
+[2026-03-28 22:51:37] INFO    etl.extract :   API | (JSON) taichinh_HK2_2022_23.json →    765 records
+[2026-03-28 22:51:41] INFO    etl.extract :   API | (JSON) taichinh_HK2_2023_24.json →  1,161 records
+[2026-03-28 22:51:45] INFO    etl.extract :   API | (JSON) taichinh_HK2_2024_25.json →  1,415 records
+[2026-03-28 22:51:45] INFO    etl.extract :   API | TỔNG: 8,737 records từ 9 HK
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_sinh_vien.parquet (44.5 KB | 1,695 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_dang_ky.parquet (444.0 KB | 52,893 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_diem.parquet (1069.5 KB | 52,893 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_hoc_phan.parquet (9.5 KB | 121 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_hoc_ky.parquet (3.7 KB | 9 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_giang_vien.parquet (7.6 KB | 45 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_khoa.parquet (2.4 KB | 4 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_nganh.parquet (2.9 KB | 3 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_lop_hanh_chinh.parquet (4.4 KB | 48 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon1_tong_hop_ket_qua.parquet (21.7 KB | 1,695 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon2_ctsv.parquet (35.9 KB | 8,737 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_22-51/nguon3_tai_chinh.parquet (61.5 KB | 8,737 rows)
+[2026-03-28 22:51:47] INFO    utils.minio :   MinIO upload xong: 12/12 files | run_id=2026-03-28_22-51
+[2026-03-28 22:51:47] INFO    etl.extract :   MinIO staging: 12/12 files OK → run_id=2026-03-28_22-51
+[2026-03-28 22:51:47] INFO    etl.extract : ======================================================================
+[2026-03-28 22:51:47] INFO    etl.extract :  FULL EXTRACT HOÀN TẤT
+[2026-03-28 22:51:47] INFO    etl.extract :    khoa                     :        4
+[2026-03-28 22:51:47] INFO    etl.extract :    nganh                    :        3
+[2026-03-28 22:51:47] INFO    etl.extract :    giang_vien               :       45
+[2026-03-28 22:51:47] INFO    etl.extract :    lop_hanh_chinh           :       48
+[2026-03-28 22:51:47] INFO    etl.extract :    sinh_vien                :    1,695
+[2026-03-28 22:51:47] INFO    etl.extract :    hoc_phan                 :      121
+[2026-03-28 22:51:47] INFO    etl.extract :    hoc_ky_nam_hoc           :        9
+[2026-03-28 22:51:47] INFO    etl.extract :    dang_ky_hoc_phan         :   52,893
+[2026-03-28 22:51:47] INFO    etl.extract :    diem_hoc_phan            :   52,893
+[2026-03-28 22:51:47] INFO    etl.extract :    tong_hop_ket_qua         :    1,695
+[2026-03-28 22:51:47] INFO    etl.extract :    ctsv_data                :    8,737
+[2026-03-28 22:51:47] INFO    etl.extract :    tai_chinh_data           :    8,737
+[2026-03-28 22:51:47] INFO    etl.extract : ======================================================================
+[2026-03-28 22:51:47] INFO    scripts.run_etl : 
+[BƯỚC 2/3] TRANSFORM
+[2026-03-28 22:51:47] INFO    etl.transform : ==BẮT ĐẦU TRANSFORM==
+[2026-03-28 22:51:47] INFO    etl.transform : ======================================================================
+[2026-03-28 22:51:47] INFO    etl.transform : ── Bước 1: Transform Dimension Tables ──
+[2026-03-28 22:51:47] INFO    etl.transform :   dim_thoi_gian (→dim_hoc_ky)  →      9 records
+[2026-03-28 22:51:47] INFO    etl.transform :   dim_giang_vien              →     45 records
+[2026-03-28 22:51:47] INFO    etl.transform :   dim_hoc_phan                →    121 records
+[2026-03-28 22:51:47] INFO    etl.transform :   dim_sinh_vien               →  1,695 records
+[2026-03-28 22:51:47] INFO    etl.transform : ── Bước 2: Transform Fact Tables ──
+[2026-03-28 22:51:47] INFO    etl.transform :   fact_diem (→fact_hoc_tap)    → 52,893 records
+[2026-03-28 22:51:47] INFO    etl.transform :   fact_ren_luyen (→fact_ctsv)  →  8,737 records
+[2026-03-28 22:51:47] INFO    etl.transform :   fact_tai_chinh               →  8,737 records
+[2026-03-28 22:51:47] INFO    etl.transform : ── Bước 3: Tổng hợp đa nguồn ──
+[2026-03-28 22:51:49] INFO    etl.transform :   agg_student_summary          →  8,924 records
+[2026-03-28 22:51:49] INFO    etl.transform :     → Cảnh báo học vụ:         596
+[2026-03-28 22:51:49] INFO    etl.transform :     → Đủ ĐK học bổng:         581
+[2026-03-28 22:51:49] INFO    etl.transform :     → Nguy cơ bỏ học:           64
+[2026-03-28 22:51:49] INFO    etl.transform : ======================================================================
+[2026-03-28 22:51:49] INFO    etl.transform : TRANSFORM HOÀN TẤT
+[2026-03-28 22:51:49] INFO    etl.transform :    dim_giang_vien           :       45 records
+[2026-03-28 22:51:49] INFO    etl.transform :    dim_sinh_vien            :    1,695 records
+[2026-03-28 22:51:49] INFO    etl.transform :    dim_hoc_phan             :      121 records
+[2026-03-28 22:51:49] INFO    etl.transform :    dim_thoi_gian            :        9 records
+[2026-03-28 22:51:49] INFO    etl.transform :    fact_diem                :   52,893 records
+[2026-03-28 22:51:49] INFO    etl.transform :    fact_ren_luyen           :    8,737 records
+[2026-03-28 22:51:49] INFO    etl.transform :    fact_tai_chinh           :    8,737 records
+[2026-03-28 22:51:49] INFO    etl.transform :    fact_tong_hop_sv         :    8,924 records
+[2026-03-28 22:51:49] INFO    etl.transform : ======================================================================
+[2026-03-28 22:51:49] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/dim_hoc_ky.parquet (4.8 KB | 9 rows)
+[2026-03-28 22:51:49] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/dim_giang_vien.parquet (8.2 KB | 45 rows)
+[2026-03-28 22:51:49] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/dim_hoc_phan.parquet (10.2 KB | 121 rows)
+[2026-03-28 22:51:50] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/dim_sinh_vien.parquet (68.1 KB | 1,695 rows)
+[2026-03-28 22:51:50] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/fact_diem.parquet (794.4 KB | 52,893 rows)
+[2026-03-28 22:51:50] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/fact_ren_luyen.parquet (37.1 KB | 8,737 rows)
+[2026-03-28 22:51:50] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/fact_tai_chinh.parquet (61.6 KB | 8,737 rows)
+[2026-03-28 22:51:50] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_22-51/fact_tong_hop_sv.parquet (114.1 KB | 8,924 rows)
+[2026-03-28 22:51:50] INFO    etl.transform :   MinIO staging-data: 8/8 files OK → run_id=2026-03-28_22-51
+[2026-03-28 22:51:50] INFO    scripts.run_etl : 
+[BƯỚC 3/3] LOAD
+[2026-03-28 22:51:50] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-03-28 22:51:50] INFO    etl.load : ======================================================================
+[2026-03-28 22:51:50] INFO    etl.load : 🔧 Tạo schema warehouse từ warehouse_models.py...
+[2026-03-28 22:51:50] INFO    etl.load :   Schema warehouse OK ✓
+[2026-03-28 22:51:50] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-03-28 22:51:50] INFO    etl.load :   dim_hoc_ky     →      9 records (new: 0)
+[2026-03-28 22:51:50] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-03-28 22:51:50] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-03-28 22:52:05] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 1385, fact cascade: 64509)
+[2026-03-28 22:52:05] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-03-28 22:52:05] INFO    etl.load :  Building surrogate key caches...
+[2026-03-28 22:52:05] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=9
+[2026-03-28 22:52:05] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-03-28 22:53:57] INFO    etl.load :   fact_hoc_tap   →    606 records
+[2026-03-28 22:54:12] INFO    etl.load :   fact_ctsv      →     89 records
+[2026-03-28 22:54:27] INFO    etl.load :   fact_tai_chinh →     89 records
+[2026-03-28 22:54:27] INFO    etl.load : ── Bước 4: Load Aggregation ──
+[2026-03-28 22:54:31] INFO    etl.load :   agg_student_summary →  1,695 records
+[2026-03-28 22:54:31] INFO    etl.load : ======================================================================
+[2026-03-28 22:54:31] INFO    etl.load : LOAD HOÀN TẤT
+[2026-03-28 22:54:31] INFO    etl.load :   dim_hoc_ky               :        9 records
+[2026-03-28 22:54:31] INFO    etl.load :   dim_giang_vien           :       45 records
+[2026-03-28 22:54:31] INFO    etl.load :   dim_hoc_phan             :      121 records
+[2026-03-28 22:54:31] INFO    etl.load :   dim_sinh_vien            :    1,385 records
+[2026-03-28 22:54:31] INFO    etl.load :   fact_hoc_tap             :      606 records
+[2026-03-28 22:54:31] INFO    etl.load :   fact_ctsv                :       89 records
+[2026-03-28 22:54:31] INFO    etl.load :   fact_tai_chinh           :       89 records
+[2026-03-28 22:54:31] INFO    etl.load :   agg_student_summary      :    1,695 records
+[2026-03-28 22:54:31] INFO    etl.load :   TỔNG                     :    4,039 records
+[2026-03-28 22:54:31] INFO    etl.load : ======================================================================
+[2026-03-28 22:54:31] INFO    scripts.run_etl : 
+======================================================================
+[2026-03-28 22:54:31] INFO    scripts.run_etl :  KẾT QUẢ PIPELINE
+[2026-03-28 22:54:31] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 22:54:31] INFO    scripts.run_etl :   Thời gian chạy: 205.1 giây
+[2026-03-28 22:54:31] INFO    scripts.run_etl :   Timestamp     : 2026-03-28 22:51:05
+[2026-03-28 22:54:31] INFO    scripts.run_etl : 
+[2026-03-28 22:54:31] INFO    scripts.run_etl :   Records đã load vào warehouse:
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     dim_hoc_ky                    :        9
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     dim_giang_vien                :       45
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     dim_hoc_phan                  :      121
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     dim_sinh_vien                 :    1,385
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     fact_hoc_tap                  :      606
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     fact_ctsv                     :       89
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     fact_tai_chinh                :       89
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     agg_student_summary           :    1,695
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     TỔNG                          :    4,039
+[2026-03-28 22:54:31] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 22:54:31] INFO    scripts.run_etl : ==PIPELINE HOÀN TẤT==
+[2026-03-28 22:54:31] INFO    scripts.run_etl : 
+[2026-03-28 22:54:31] INFO    scripts.run_etl :   Kiểm tra kết quả:
+[2026-03-28 22:54:31] INFO    scripts.run_etl :   → MinIO Console  : http://localhost:9001
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     Bucket raw-data: xem file .parquet vừa upload
+[2026-03-28 22:54:31] INFO    scripts.run_etl :   → pgAdmin        : http://localhost:5050
+[2026-03-28 22:54:31] INFO    scripts.run_etl :     DB warehouse   : SELECT COUNT(*) FROM dim_sinh_vien;
+[2026-03-28 22:54:31] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 23:44:03] INFO    scripts.run_etl :  Bắt đầu lúc: 2026-03-28 23:44:03
+[2026-03-28 23:44:03] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 23:44:03] INFO    scripts.run_etl : MODE: FULL — Extract + Transform + Load
+[2026-03-28 23:44:03] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 23:44:03] INFO    scripts.run_etl : 
+[BƯỚC 1/3] EXTRACT
+[2026-03-28 23:44:03] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-03-28 23:44:03] INFO    etl.extract : ======================================================================
+[2026-03-28 23:44:03] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 23:44:03] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-03-28 23:44:03] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-03-28 23:44:04] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →      9 records
+[2026-03-28 23:44:05] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 52,893 records
+[2026-03-28 23:44:05] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 52,893 records
+[2026-03-28 23:44:05] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-03-28 23:44:05] INFO    etl.extract :   PostgreSQL | TỔNG: 109,406 records từ 10 bảng
+[2026-03-28 23:44:05] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 23:44:05] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-03-28 23:44:05] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | Tìm thấy 9 file(s)
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    780 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,553 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,336 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,108 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,319 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    780 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,540 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,335 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,743 records
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | Loại bỏ 8757 bản ghi trùng
+[2026-03-28 23:44:05] INFO    etl.extract :   CSV | TỔNG: 8,737 records từ 9 file(s)
+[2026-03-28 23:44:10] INFO    etl.extract :   API | (JSON) taichinh_HK1_2021_22.json →    390 records
+[2026-03-28 23:44:14] INFO    etl.extract :   API | (JSON) taichinh_HK1_2022_23.json →    774 records
+[2026-03-28 23:44:18] INFO    etl.extract :   API | (JSON) taichinh_HK1_2023_24.json →  1,162 records
+[2026-03-28 23:44:22] INFO    etl.extract :   API | (JSON) taichinh_HK1_2024_25.json →  1,537 records
+[2026-03-28 23:44:26] INFO    etl.extract :   API | (JSON) taichinh_HK1_2025_26.json →  1,143 records
+[2026-03-28 23:44:30] INFO    etl.extract :   API | (JSON) taichinh_HK2_2021_22.json →    390 records
+[2026-03-28 23:44:34] INFO    etl.extract :   API | (JSON) taichinh_HK2_2022_23.json →    765 records
+[2026-03-28 23:44:38] INFO    etl.extract :   API | (JSON) taichinh_HK2_2023_24.json →  1,161 records
+[2026-03-28 23:44:42] INFO    etl.extract :   API | (JSON) taichinh_HK2_2024_25.json →  1,415 records
+[2026-03-28 23:44:42] INFO    etl.extract :   API | TỔNG: 8,737 records từ 9 HK
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_sinh_vien.parquet (44.5 KB | 1,695 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_dang_ky.parquet (444.0 KB | 52,893 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_diem.parquet (1069.5 KB | 52,893 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_hoc_phan.parquet (9.5 KB | 121 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_hoc_ky.parquet (3.7 KB | 9 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_giang_vien.parquet (7.6 KB | 45 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_khoa.parquet (2.4 KB | 4 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_nganh.parquet (2.9 KB | 3 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_lop_hanh_chinh.parquet (4.4 KB | 48 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon1_tong_hop_ket_qua.parquet (21.7 KB | 1,695 rows)
+[2026-03-28 23:44:43] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon2_ctsv.parquet (35.9 KB | 8,737 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_23-44/nguon3_tai_chinh.parquet (61.5 KB | 8,737 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO upload xong: 12/12 files | run_id=2026-03-28_23-44
+[2026-03-28 23:44:44] INFO    etl.extract :   MinIO staging: 12/12 files OK → run_id=2026-03-28_23-44
+[2026-03-28 23:44:44] INFO    etl.extract : ======================================================================
+[2026-03-28 23:44:44] INFO    etl.extract :  FULL EXTRACT HOÀN TẤT
+[2026-03-28 23:44:44] INFO    etl.extract :    khoa                     :        4
+[2026-03-28 23:44:44] INFO    etl.extract :    nganh                    :        3
+[2026-03-28 23:44:44] INFO    etl.extract :    giang_vien               :       45
+[2026-03-28 23:44:44] INFO    etl.extract :    lop_hanh_chinh           :       48
+[2026-03-28 23:44:44] INFO    etl.extract :    sinh_vien                :    1,695
+[2026-03-28 23:44:44] INFO    etl.extract :    hoc_phan                 :      121
+[2026-03-28 23:44:44] INFO    etl.extract :    hoc_ky_nam_hoc           :        9
+[2026-03-28 23:44:44] INFO    etl.extract :    dang_ky_hoc_phan         :   52,893
+[2026-03-28 23:44:44] INFO    etl.extract :    diem_hoc_phan            :   52,893
+[2026-03-28 23:44:44] INFO    etl.extract :    tong_hop_ket_qua         :    1,695
+[2026-03-28 23:44:44] INFO    etl.extract :    ctsv_data                :    8,737
+[2026-03-28 23:44:44] INFO    etl.extract :    tai_chinh_data           :    8,737
+[2026-03-28 23:44:44] INFO    etl.extract : ======================================================================
+[2026-03-28 23:44:44] INFO    scripts.run_etl : 
+[BƯỚC 2/3] TRANSFORM
+[2026-03-28 23:44:44] INFO    etl.transform : ==BẮT ĐẦU TRANSFORM==
+[2026-03-28 23:44:44] INFO    etl.transform : ======================================================================
+[2026-03-28 23:44:44] INFO    etl.transform : ── Bước 1: Transform Dimension Tables ──
+[2026-03-28 23:44:44] INFO    etl.transform :   dim_thoi_gian (→dim_hoc_ky)  →      9 records
+[2026-03-28 23:44:44] INFO    etl.transform :   dim_giang_vien              →     45 records
+[2026-03-28 23:44:44] INFO    etl.transform :   dim_hoc_phan                →    121 records
+[2026-03-28 23:44:44] INFO    etl.transform :   dim_sinh_vien               →  1,695 records
+[2026-03-28 23:44:44] INFO    etl.transform : ── Bước 2: Transform Fact Tables ──
+[2026-03-28 23:44:44] INFO    etl.transform :   fact_diem (→fact_hoc_tap)    → 52,893 records
+[2026-03-28 23:44:44] INFO    etl.transform :   fact_ren_luyen (→fact_ctsv)  →  8,737 records
+[2026-03-28 23:44:44] INFO    etl.transform :   fact_tai_chinh               →  8,737 records
+[2026-03-28 23:44:44] INFO    etl.transform : ── Bước 3: Tổng hợp đa nguồn ──
+[2026-03-28 23:44:44] INFO    etl.transform : ======================================================================
+[2026-03-28 23:44:44] INFO    etl.transform : TRANSFORM HOÀN TẤT
+[2026-03-28 23:44:44] INFO    etl.transform :    dim_giang_vien           :       45 records
+[2026-03-28 23:44:44] INFO    etl.transform :    dim_sinh_vien            :    1,695 records
+[2026-03-28 23:44:44] INFO    etl.transform :    dim_hoc_phan             :      121 records
+[2026-03-28 23:44:44] INFO    etl.transform :    dim_thoi_gian            :        9 records
+[2026-03-28 23:44:44] INFO    etl.transform :    fact_diem                :   52,893 records
+[2026-03-28 23:44:44] INFO    etl.transform :    fact_ren_luyen           :    8,737 records
+[2026-03-28 23:44:44] INFO    etl.transform :    fact_tai_chinh           :    8,737 records
+[2026-03-28 23:44:44] INFO    etl.transform :    fact_tong_hop_sv         :        0 records
+[2026-03-28 23:44:44] INFO    etl.transform : ======================================================================
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/dim_hoc_ky.parquet (4.8 KB | 9 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/dim_giang_vien.parquet (8.2 KB | 45 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/dim_hoc_phan.parquet (10.2 KB | 121 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/dim_sinh_vien.parquet (68.1 KB | 1,695 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/fact_diem.parquet (794.4 KB | 52,893 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/fact_ren_luyen.parquet (37.1 KB | 8,737 rows)
+[2026-03-28 23:44:44] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_23-44/fact_tai_chinh.parquet (61.6 KB | 8,737 rows)
+[2026-03-28 23:44:44] WARNING utils.minio :   MinIO skip (empty): fact_tong_hop_sv.parquet
+[2026-03-28 23:44:44] INFO    etl.transform :   MinIO staging-data: 8/8 files OK → run_id=2026-03-28_23-44
+[2026-03-28 23:44:44] INFO    scripts.run_etl : 
+[BƯỚC 3/3] LOAD
+[2026-03-28 23:44:44] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-03-28 23:44:44] INFO    etl.load : ======================================================================
+[2026-03-28 23:44:44] INFO    etl.load : 🔧 Tạo schema warehouse từ warehouse_models.py...
+[2026-03-28 23:44:44] INFO    etl.load :   Schema warehouse OK ✓
+[2026-03-28 23:44:44] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-03-28 23:44:44] INFO    etl.load :   dim_hoc_ky     →      9 records (new: 0)
+[2026-03-28 23:44:44] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-03-28 23:44:45] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-03-28 23:44:47] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 0, fact cascade: 0)
+[2026-03-28 23:44:47] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-03-28 23:44:47] INFO    etl.load :  Building surrogate key caches...
+[2026-03-28 23:44:47] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=9
+[2026-03-28 23:44:47] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-03-28 23:47:12] INFO    etl.load :   fact_hoc_tap   →      0 records
+[2026-03-28 23:47:21] INFO    etl.load :   fact_ctsv      →      0 records
+[2026-03-28 23:47:34] INFO    etl.load :   fact_tai_chinh →      0 records
+[2026-03-28 23:47:34] INFO    etl.load : ── Bước 4: Build Aggregation ──
+[2026-03-28 23:47:34] INFO    etl.aggregation : == BẮT ĐẦU AGGREGATION ==
+[2026-03-28 23:47:34] INFO    etl.aggregation :  agg_student_summary → 1,695 records
+[2026-03-28 23:47:34] INFO    etl.aggregation :  dim_sinh_vien synced → current 'Thôi học' = 194
+[2026-03-28 23:47:34] INFO    etl.aggregation :  agg_student_summary rebuilt : 1,695
+[2026-03-28 23:47:34] INFO    etl.aggregation :  dim_sinh_vien synced       : 194
+[2026-03-28 23:47:34] INFO    etl.aggregation : == AGGREGATION HOÀN TẤT ==
+[2026-03-28 23:47:34] INFO    etl.load : ======================================================================
+[2026-03-28 23:47:34] INFO    etl.load : LOAD HOÀN TẤT
+[2026-03-28 23:47:34] INFO    etl.load :   dim_hoc_ky               :        9 records
+[2026-03-28 23:47:34] INFO    etl.load :   dim_giang_vien           :       45 records
+[2026-03-28 23:47:34] INFO    etl.load :   dim_hoc_phan             :      121 records
+[2026-03-28 23:47:34] INFO    etl.load :   dim_sinh_vien            :        0 records
+[2026-03-28 23:47:34] INFO    etl.load :   fact_hoc_tap             :        0 records
+[2026-03-28 23:47:34] INFO    etl.load :   fact_ctsv                :        0 records
+[2026-03-28 23:47:34] INFO    etl.load :   fact_tai_chinh           :        0 records
+[2026-03-28 23:47:34] INFO    etl.load :   agg_student_summary      :    1,695 records
+[2026-03-28 23:47:34] INFO    etl.load :   TỔNG                     :    1,870 records
+[2026-03-28 23:47:34] INFO    etl.load : ======================================================================
+[2026-03-28 23:47:34] INFO    scripts.run_etl : 
+======================================================================
+[2026-03-28 23:47:34] INFO    scripts.run_etl :  KẾT QUẢ PIPELINE
+[2026-03-28 23:47:34] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 23:47:34] INFO    scripts.run_etl :   Thời gian chạy: 210.9 giây
+[2026-03-28 23:47:34] INFO    scripts.run_etl :   Timestamp     : 2026-03-28 23:44:03
+[2026-03-28 23:47:34] INFO    scripts.run_etl : 
+[2026-03-28 23:47:34] INFO    scripts.run_etl :   Records đã load vào warehouse:
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     dim_hoc_ky                    :        9
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     dim_giang_vien                :       45
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     dim_hoc_phan                  :      121
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     dim_sinh_vien                 :        0
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     fact_hoc_tap                  :        0
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     fact_ctsv                     :        0
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     fact_tai_chinh                :        0
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     agg_student_summary           :    1,695
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     TỔNG                          :    1,870
+[2026-03-28 23:47:34] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 23:47:34] INFO    scripts.run_etl : ==PIPELINE HOÀN TẤT==
+[2026-03-28 23:47:34] INFO    scripts.run_etl : 
+[2026-03-28 23:47:34] INFO    scripts.run_etl :   Kiểm tra kết quả:
+[2026-03-28 23:47:34] INFO    scripts.run_etl :   → MinIO Console  : http://localhost:9001
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     Bucket raw-data: xem file .parquet vừa upload
+[2026-03-28 23:47:34] INFO    scripts.run_etl :   → pgAdmin        : http://localhost:5050
+[2026-03-28 23:47:34] INFO    scripts.run_etl :     DB warehouse   : SELECT COUNT(*) FROM dim_sinh_vien;
+[2026-03-28 23:47:34] INFO    scripts.run_etl : ======================================================================
+[2026-03-28 16:50:45] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-03-28 16:50:45] INFO    etl.extract : ======================================================================
+[2026-03-28 16:50:46] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 16:50:46] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-03-28 16:50:46] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-03-28 16:50:46] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →      9 records
+[2026-03-28 16:50:47] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 52,893 records
+[2026-03-28 16:50:49] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 52,893 records
+[2026-03-28 16:50:49] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-03-28 16:50:49] INFO    etl.extract :   PostgreSQL | TỔNG: 109,406 records từ 10 bảng
+[2026-03-28 16:50:49] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 16:50:49] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-03-28 16:50:49] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | Tìm thấy 9 file(s)
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    780 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,553 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,336 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,108 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,319 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    780 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,540 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,335 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,743 records
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | Loại bỏ 8757 bản ghi trùng
+[2026-03-28 16:50:49] INFO    etl.extract :   CSV | TỔNG: 8,737 records từ 9 file(s)
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK1_2021_22.json →    390 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK1_2022_23.json →    774 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK1_2023_24.json →  1,162 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK1_2024_25.json →  1,537 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK1_2025_26.json →  1,143 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK2_2021_22.json →    390 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK2_2022_23.json →    765 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK2_2023_24.json →  1,161 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | (JSON) taichinh_HK2_2024_25.json →  1,415 records
+[2026-03-28 16:50:49] INFO    etl.extract :   API | TỔNG: 8,737 records từ 9 HK
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_sinh_vien.parquet (47.5 KB | 1,695 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_dang_ky.parquet (446.0 KB | 52,893 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_diem.parquet (1076.0 KB | 52,893 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_hoc_phan.parquet (10.3 KB | 121 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_hoc_ky.parquet (4.1 KB | 9 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_giang_vien.parquet (8.3 KB | 45 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_khoa.parquet (2.6 KB | 4 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_nganh.parquet (3.2 KB | 3 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_lop_hanh_chinh.parquet (4.8 KB | 48 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon1_tong_hop_ket_qua.parquet (22.3 KB | 1,695 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon2_ctsv.parquet (36.7 KB | 8,737 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-03-28_16-50/nguon3_tai_chinh.parquet (62.2 KB | 8,737 rows)
+[2026-03-28 16:50:50] INFO    utils.minio :   MinIO upload xong: 12/12 files | run_id=2026-03-28_16-50
+[2026-03-28 16:50:50] INFO    etl.extract :   MinIO staging: 12/12 files OK → run_id=2026-03-28_16-50
+[2026-03-28 16:50:50] INFO    etl.extract : ======================================================================
+[2026-03-28 16:50:50] INFO    etl.extract :  FULL EXTRACT HOÀN TẤT
+[2026-03-28 16:50:50] INFO    etl.extract :    khoa                     :        4
+[2026-03-28 16:50:50] INFO    etl.extract :    nganh                    :        3
+[2026-03-28 16:50:50] INFO    etl.extract :    giang_vien               :       45
+[2026-03-28 16:50:50] INFO    etl.extract :    lop_hanh_chinh           :       48
+[2026-03-28 16:50:50] INFO    etl.extract :    sinh_vien                :    1,695
+[2026-03-28 16:50:50] INFO    etl.extract :    hoc_phan                 :      121
+[2026-03-28 16:50:50] INFO    etl.extract :    hoc_ky_nam_hoc           :        9
+[2026-03-28 16:50:50] INFO    etl.extract :    dang_ky_hoc_phan         :   52,893
+[2026-03-28 16:50:50] INFO    etl.extract :    diem_hoc_phan            :   52,893
+[2026-03-28 16:50:50] INFO    etl.extract :    tong_hop_ket_qua         :    1,695
+[2026-03-28 16:50:50] INFO    etl.extract :    ctsv_data                :    8,737
+[2026-03-28 16:50:50] INFO    etl.extract :    tai_chinh_data           :    8,737
+[2026-03-28 16:50:50] INFO    etl.extract : ======================================================================
+[2026-03-28 16:50:52] INFO    validation.ge :   Validating staging: run_id=2026-03-28_16-50
+[2026-03-28 16:50:52] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-03-28 16:50:52] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_diem.parquet (52,893 rows)
+[2026-03-28 16:50:52] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon2_ctsv.parquet (8,737 rows)
+[2026-03-28 16:50:52] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon3_tai_chinh.parquet (8,737 rows)
+[2026-03-28 16:50:52] INFO    validation.ge :   Validation OK: 23/23 passed
+[2026-03-28 16:50:54] INFO    etl.extract :   Load from MinIO staging: run_id=2026-03-28_16-50
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_khoa.parquet (4 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_nganh.parquet (3 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_giang_vien.parquet (45 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_lop_hanh_chinh.parquet (48 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_hoc_phan.parquet (121 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_hoc_ky.parquet (9 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_dang_ky.parquet (52,893 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_diem.parquet (52,893 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon2_ctsv.parquet (8,737 rows)
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-03-28_16-50/nguon3_tai_chinh.parquet (8,737 rows)
+[2026-03-28 16:50:54] INFO    etl.extract :  Load from staging OK — run_id=2026-03-28_16-50
+[2026-03-28 16:50:54] INFO    etl.transform : ==BẮT ĐẦU TRANSFORM==
+[2026-03-28 16:50:54] INFO    etl.transform : ======================================================================
+[2026-03-28 16:50:54] INFO    etl.transform : ── Bước 1: Transform Dimension Tables ──
+[2026-03-28 16:50:54] INFO    etl.transform :   dim_thoi_gian (→dim_hoc_ky)  →      9 records
+[2026-03-28 16:50:54] INFO    etl.transform :   dim_giang_vien              →     45 records
+[2026-03-28 16:50:54] INFO    etl.transform :   dim_hoc_phan                →    121 records
+[2026-03-28 16:50:54] INFO    etl.transform :   dim_sinh_vien               →  1,695 records
+[2026-03-28 16:50:54] INFO    etl.transform : ── Bước 2: Transform Fact Tables ──
+[2026-03-28 16:50:54] INFO    etl.transform :   fact_diem (→fact_hoc_tap)    → 52,893 records
+[2026-03-28 16:50:54] INFO    etl.transform :   fact_ren_luyen (→fact_ctsv)  →  8,737 records
+[2026-03-28 16:50:54] INFO    etl.transform :   fact_tai_chinh               →  8,737 records
+[2026-03-28 16:50:54] INFO    etl.transform : ── Bước 3: Tổng hợp đa nguồn ──
+[2026-03-28 16:50:54] INFO    etl.transform : ======================================================================
+[2026-03-28 16:50:54] INFO    etl.transform : TRANSFORM HOÀN TẤT
+[2026-03-28 16:50:54] INFO    etl.transform :    dim_giang_vien           :       45 records
+[2026-03-28 16:50:54] INFO    etl.transform :    dim_sinh_vien            :    1,695 records
+[2026-03-28 16:50:54] INFO    etl.transform :    dim_hoc_phan             :      121 records
+[2026-03-28 16:50:54] INFO    etl.transform :    dim_thoi_gian            :        9 records
+[2026-03-28 16:50:54] INFO    etl.transform :    fact_diem                :   52,893 records
+[2026-03-28 16:50:54] INFO    etl.transform :    fact_ren_luyen           :    8,737 records
+[2026-03-28 16:50:54] INFO    etl.transform :    fact_tai_chinh           :    8,737 records
+[2026-03-28 16:50:54] INFO    etl.transform :    fact_tong_hop_sv         :        0 records
+[2026-03-28 16:50:54] INFO    etl.transform : ======================================================================
+[2026-03-28 16:50:54] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/dim_hoc_ky.parquet (5.3 KB | 9 rows)
+[2026-03-28 16:50:55] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/dim_giang_vien.parquet (8.9 KB | 45 rows)
+[2026-03-28 16:50:55] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/dim_hoc_phan.parquet (11.0 KB | 121 rows)
+[2026-03-28 16:50:55] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/dim_sinh_vien.parquet (71.8 KB | 1,695 rows)
+[2026-03-28 16:50:55] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/fact_diem.parquet (798.3 KB | 52,893 rows)
+[2026-03-28 16:50:55] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/fact_ren_luyen.parquet (38.0 KB | 8,737 rows)
+[2026-03-28 16:50:55] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-03-28_16-50/fact_tai_chinh.parquet (62.3 KB | 8,737 rows)
+[2026-03-28 16:50:55] WARNING utils.minio :   MinIO skip (empty): fact_tong_hop_sv.parquet
+[2026-03-28 16:50:55] INFO    etl.transform :   MinIO staging-data: 8/8 files OK → run_id=2026-03-28_16-50
+[2026-03-28 16:50:57] INFO    etl.transform :   Load TransformedData từ MinIO staging: run_id=2026-03-28_16-50
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/dim_hoc_ky.parquet (9 rows)
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/dim_giang_vien.parquet (45 rows)
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/dim_hoc_phan.parquet (121 rows)
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/dim_sinh_vien.parquet (1,695 rows)
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/fact_diem.parquet (52,893 rows)
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/fact_ren_luyen.parquet (8,737 rows)
+[2026-03-28 16:50:57] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-03-28_16-50/fact_tai_chinh.parquet (8,737 rows)
+[2026-03-28 16:50:57] WARNING utils.minio :   MinIO không tìm thấy: 2026-03-28_16-50/fact_tong_hop_sv.parquet
+[2026-03-28 16:50:57] INFO    etl.transform : Load from staging-data OK — run_id=2026-03-28_16-50
+[2026-03-28 16:50:57] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-03-28 16:50:57] INFO    etl.load : ======================================================================
+[2026-03-28 16:50:57] INFO    etl.load : 🔧 Tạo schema warehouse từ warehouse_models.py...
+[2026-03-28 16:50:57] INFO    etl.load :   Schema warehouse OK ✓
+[2026-03-28 16:50:57] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-03-28 16:50:57] INFO    etl.load :   dim_hoc_ky     →      9 records (new: 0)
+[2026-03-28 16:50:57] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-03-28 16:50:57] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-03-28 16:50:59] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 1, fact cascade: 24)
+[2026-03-28 16:50:59] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-03-28 16:50:59] INFO    etl.load :  Building surrogate key caches...
+[2026-03-28 16:50:59] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=9
+[2026-03-28 16:50:59] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-03-28 16:52:31] INFO    etl.load :   fact_hoc_tap   →      0 records
+[2026-03-28 16:52:39] INFO    etl.load :   fact_ctsv      →      0 records
+[2026-03-28 16:52:50] INFO    etl.load :   fact_tai_chinh →      0 records
+[2026-03-28 16:52:50] INFO    etl.load : ── Bước 4: Build Aggregation ──
+[2026-03-28 16:52:50] INFO    etl.aggregation : == BẮT ĐẦU AGGREGATION ==
+[2026-03-28 16:52:51] INFO    etl.aggregation :  agg_student_summary → 1,695 records
+[2026-03-28 16:52:51] INFO    etl.aggregation :  dim_sinh_vien synced → current 'Thôi học' = 194
+[2026-03-28 16:52:51] INFO    etl.aggregation :  agg_student_summary rebuilt : 1,695
+[2026-03-28 16:52:51] INFO    etl.aggregation :  dim_sinh_vien synced       : 194
+[2026-03-28 16:52:51] INFO    etl.aggregation : == AGGREGATION HOÀN TẤT ==
+[2026-03-28 16:52:51] INFO    etl.load : ======================================================================
+[2026-03-28 16:52:51] INFO    etl.load : LOAD HOÀN TẤT
+[2026-03-28 16:52:51] INFO    etl.load :   dim_hoc_ky               :        9 records
+[2026-03-28 16:52:51] INFO    etl.load :   dim_giang_vien           :       45 records
+[2026-03-28 16:52:51] INFO    etl.load :   dim_hoc_phan             :      121 records
+[2026-03-28 16:52:51] INFO    etl.load :   dim_sinh_vien            :        1 records
+[2026-03-28 16:52:51] INFO    etl.load :   fact_hoc_tap             :        0 records
+[2026-03-28 16:52:51] INFO    etl.load :   fact_ctsv                :        0 records
+[2026-03-28 16:52:51] INFO    etl.load :   fact_tai_chinh           :        0 records
+[2026-03-28 16:52:51] INFO    etl.load :   agg_student_summary      :    1,695 records
+[2026-03-28 16:52:51] INFO    etl.load :   TỔNG                     :    1,871 records
+[2026-03-28 16:52:51] INFO    etl.load : ======================================================================

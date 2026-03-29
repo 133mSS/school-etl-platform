@@ -15,11 +15,7 @@ CREATE TABLE khoa (
 
 COMMENT ON TABLE khoa IS 'Faculty/Department - Khoa dao tao';
 
--- =============================================
--- 3. NGANH (MAJOR)  <-- MOI so voi v1.0
--- Nam giua Khoa va Lop hanh chinh
--- Vi du: Cong nghe thong tin, Ky thuat du lieu
--- =============================================
+
 CREATE TABLE nganh (
     ma_nganh  VARCHAR(20)  PRIMARY KEY,
     ten_nganh VARCHAR(200) NOT NULL,
