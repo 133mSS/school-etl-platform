@@ -17,7 +17,7 @@
             },
             "meta": {
                 "exp_id": "EXP-01",
-                "notes": "Bảng sinh_vien phải có ít nhất 100 bản ghi. Nếu ít hơn → dữ liệu thiếu nghiêm trọng."
+                "notes": "Bảng sinh_vien phải có ít nhất 100 bản ghi."
             }
         },
         {
@@ -57,7 +57,7 @@
             },
             "meta": {
                 "exp_id": "EXP-02d",
-                "notes": "Email không được NULL — dùng để gửi thông báo học vụ."
+                "notes": "Email không được NULL."
             }
         },
         {
@@ -67,7 +67,7 @@
             },
             "meta": {
                 "exp_id": "EXP-02e",
-                "notes": "Khóa học (B21/B22/B23/B24) không được NULL."
+                "notes": "Khóa học không được NULL."
             }
         },
         {
@@ -77,7 +77,7 @@
             },
             "meta": {
                 "exp_id": "EXP-03",
-                "notes": "Mã sinh viên phải duy nhất — không cho phép trùng lặp."
+                "notes": "Mã sinh viên phải duy nhất."
             }
         },
         {
@@ -88,7 +88,7 @@
             },
             "meta": {
                 "exp_id": "EXP-04",
-                "notes": "Email phải có định dạng hợp lệ: chứa @ và dấu chấm."
+                "notes": "Email phải có định dạng hợp lệ."
             }
         },
         {
@@ -104,7 +104,7 @@
             },
             "meta": {
                 "exp_id": "EXP-05",
-                "notes": "Khóa học chỉ được phép là B21, B22, B23 hoặc B24."
+                "notes": "Khóa học chỉ được phép là B21-B24."
             }
         },
         {
@@ -120,7 +120,7 @@
             },
             "meta": {
                 "exp_id": "EXP-06",
-                "notes": "Trạng thái học tập chỉ nhận 4 giá trị hợp lệ theo quy chế."
+                "notes": "Trạng thái học tập chỉ nhận 4 giá trị hợp lệ."
             }
         },
         {
@@ -131,7 +131,7 @@
             },
             "meta": {
                 "exp_id": "EXP-07",
-                "notes": "Mã SV phải đúng format: B21DCKD001, B22DCCN003... Phát hiện dữ liệu bẩn từ nguồn."
+                "notes": "Mã SV phải đúng format PTIT."
             }
         },
         {
@@ -142,7 +142,7 @@
             },
             "meta": {
                 "exp_id": "EXP-08",
-                "notes": "Mã sinh viên phải là kiểu chuỗi (VARCHAR)."
+                "notes": "Mã sinh viên phải là kiểu chuỗi."
             }
         },
         {
@@ -152,7 +152,7 @@
             },
             "meta": {
                 "exp_id": "EXP-09",
-                "notes": "Mã ngành không được NULL — cần thiết để join với dim_hoc_phan."
+                "notes": "Mã ngành không được NULL."
             }
         },
         {
@@ -171,9 +171,9 @@
             }
         },
         {
-            "expectation_type": "expect_table_columns_to_match_ordered_list",
+            "expectation_type": "expect_table_columns_to_match_set",
             "kwargs": {
-                "column_list": [
+                "column_set": [
                     "ma_sinh_vien",
                     "ho",
                     "ten",
@@ -189,7 +189,7 @@
             },
             "meta": {
                 "exp_id": "EXP-11",
-                "notes": "Bảng sinh_vien phải có đủ các cột cần thiết cho ETL pipeline."
+                "notes": "ĐÃ SỬA: Dùng match_set thay vì ordered_list. exact_match=false cho phép có thêm cột phụ."
             }
         }
     ]

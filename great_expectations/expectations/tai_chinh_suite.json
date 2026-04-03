@@ -1,0 +1,116 @@
+{
+    "data_asset_type": null,
+    "expectation_suite_name": "tai_chinh_suite",
+    "ge_cloud_id": null,
+    "meta": {
+        "great_expectations_version": "0.18.8",
+        "description": "Validate Nguồn 3 (API JSON tài chính). Chỉ chứa expectations cho DataFrame tai_chinh_data.",
+        "owner": "Nhom8 ETL Platform PTIT",
+        "updated": "2026-01-01"
+    },
+    "expectations": [
+        {
+            "expectation_type": "expect_table_row_count_to_be_between",
+            "kwargs": {
+                "min_value": 1,
+                "max_value": null
+            },
+            "meta": {
+                "exp_id": "EXP-00",
+                "applies_to": "tai_chinh",
+                "notes": "File không được rỗng."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_sinh_vien"
+            },
+            "meta": {
+                "exp_id": "EXP-12a",
+                "applies_to": "tai_chinh",
+                "notes": "Mã SV không được NULL — cần để join với dim_sinh_vien."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "hoc_ky"
+            },
+            "meta": {
+                "exp_id": "EXP-12b",
+                "applies_to": "tai_chinh",
+                "notes": "Mã học kỳ không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "ma_sinh_vien",
+                "regex": "^B2[1-4]DC[A-Z]{2,3}[0-9]{3}$",
+                "mostly": 0.95
+            },
+            "meta": {
+                "exp_id": "EXP-12c",
+                "applies_to": "tai_chinh",
+                "notes": "95% mã SV phải đúng format PTIT."
+            }
+        },
+        {
+            "expectation_type": "expect_compound_columns_to_be_unique",
+            "kwargs": {
+                "column_list": [
+                    "ma_sinh_vien",
+                    "hoc_ky"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-DUP",
+                "applies_to": "tai_chinh",
+                "notes": "Mỗi SV chỉ có 1 record/học kỳ."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "hoc_phi_phai_dong",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-15",
+                "applies_to": "tai_chinh",
+                "notes": "Học phí >= 0."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "da_dong",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-TC-02",
+                "applies_to": "tai_chinh",
+                "notes": "Số tiền đã đóng >= 0."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "con_no",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.97
+            },
+            "meta": {
+                "exp_id": "EXP-16a",
+                "applies_to": "tai_chinh",
+                "notes": "con_no >= 0. mostly=0.97 vì inject_errors.py tạo ~3% con_no sai."
+            }
+        }
+    ]
+}

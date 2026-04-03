@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
-
+import logging
 DEFAULT_ARGS = {
     "owner":            "nhom8",
     "depends_on_past":  False,
@@ -11,7 +11,7 @@ DEFAULT_ARGS = {
     "retries":          0,
     "retry_delay":      timedelta(minutes=5),
 }
-
+logger = logging.getLogger(__name__)
 
 # ════════════════════════════════════════════════════════════════════════════
 # TASK 1: EXTRACT
@@ -178,26 +178,45 @@ def task_load(**context):
 # ════════════════════════════════════════════════════════════════════════════
 
 def task_alert_success(**context):
-    """Tổng hợp và in kết quả pipeline."""
-    ti = context["ti"]
-
-    extract_summary   = ti.xcom_pull(key="extract_summary",   task_ids="extract_data")
-    validation_result = ti.xcom_pull(key="validation_result", task_ids="validate_data")
-    transform_summary = ti.xcom_pull(key="transform_summary", task_ids="transform_data")
-    load_stats        = ti.xcom_pull(key="load_stats",        task_ids="load_data")
-
-    print("=" * 60)
-    print("PIPELINE DAILY STUDENT — THANH CONG")
-    print(f"Thoi gian: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Extract  : {extract_summary}")
-    print(
-        f"Validate : "
-        f"{validation_result.get('successful_expectations','?')}/"
-        f"{validation_result.get('evaluated_expectations','?')} passed"
+    """
+    ĐÃ SỬA: Thêm kiểm tra None trước khi dùng validation_result.
+    """
+    ti = context['ti']
+    validation_result = ti.xcom_pull(
+        task_ids='validate_data',
+        key='validation_result'
     )
-    print(f"Transform: {transform_summary}")
-    print(f"Load     : {load_stats}")
-    print("=" * 60)
+
+    # ── FIX: Xử lý trường hợp upstream task fail → XCom = None ──────
+    if validation_result is None:
+        logger.warning(
+            "⚠️ validation_result is None — "
+            "task validate_data có thể đã fail hoặc chưa chạy."
+        )
+        print("=" * 50)
+        print("⚠️ ALERT: Validation chưa chạy hoặc đã fail!")
+        print("   Không có kết quả validation để hiển thị.")
+        print("   Kiểm tra log của task 'validate_data'.")
+        print("=" * 50)
+        return
+
+    # ── Code gốc (giờ đã an toàn vì đã check None ở trên) ────────────
+    successful = validation_result.get('successful_expectations', 0)
+    evaluated  = validation_result.get('evaluated_expectations', 0)
+    failed     = validation_result.get('failed_expectations', [])
+    run_id     = validation_result.get('run_id', 'unknown')
+    success    = validation_result.get('success', False)
+
+    print("=" * 50)
+    print(f"✅ Validation Summary | run_id: {run_id}")
+    print(f"   Status: {'PASSED' if success else 'FAILED'}")
+    print(f"   Evaluated: {evaluated}")
+    print(f"   Passed:    {successful}")
+    print(f"   Failed:    {len(failed) if isinstance(failed, list) else failed}")
+    if failed and isinstance(failed, list):
+        for f in failed:
+            print(f"      ❌ {f}")
+    print("=" * 50)
 
 
 # ════════════════════════════════════════════════════════════════════════════

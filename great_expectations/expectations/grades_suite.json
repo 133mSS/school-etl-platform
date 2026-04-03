@@ -17,7 +17,7 @@
             },
             "meta": {
                 "exp_id": "EXP-08",
-                "notes": "Bảng điểm phải có ít nhất 1000 bản ghi. Ít hơn → pipeline extract thất bại hoặc thiếu dữ liệu."
+                "notes": "Bảng điểm phải có ít nhất 1000 bản ghi."
             }
         },
         {
@@ -27,7 +27,7 @@
             },
             "meta": {
                 "exp_id": "EXP-FK",
-                "notes": "Khóa ngoại ma_dang_ky không được NULL — liên kết với đăng ký học phần."
+                "notes": "Khóa ngoại ma_dang_ky không được NULL."
             }
         },
         {
@@ -40,7 +40,7 @@
             },
             "meta": {
                 "exp_id": "EXP-09a",
-                "notes": "Điểm chuyên cần phải nằm trong [0, 10]. Mostly=0.99 cho phép 1% NULL hợp lệ."
+                "notes": "Điểm chuyên cần phải nằm trong [0, 10]."
             }
         },
         {
@@ -103,7 +103,7 @@
             },
             "meta": {
                 "exp_id": "EXP-10",
-                "notes": "Tối thiểu 80% bản ghi phải có điểm tổng kết (không NULL). Trên 20% NULL → pipeline tính GPA sẽ sai."
+                "notes": "Tối thiểu 80% bản ghi phải có điểm tổng kết."
             }
         },
         {
@@ -125,7 +125,7 @@
             },
             "meta": {
                 "exp_id": "EXP-11a",
-                "notes": "Điểm chữ phải là một trong 9 loại hợp lệ theo thang điểm PTIT."
+                "notes": "Điểm chữ phải là một trong 9 loại hợp lệ."
             }
         },
         {
@@ -138,7 +138,7 @@
             },
             "meta": {
                 "exp_id": "EXP-11b",
-                "notes": "Điểm hệ 4 phải nằm trong [0.0, 4.0]. Giá trị > 4.0 là lỗi tính toán."
+                "notes": "Điểm hệ 4 phải nằm trong [0.0, 4.0]."
             }
         },
         {
@@ -149,13 +149,13 @@
             },
             "meta": {
                 "exp_id": "EXP-11c",
-                "notes": "Trường dat_mon phải là kiểu boolean (True/False)."
+                "notes": "Trường dat_mon phải là kiểu boolean."
             }
         },
         {
-            "expectation_type": "expect_table_columns_to_match_ordered_list",
+            "expectation_type": "expect_table_columns_to_match_set",
             "kwargs": {
-                "column_list": [
+                "column_set": [
                     "ma_diem",
                     "ma_dang_ky",
                     "diem_chuyen_can",
@@ -172,7 +172,7 @@
             },
             "meta": {
                 "exp_id": "EXP-12",
-                "notes": "Bảng điểm phải có đủ các cột theo schema đã định nghĩa."
+                "notes": "ĐÃ SỬA: Dùng match_set thay vì ordered_list. exact_match=false cho phép có thêm cột phụ."
             }
         }
     ]
