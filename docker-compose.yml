@@ -13,6 +13,11 @@ x-airflow-common:
     - ./scripts:/opt/airflow/scripts
   environment:
     &airflow-env
+    AIRFLOW__METRICS__PROMETHEUS_ON: "true"
+    AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
+    AIRFLOW__METRICS__STATSD_PORT: 9125
+    AIRFLOW__METRICS__STATSD_PREFIX: airflow
+    AIRFLOW__METRICS__PROMETHEUS_PORT: "9102"
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__CORE__FERNET_KEY: "81HqDtbqAywKSOumSha3BhWNOdQ26slT6K0YaZeZyPs="
@@ -69,6 +74,14 @@ x-airflow-common:
 
 services:
 
+  statsd-exporter:
+    image: prom/statsd-exporter
+    container_name: statsd-exporter
+    ports:
+      - "9102:9102"
+      - "9125:9125/udp"
+    networks:
+      - school-network
   # =============================
   # PostgreSQL Airflow Metadata
   # =============================
@@ -250,6 +263,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_INSTALL_PLUGINS: grafana-clock-panel
     volumes:
+      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml
       - grafana_data:/var/lib/grafana
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards

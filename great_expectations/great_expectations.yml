@@ -1,0 +1,139 @@
+# =====================================================================
+# great_expectations.yml — Cấu hình chính Great Expectations
+# Dự án: ETL Platform PTIT — Nhóm 8
+# GE Version: 0.18.8
+# =====================================================================
+config_version: 3.0
+
+# ── Datasources ──────────────────────────────────────────────────────
+# Khai báo 3 nguồn dữ liệu tương ứng 3 nguồn trong ETL pipeline
+datasources:
+  # Nguồn 1: PostgreSQL Source (dữ liệu học vụ)
+  nguon1_postgres:
+    class_name: Datasource
+    module_name: great_expectations.datasource
+    execution_engine:
+      class_name: SqlAlchemyExecutionEngine
+      module_name: great_expectations.execution_engine
+      connection_string: "postgresql+psycopg2://school_user:school_pass@localhost:5434/school_source"
+    data_connectors:
+      default_runtime_data_connector:
+        class_name: RuntimeDataConnector
+        module_name: great_expectations.datasource.data_connector
+        batch_identifiers:
+          - run_id
+      default_inferred_data_connector:
+        class_name: InferredAssetSqlDataConnector
+        module_name: great_expectations.datasource.data_connector
+        include_schema_name: true
+
+  # Nguồn 2: CSV (điểm rèn luyện / học bổng / kỷ luật)
+  nguon2_csv:
+    class_name: Datasource
+    module_name: great_expectations.datasource
+    execution_engine:
+      class_name: PandasExecutionEngine
+      module_name: great_expectations.execution_engine
+    data_connectors:
+      default_runtime_data_connector:
+        class_name: RuntimeDataConnector
+        module_name: great_expectations.datasource.data_connector
+        batch_identifiers:
+          - run_id
+          - hoc_ky
+      default_inferred_data_connector:
+        class_name: InferredAssetFilesystemDataConnector
+        module_name: great_expectations.datasource.data_connector
+        base_directory: /opt/airflow/data/csv
+        default_regex:
+          pattern: "ctsv_(.*)\\.csv"
+          group_names:
+            - hoc_ky
+
+  # Nguồn 3: API JSON (tài chính / học phí)
+  nguon3_api_json:
+    class_name: Datasource
+    module_name: great_expectations.datasource
+    execution_engine:
+      class_name: PandasExecutionEngine
+      module_name: great_expectations.execution_engine
+    data_connectors:
+      default_runtime_data_connector:
+        class_name: RuntimeDataConnector
+        module_name: great_expectations.datasource.data_connector
+        batch_identifiers:
+          - run_id
+          - hoc_ky
+      default_inferred_data_connector:
+        class_name: InferredAssetFilesystemDataConnector
+        module_name: great_expectations.datasource.data_connector
+        base_directory: /opt/airflow/data/api_json
+        default_regex:
+          pattern: "taichinh_(.*)\\.json"
+          group_names:
+            - hoc_ky
+
+# ── Stores (nơi lưu kết quả validation) ─────────────────────────────
+config_variables_file_path: uncommitted/config_variables.yml
+plugins_directory: plugins/
+
+stores:
+  # Lưu expectation suites
+  expectations_store:
+    class_name: ExpectationsStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: expectations/
+
+  # Lưu kết quả mỗi lần chạy validation
+  validations_store:
+    class_name: ValidationsStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: uncommitted/validations/
+
+  evaluation_parameter_store:
+    class_name: EvaluationParameterStore
+
+  # Lưu checkpoint configs
+  checkpoint_store:
+    class_name: CheckpointStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      suppress_store_backend_id: true
+      base_directory: checkpoints/
+
+  profiler_store:
+    class_name: ProfilerStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      suppress_store_backend_id: true
+      base_directory: profilers/
+
+# ── Store names mapping ───────────────────────────────────────────────
+expectations_store_name: expectations_store
+validations_store_name: validations_store
+evaluation_parameter_store_name: evaluation_parameter_store
+checkpoint_store_name: checkpoint_store
+
+# ── Data Docs (báo cáo HTML cho kết quả validation) ──────────────────
+data_docs_sites:
+  local_site:
+    class_name: SiteBuilder
+    show_how_to_buttons: true
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: uncommitted/data_docs/local_site/
+    site_index_builder:
+      class_name: DefaultSiteIndexBuilder
+
+# ── Anonymous usage: tắt để không gửi telemetry ──────────────────────
+anonymous_usage_statistics:
+  data_context_id: b23dc000-8000-4000-0000-000000000008
+  enabled: false
+
+# ── Rendered content ─────────────────────────────────────────────────
+include_rendered_content:
+  globally: false
+  expectation_suite: false
+  expectation_validation_result: false

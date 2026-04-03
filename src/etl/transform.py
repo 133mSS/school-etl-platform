@@ -56,8 +56,7 @@ RL_THRESHOLDS = [
     (80, 90,  "Tốt"),
     (65, 80,  "Khá"),
     (50, 65,  "Trung bình"),
-    (35, 50,  "Yếu"),
-    (0,  35,  "Kém"),
+    (0, 50,  "Yếu"),
 ]
 
 class DataTransformer:

@@ -1,0 +1,34 @@
+apiVersion: 1
+datasources:
+  # ── Datasource 1: Airflow Metadata DB ─────────────────────────────
+  # Dùng để query lịch sử DAG runs, task states, execution time
+  # trong dashboard Pipeline Health
+  - name: airflow_metadata
+    uid: airflow-db
+    type: postgres
+    url: postgres-airflow:5432
+    database: airflow
+    user: airflow
+    secureJsonData:
+      password: airflow
+    jsonData:
+      database: airflow
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: false
+    isDefault: false
+    editable: true
+
+  # ── Datasource 2: Prometheus ───────────────────────────────────────
+  # Dùng để query system metrics: uptime, disk, memory
+  - name: prometheus
+    uid: prometheus-ptit
+    type: prometheus
+    url: http://prometheus:9090
+    access: proxy
+    isDefault: false
+    editable: true
+    jsonData:
+      timeInterval: "15s"
+      queryTimeout: "60s"
+      httpMethod: GET

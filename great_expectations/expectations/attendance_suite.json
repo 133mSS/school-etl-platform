@@ -1,0 +1,210 @@
+{
+    "data_asset_type": null,
+    "expectation_suite_name": "attendance_suite",
+    "ge_cloud_id": null,
+    "meta": {
+        "great_expectations_version": "0.18.8",
+        "description": "Kiểm tra chất lượng dữ liệu CTSV-CSV (Nguồn 2) và Tài chính-API (Nguồn 3)",
+        "owner": "Nhom8 ETL Platform PTIT",
+        "updated": "2026-01-01",
+        "note": "Suite này bao gồm cả kiểm tra tài chính. Tên 'attendance' giữ theo đề cương để tương thích."
+    },
+    "expectations": [
+        {
+            "expectation_type": "expect_table_row_count_to_be_between",
+            "kwargs": {
+                "min_value": 1,
+                "max_value": null
+            },
+            "meta": {
+                "exp_id": "EXP-CTSV-00",
+                "notes": "File CSV phải có ít nhất 1 bản ghi. File rỗng → pipeline skip nhưng cần ghi log warning."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_sinh_vien"
+            },
+            "meta": {
+                "exp_id": "EXP-12a",
+                "notes": "Mã sinh viên trong CSV không được NULL — không thể join với dim_sinh_vien nếu thiếu."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "hoc_ky"
+            },
+            "meta": {
+                "exp_id": "EXP-12b",
+                "notes": "Mã học kỳ trong CSV không được NULL — xác định record thuộc kỳ học nào."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "ma_sinh_vien",
+                "regex": "^B2[1-4]DC[A-Z]{2,3}[0-9]{3}$",
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-12c",
+                "notes": "Mã sinh viên trong CSV phải đúng format PTIT. Phát hiện mã lạ/bẩn từ Phòng CTSV."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "hoc_ky",
+                "regex": "^HK[12]-[0-9]{4}-[0-9]{2}$",
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-12d",
+                "notes": "Mã học kỳ phải đúng format: HK1-2024-25, HK2-2023-24..."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "diem_ren_luyen",
+                "min_value": 0,
+                "max_value": 100,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-13",
+                "notes": "Điểm rèn luyện phải trong [0, 100]. Ngoài khoảng → lỗi nhập liệu từ Phòng CTSV."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_in_set",
+            "kwargs": {
+                "column": "xep_loai_rl",
+                "value_set": [
+                    "Xuất sắc",
+                    "Tốt",
+                    "Khá",
+                    "Trung bình",
+                    "Yếu",
+                    "Kém"
+                ],
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-13b",
+                "notes": "Xếp loại rèn luyện phải là một trong 6 mức theo quy chế Học viện."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "muc_tien_hb",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-14",
+                "notes": "Mức tiền học bổng không được âm. Nếu không có học bổng → giá trị = 0."
+            }
+        },
+        {
+            "expectation_type": "expect_compound_columns_to_be_unique",
+            "kwargs": {
+                "column_list": [
+                    "ma_sinh_vien",
+                    "hoc_ky"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-CTSV-DUP",
+                "notes": "Mỗi sinh viên chỉ có 1 bản ghi rèn luyện cho mỗi học kỳ. Trùng lặp → file CSV bị xuất nhiều lần."
+            }
+        },
+        {
+            "expectation_type": "expect_table_columns_to_match_ordered_list",
+            "kwargs": {
+                "column_list": [
+                    "ma_sinh_vien",
+                    "hoc_ky",
+                    "diem_ren_luyen",
+                    "xep_loai_rl",
+                    "loai_hoc_bong",
+                    "muc_tien_hb",
+                    "hinh_thuc_ky_luat",
+                    "ly_do_ky_luat"
+                ],
+                "exact_match": false
+            },
+            "meta": {
+                "exp_id": "EXP-CTSV-SCHEMA",
+                "notes": "File CSV phải có đủ 8 cột theo chuẩn định nghĩa trong CSVExtractor.EXPECTED_COLUMNS."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "hoc_phi_phai_dong",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-15",
+                "notes": "[Tài chính] Học phí phải đóng không được âm."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "da_dong",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-TC-02",
+                "notes": "[Tài chính] Số tiền đã đóng không được âm."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "con_no",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.99
+            },
+            "meta": {
+                "exp_id": "EXP-16a",
+                "notes": "[Tài chính] Số tiền còn nợ không được âm. con_no phải = hoc_phi_phai_dong - da_dong."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_sinh_vien",
+                "mostly": 1.0
+            },
+            "meta": {
+                "exp_id": "EXP-TC-SV",
+                "notes": "[Tài chính] Mã sinh viên trong API response không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_compound_columns_to_be_unique",
+            "kwargs": {
+                "column_list": [
+                    "ma_sinh_vien",
+                    "hoc_ky"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-TC-DUP",
+                "notes": "[Tài chính] Mỗi sinh viên chỉ có 1 bản ghi tài chính cho mỗi học kỳ."
+            }
+        }
+    ]
+}

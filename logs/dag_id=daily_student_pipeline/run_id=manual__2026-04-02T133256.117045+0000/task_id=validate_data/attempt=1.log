@@ -1,0 +1,26 @@
+[2026-04-02T13:33:04.506+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-02T13:32:56.117045+00:00 [queued]>
+[2026-04-02T13:33:04.518+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-02T13:32:56.117045+00:00 [queued]>
+[2026-04-02T13:33:04.519+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-02T13:33:04.532+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-04-02 13:32:56.117045+00:00
+[2026-04-02T13:33:04.536+0000] {standard_task_runner.py:60} INFO - Started process 800 to run task
+[2026-04-02T13:33:04.540+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'manual__2026-04-02T13:32:56.117045+00:00', '--job-id', '111', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpb8wny6e5']
+[2026-04-02T13:33:04.543+0000] {standard_task_runner.py:88} INFO - Job 111: Subtask validate_data
+[2026-04-02T13:33:04.616+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-02T13:32:56.117045+00:00 [running]> on host 1c62953c8918
+[2026-04-02T13:33:04.704+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-02T13:32:56.117045+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-02T13:32:56.117045+00:00'
+[2026-04-02T13:33:05.366+0000] {logging_mixin.py:188} WARNING - [2026-04-02 13:33:05] INFO    validation.ge :   Validating staging: run_id=2026-04-02_13-33
+[2026-04-02T13:33:05.365+0000] {ge_validation.py:29} INFO -   Validating staging: run_id=2026-04-02_13-33
+[2026-04-02T13:33:05.415+0000] {logging_mixin.py:188} WARNING - [2026-04-02 13:33:05] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-02T13:33:05.415+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-02T13:33:05.435+0000] {logging_mixin.py:188} WARNING - [2026-04-02 13:33:05] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon1_diem.parquet (54,529 rows)
+[2026-04-02T13:33:05.435+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon1_diem.parquet (54,529 rows)
+[2026-04-02T13:33:05.446+0000] {logging_mixin.py:188} WARNING - [2026-04-02 13:33:05] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon2_ctsv.parquet (8,990 rows)
+[2026-04-02T13:33:05.446+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon2_ctsv.parquet (8,990 rows)
+[2026-04-02T13:33:05.459+0000] {logging_mixin.py:188} WARNING - [2026-04-02 13:33:05] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon3_tai_chinh.parquet (8,990 rows)
+[2026-04-02T13:33:05.459+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-02_13-33/nguon3_tai_chinh.parquet (8,990 rows)
+[2026-04-02T13:33:05.505+0000] {logging_mixin.py:188} WARNING - [2026-04-02 13:33:05] INFO    validation.ge :   Validation OK: 23/23 passed
+[2026-04-02T13:33:05.505+0000] {ge_validation.py:57} INFO -   Validation OK: 23/23 passed
+[2026-04-02T13:33:05.508+0000] {logging_mixin.py:188} INFO - Validation OK: 23 checks passed
+[2026-04-02T13:33:05.523+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-04-02T13:33:05.536+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260402T133256, start_date=20260402T133304, end_date=20260402T133305
+[2026-04-02T13:33:05.595+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-02T13:33:05.619+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

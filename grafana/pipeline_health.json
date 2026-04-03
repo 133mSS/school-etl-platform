@@ -1,0 +1,923 @@
+{
+    "title": "Pipeline Health - ETL Platform PTIT",
+    "uid": "pipeline-health-v4",
+    "schemaVersion": 36,
+    "version": 4,
+    "refresh": "30s",
+    "time": {
+        "from": "now-7d",
+        "to": "now"
+    },
+    "tags": [
+        "etl",
+        "pipeline",
+        "monitoring",
+        "airflow"
+    ],
+    "description": "Giám sát sức khỏe ETL Pipeline — DAG runs, Data Quality, Records processed",
+    "templating": {
+        "list": [
+            {
+                "name": "dag_id",
+                "label": "DAG",
+                "type": "query",
+                "query": "SELECT DISTINCT dag_id FROM dag_run ORDER BY dag_id",
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "airflow-db"
+                },
+                "includeAll": true,
+                "allValue": "%"
+            },
+            {
+                "name": "time_range",
+                "label": "Khoảng thời gian",
+                "type": "interval",
+                "query": "1h,6h,12h,1d,3d,7d,14d,30d",
+                "current": {
+                    "text": "7d",
+                    "value": "7d"
+                },
+                "auto": false,
+                "refresh": 2,
+                "sort": 0
+            }
+        ]
+    },
+    "annotations": {
+        "list": [
+            {
+                "name": "Pipeline Failures",
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "airflow-db"
+                },
+                "rawQuery": true,
+                "rawSql": "SELECT EXTRACT(EPOCH FROM start_date) * 1000 AS time, CONCAT('❌ FAILED: ', dag_id) AS text, 'failure' AS tags FROM dag_run WHERE state = 'failed' AND start_date >= NOW() - INTERVAL '7 days' ORDER BY start_date",
+                "enable": true,
+                "hide": false,
+                "iconColor": "red",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "panels": [
+        {
+            "id": 1,
+            "title": "✅ Pipeline Runs Thành Công (7 ngày)",
+            "type": "stat",
+            "gridPos": {
+                "x": 0,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value_and_name",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "green"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as total FROM dag_run WHERE state = 'success' AND dag_id LIKE '$dag_id' AND start_date >= NOW() - INTERVAL '7 days'",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 2,
+            "title": "❌ Pipeline Runs Thất Bại (7 ngày)",
+            "type": "stat",
+            "gridPos": {
+                "x": 4,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value_and_name",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            }
+                        ]
+                    },
+                    "color": {
+                        "mode": "thresholds"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as failed FROM dag_run WHERE state = 'failed' AND dag_id LIKE '$dag_id' AND start_date >= NOW() - INTERVAL '7 days'",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 3,
+            "title": "📊 Tỷ lệ Thành công (%)",
+            "type": "gauge",
+            "gridPos": {
+                "x": 8,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "minVizWidth": 75,
+                "minVizHeight": 75
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "decimals": 1,
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 80
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 90
+                            },
+                            {
+                                "color": "green",
+                                "value": 95
+                            }
+                        ]
+                    },
+                    "color": {
+                        "mode": "thresholds"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ROUND(100.0 * SUM(CASE WHEN state = 'success' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as success_rate FROM dag_run WHERE dag_id LIKE '$dag_id' AND start_date >= NOW() - INTERVAL '7 days'",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 4,
+            "title": "⏱️ Thời gian chạy TB (phút)",
+            "type": "stat",
+            "gridPos": {
+                "x": 12,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value_and_name",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 1,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 15
+                            },
+                            {
+                                "color": "orange",
+                                "value": 30
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    "color": {
+                        "mode": "thresholds"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ROUND(AVG(EXTRACT(EPOCH FROM (end_date - start_date)) / 60.0)::numeric, 1) as avg_minutes FROM dag_run WHERE state = 'success' AND dag_id LIKE '$dag_id' AND start_date >= NOW() - INTERVAL '7 days' AND end_date IS NOT NULL",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 5,
+            "title": "🕐 Lần chạy Pipeline gần nhất",
+            "type": "stat",
+            "gridPos": {
+                "x": 16,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "value",
+                "textMode": "value",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "dateTimeFromNow"
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT EXTRACT(EPOCH FROM MAX(start_date)) * 1000 as last_run FROM dag_run WHERE dag_id LIKE '$dag_id'",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 6,
+            "title": "🏃 Pipeline đang chạy",
+            "type": "stat",
+            "gridPos": {
+                "x": 20,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value_and_name",
+                "graphMode": "none"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "blue"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) as running FROM dag_run WHERE state = 'running' AND dag_id LIKE '$dag_id'",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 7,
+            "title": "📈 Lịch sử Pipeline Runs (7 ngày)",
+            "type": "timeseries",
+            "gridPos": {
+                "x": 0,
+                "y": 4,
+                "w": 12,
+                "h": 8
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "custom": {
+                        "drawStyle": "bars",
+                        "fillOpacity": 70,
+                        "lineWidth": 1,
+                        "showPoints": "never"
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "success"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "green"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "failed"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "red"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT DATE_TRUNC('hour', start_date) AS time, COUNT(CASE WHEN state='success' THEN 1 END) AS success, COUNT(CASE WHEN state='failed' THEN 1 END) AS failed FROM dag_run WHERE dag_id LIKE '$dag_id' AND start_date >= NOW() - INTERVAL '7 days' GROUP BY 1 ORDER BY 1",
+                    "refId": "A",
+                    "format": "time_series",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 8,
+            "title": "⏱️ Thời gian thực thi Pipeline theo Run",
+            "type": "timeseries",
+            "gridPos": {
+                "x": 12,
+                "y": 4,
+                "w": 12,
+                "h": 8
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "m",
+                    "decimals": 1,
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 2,
+                        "showPoints": "always",
+                        "pointSize": 5
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 15
+                            },
+                            {
+                                "color": "red",
+                                "value": 30
+                            }
+                        ]
+                    },
+                    "color": {
+                        "mode": "thresholds"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT start_date AS time, ROUND(EXTRACT(EPOCH FROM (end_date - start_date)) / 60.0, 2) AS duration_minutes, dag_id FROM dag_run WHERE state = 'success' AND dag_id LIKE '$dag_id' AND start_date >= NOW() - INTERVAL '7 days' AND end_date IS NOT NULL ORDER BY start_date",
+                    "refId": "A",
+                    "format": "time_series",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 9,
+            "title": "📊 Records trong Data Warehouse",
+            "type": "bargauge",
+            "gridPos": {
+                "x": 0,
+                "y": 12,
+                "w": 12,
+                "h": 7
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "orientation": "horizontal",
+                "displayMode": "gradient",
+                "showUnfilled": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "blue",
+                                "value": 1000
+                            },
+                            {
+                                "color": "purple",
+                                "value": 100000
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT 'fact_hoc_tap' as table_name, COUNT(*) as record_count FROM fact_hoc_tap UNION ALL SELECT 'fact_ctsv', COUNT(*) FROM fact_ctsv UNION ALL SELECT 'fact_tai_chinh', COUNT(*) FROM fact_tai_chinh UNION ALL SELECT 'dim_sinh_vien', COUNT(*) FROM dim_sinh_vien WHERE la_ban_hien_tai = TRUE UNION ALL SELECT 'dim_hoc_phan', COUNT(*) FROM dim_hoc_phan UNION ALL SELECT 'agg_student_summary', COUNT(*) FROM agg_student_summary ORDER BY record_count DESC",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "warehouse-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 10,
+            "title": "🔍 Kết quả Task theo DAG Run gần nhất",
+            "type": "table",
+            "gridPos": {
+                "x": 12,
+                "y": 12,
+                "w": 12,
+                "h": 7
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "Task",
+                        "desc": false
+                    }
+                ]
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Trạng thái"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "success": {
+                                                "text": "✅ Success",
+                                                "color": "green"
+                                            },
+                                            "failed": {
+                                                "text": "❌ Failed",
+                                                "color": "red"
+                                            },
+                                            "skipped": {
+                                                "text": "⏭️ Skipped",
+                                                "color": "yellow"
+                                            },
+                                            "running": {
+                                                "text": "🔄 Running",
+                                                "color": "blue"
+                                            },
+                                            "upstream_failed": {
+                                                "text": "⬆️ Upstream Failed",
+                                                "color": "orange"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Thời gian (giây)"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 60
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 300
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 600
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "WITH latest_run AS (SELECT dag_id, MAX(run_id) as latest_run_id FROM dag_run WHERE state IN ('success', 'failed') AND dag_id LIKE '$dag_id' GROUP BY dag_id) SELECT ti.task_id AS \"Task\", ti.dag_id AS \"DAG\", ti.state AS \"Trạng thái\", ROUND(ti.duration::numeric, 1) AS \"Thời gian (giây)\", TO_CHAR(ti.start_date AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI:SS') AS \"Bắt đầu\", TO_CHAR(ti.end_date AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI:SS') AS \"Kết thúc\" FROM task_instance ti JOIN latest_run lr ON ti.dag_id = lr.dag_id AND ti.run_id = lr.latest_run_id ORDER BY ti.dag_id, ti.start_date",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 11,
+            "title": "🔄 Lịch sử Pipeline Runs gần nhất (30 runs)",
+            "type": "table",
+            "gridPos": {
+                "x": 0,
+                "y": 19,
+                "w": 24,
+                "h": 8
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "Thời gian bắt đầu",
+                        "desc": true
+                    }
+                ]
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Trạng thái"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "success": {
+                                                "text": "✅ Thành công",
+                                                "color": "green"
+                                            },
+                                            "failed": {
+                                                "text": "❌ Thất bại",
+                                                "color": "red"
+                                            },
+                                            "running": {
+                                                "text": "🔄 Đang chạy",
+                                                "color": "blue"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Thời gian chạy (phút)"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 15
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 30
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT dag_id AS \"DAG\", run_id AS \"Run ID\", state AS \"Trạng thái\", TO_CHAR(start_date AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD HH24:MI:SS') AS \"Thời gian bắt đầu\", TO_CHAR(end_date AT TIME ZONE 'Asia/Ho_Chi_Minh', 'HH24:MI:SS') AS \"Kết thúc\", CASE WHEN end_date IS NOT NULL THEN ROUND(EXTRACT(EPOCH FROM (end_date - start_date)) / 60.0, 1) ELSE NULL END AS \"Thời gian chạy (phút)\", COALESCE(conf::text, '{}') AS \"Config\" FROM dag_run WHERE dag_id LIKE '$dag_id' ORDER BY start_date DESC LIMIT 30",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "airflow-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "airflow-db"
+            }
+        },
+        {
+            "id": 12,
+            "title": "🏥 Trạng thái Data Quality (từ Great Expectations)",
+            "type": "table",
+            "description": "Kết quả 23 expectation checks từ ge_validation.py — chạy sau mỗi Extract step",
+            "gridPos": {
+                "x": 0,
+                "y": 27,
+                "w": 24,
+                "h": 7
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "Nguồn",
+                        "desc": false
+                    }
+                ]
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Kết quả"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "PASS": {
+                                                "text": "✅ PASS",
+                                                "color": "green"
+                                            },
+                                            "FAIL": {
+                                                "text": "❌ FAIL",
+                                                "color": "red"
+                                            },
+                                            "WARN": {
+                                                "text": "⚠️ WARN",
+                                                "color": "yellow"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT 'Nguồn 1 — Sinh viên' AS \"Nguồn\", COUNT(*) AS \"Tổng SV\", SUM(CASE WHEN trang_thai_hoc_tap IS NOT NULL AND ma_nganh IS NOT NULL THEN 1 ELSE 0 END) AS \"SV hợp lệ\", CASE WHEN COUNT(*) >= 100 AND SUM(CASE WHEN ma_sinh_vien IS NULL THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END AS \"Kết quả\" FROM dim_sinh_vien WHERE la_ban_hien_tai = TRUE UNION ALL SELECT 'Nguồn 1 — Điểm HP', COUNT(*), SUM(CASE WHEN diem_tong_ket IS NOT NULL THEN 1 ELSE 0 END), CASE WHEN COUNT(*) >= 1000 AND SUM(CASE WHEN diem_tong_ket > 10 OR diem_tong_ket < 0 THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END FROM fact_hoc_tap UNION ALL SELECT 'Nguồn 2 — CTSV', COUNT(*), SUM(CASE WHEN diem_rl BETWEEN 0 AND 100 THEN 1 ELSE 0 END), CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN diem_rl > 100 OR diem_rl < 0 THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END FROM fact_ctsv UNION ALL SELECT 'Nguồn 3 — Tài chính', COUNT(*), SUM(CASE WHEN con_no >= 0 THEN 1 ELSE 0 END), CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN con_no < 0 THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END FROM fact_tai_chinh",
+                    "refId": "A",
+                    "format": "table",
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "warehouse-db"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+[2026-04-03T06:45:53.260+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: weekly_summary_pipeline.generate_report manual__2026-04-03T06:45:49.808797+00:00 [queued]>
+[2026-04-03T06:45:53.270+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: weekly_summary_pipeline.generate_report manual__2026-04-03T06:45:49.808797+00:00 [queued]>
+[2026-04-03T06:45:53.271+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-04-03T06:45:53.285+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): generate_report> on 2026-04-03 06:45:49.808797+00:00
+[2026-04-03T06:45:53.290+0000] {standard_task_runner.py:60} INFO - Started process 1056 to run task
+[2026-04-03T06:45:53.293+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'weekly_summary_pipeline', 'generate_report', 'manual__2026-04-03T06:45:49.808797+00:00', '--job-id', '125', '--raw', '--subdir', 'DAGS_FOLDER/weekly_summary_pipeline.py', '--cfg-path', '/tmp/tmpn0av67o9']
+[2026-04-03T06:45:53.295+0000] {standard_task_runner.py:88} INFO - Job 125: Subtask generate_report
+[2026-04-03T06:45:53.371+0000] {task_command.py:423} INFO - Running <TaskInstance: weekly_summary_pipeline.generate_report manual__2026-04-03T06:45:49.808797+00:00 [running]> on host 1c62953c8918
+[2026-04-03T06:45:53.479+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='weekly_summary_pipeline' AIRFLOW_CTX_TASK_ID='generate_report' AIRFLOW_CTX_EXECUTION_DATE='2026-04-03T06:45:49.808797+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-03T06:45:49.808797+00:00'
+[2026-04-03T06:45:53.583+0000] {logging_mixin.py:188} WARNING - [2026-04-03 06:45:53] INFO    etl.aggregation : == WeeklyReporter: Đang tạo báo cáo tuần ==
+[2026-04-03T06:45:53.583+0000] {aggregation.py:310} INFO - == WeeklyReporter: Đang tạo báo cáo tuần ==
+[2026-04-03T06:45:53.637+0000] {logging_mixin.py:188} WARNING - [2026-04-03 06:45:53] INFO    etl.aggregation :   sv_canh_bao   : 376
+[2026-04-03T06:45:53.636+0000] {aggregation.py:382} INFO -   sv_canh_bao   : 376
+[2026-04-03T06:45:53.640+0000] {logging_mixin.py:188} WARNING - [2026-04-03 06:45:53] INFO    etl.aggregation :   sv_hoc_bong   : 93
+[2026-04-03T06:45:53.639+0000] {aggregation.py:383} INFO -   sv_hoc_bong   : 93
+[2026-04-03T06:45:53.642+0000] {logging_mixin.py:188} WARNING - [2026-04-03 06:45:53] INFO    etl.aggregation :   ty_le_dat     : 95.6%
+[2026-04-03T06:45:53.642+0000] {aggregation.py:384} INFO -   ty_le_dat     : 95.6%
+[2026-04-03T06:45:53.645+0000] {logging_mixin.py:188} WARNING - [2026-04-03 06:45:53] INFO    etl.aggregation :   sv_rui_ro_cao : 46
+[2026-04-03T06:45:53.645+0000] {aggregation.py:385} INFO -   sv_rui_ro_cao : 46
+[2026-04-03T06:45:53.647+0000] {logging_mixin.py:188} WARNING - [2026-04-03 06:45:53] INFO    etl.aggregation : == WeeklyReporter: HOÀN TẤT ==
+[2026-04-03T06:45:53.647+0000] {aggregation.py:386} INFO - == WeeklyReporter: HOÀN TẤT ==
+[2026-04-03T06:45:53.649+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-03T06:45:53.650+0000] {logging_mixin.py:188} INFO - BÁO CÁO TUẦN
+[2026-04-03T06:45:53.650+0000] {logging_mixin.py:188} INFO -   SV cảnh báo học vụ : 376
+[2026-04-03T06:45:53.651+0000] {logging_mixin.py:188} INFO -   SV đủ ĐK học bổng  : 93
+[2026-04-03T06:45:53.652+0000] {logging_mixin.py:188} INFO -   Tỷ lệ đạt môn TB   : 95.6%
+[2026-04-03T06:45:53.652+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-03T06:45:53.670+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-04-03T06:45:53.682+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=weekly_summary_pipeline, task_id=generate_report, execution_date=20260403T064549, start_date=20260403T064553, end_date=20260403T064553
+[2026-04-03T06:45:53.712+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-03T06:45:53.732+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

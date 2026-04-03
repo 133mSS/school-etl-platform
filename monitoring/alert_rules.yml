@@ -1,0 +1,92 @@
+# =====================================================================
+# alert_rules.yml — Alerting rules cho ETL Platform PTIT
+# Prometheus sẽ evaluate file này mỗi 15 giây
+# Khi điều kiện "expr" đúng trong "for" thời gian → gửi alert
+# =====================================================================
+
+groups:
+  # ──────────────────────────────────────────────────────────────────
+  # NHÓM 1: ETL Pipeline Health
+  # ──────────────────────────────────────────────────────────────────
+  - name: etl_pipeline_health
+    interval: 15s
+    rules:
+      # Airflow Webserver không phản hồi
+      - alert: AirflowWebserverDown
+        expr: up{job="airflow"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: airflow
+        annotations:
+          summary: "🔴 Airflow Webserver không hoạt động"
+          description: "Airflow Webserver đã down trong hơn 2 phút. Pipeline ETL không thể chạy."
+          runbook: "Kiểm tra: docker-compose logs airflow-webserver"
+
+      # MinIO Storage không phản hồi
+      - alert: MinIODown
+        expr: up{job="minio"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: minio
+        annotations:
+          summary: "🔴 MinIO Staging Storage không hoạt động"
+          description: "MinIO đã down trong hơn 2 phút. Pipeline không thể lưu/đọc staging data."
+          runbook: "Kiểm tra: docker-compose logs minio"
+
+      # MinIO disk usage > 80%
+      - alert: MinIODiskHigh
+        expr: minio_cluster_disk_free_percent < 20
+        for: 5m
+        labels:
+          severity: warning
+          component: minio
+        annotations:
+          summary: "⚠️ MinIO Disk gần đầy"
+          description: "MinIO disk còn dưới 20% dung lượng trống. Cần dọn staging data cũ."
+          runbook: "Chạy: python scripts/cleanup_old_runs.py --keep-days 7"
+
+  # ──────────────────────────────────────────────────────────────────
+  # NHÓM 2: Data Quality
+  # ──────────────────────────────────────────────────────────────────
+  - name: data_quality
+    interval: 30s
+    rules:
+      # PostgreSQL Source không kết nối được
+      - alert: PostgreSQLSourceDown
+        expr: up{job="postgres_source"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "🔴 PostgreSQL Source Database không hoạt động"
+          description: "Database nguồn (school_source) đã down. Extract step sẽ thất bại."
+
+      # PostgreSQL Warehouse không kết nối được
+      - alert: PostgreSQLWarehouseDown
+        expr: up{job="postgres_warehouse"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "🔴 PostgreSQL Warehouse Database không hoạt động"
+          description: "Data Warehouse (school_warehouse) đã down. Load step sẽ thất bại."
+
+  # ──────────────────────────────────────────────────────────────────
+  # NHÓM 3: System Resources
+  # ──────────────────────────────────────────────────────────────────
+  - name: system_resources
+    interval: 15s
+    rules:
+      # Prometheus target scrape thất bại
+      - alert: TargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "⚠️ Target {{ $labels.job }} không scrape được"
+          description: "Prometheus không thể scrape metrics từ {{ $labels.instance }} trong 5 phút."

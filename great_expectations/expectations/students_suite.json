@@ -1,0 +1,196 @@
+{
+    "data_asset_type": null,
+    "expectation_suite_name": "students_suite",
+    "ge_cloud_id": null,
+    "meta": {
+        "great_expectations_version": "0.18.8",
+        "description": "Kiểm tra chất lượng dữ liệu Sinh viên (Nguồn 1 — PostgreSQL)",
+        "owner": "Nhom8 ETL Platform PTIT",
+        "updated": "2026-01-01"
+    },
+    "expectations": [
+        {
+            "expectation_type": "expect_table_row_count_to_be_between",
+            "kwargs": {
+                "min_value": 100,
+                "max_value": null
+            },
+            "meta": {
+                "exp_id": "EXP-01",
+                "notes": "Bảng sinh_vien phải có ít nhất 100 bản ghi. Nếu ít hơn → dữ liệu thiếu nghiêm trọng."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_sinh_vien"
+            },
+            "meta": {
+                "exp_id": "EXP-02a",
+                "notes": "Mã sinh viên không được NULL — đây là khóa chính."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ho"
+            },
+            "meta": {
+                "exp_id": "EXP-02b",
+                "notes": "Họ sinh viên không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ten"
+            },
+            "meta": {
+                "exp_id": "EXP-02c",
+                "notes": "Tên sinh viên không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "email"
+            },
+            "meta": {
+                "exp_id": "EXP-02d",
+                "notes": "Email không được NULL — dùng để gửi thông báo học vụ."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "khoa_hoc"
+            },
+            "meta": {
+                "exp_id": "EXP-02e",
+                "notes": "Khóa học (B21/B22/B23/B24) không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_unique",
+            "kwargs": {
+                "column": "ma_sinh_vien"
+            },
+            "meta": {
+                "exp_id": "EXP-03",
+                "notes": "Mã sinh viên phải duy nhất — không cho phép trùng lặp."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "email",
+                "regex": ".*@.*\\..*"
+            },
+            "meta": {
+                "exp_id": "EXP-04",
+                "notes": "Email phải có định dạng hợp lệ: chứa @ và dấu chấm."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_in_set",
+            "kwargs": {
+                "column": "khoa_hoc",
+                "value_set": [
+                    "B21",
+                    "B22",
+                    "B23",
+                    "B24"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-05",
+                "notes": "Khóa học chỉ được phép là B21, B22, B23 hoặc B24."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_in_set",
+            "kwargs": {
+                "column": "trang_thai_hoc_tap",
+                "value_set": [
+                    "Đang học",
+                    "Bảo lưu",
+                    "Thôi học",
+                    "Tốt nghiệp"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-06",
+                "notes": "Trạng thái học tập chỉ nhận 4 giá trị hợp lệ theo quy chế."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "ma_sinh_vien",
+                "regex": "^B2[1-4]DC[A-Z]{2,3}[0-9]{3}$"
+            },
+            "meta": {
+                "exp_id": "EXP-07",
+                "notes": "Mã SV phải đúng format: B21DCKD001, B22DCCN003... Phát hiện dữ liệu bẩn từ nguồn."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_of_type",
+            "kwargs": {
+                "column": "ma_sinh_vien",
+                "type_": "str"
+            },
+            "meta": {
+                "exp_id": "EXP-08",
+                "notes": "Mã sinh viên phải là kiểu chuỗi (VARCHAR)."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_nganh"
+            },
+            "meta": {
+                "exp_id": "EXP-09",
+                "notes": "Mã ngành không được NULL — cần thiết để join với dim_hoc_phan."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_in_set",
+            "kwargs": {
+                "column": "ma_nganh",
+                "value_set": [
+                    "KETOAN",
+                    "CNTT",
+                    "DTVT"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-10",
+                "notes": "Mã ngành chỉ được phép là KETOAN, CNTT hoặc DTVT."
+            }
+        },
+        {
+            "expectation_type": "expect_table_columns_to_match_ordered_list",
+            "kwargs": {
+                "column_list": [
+                    "ma_sinh_vien",
+                    "ho",
+                    "ten",
+                    "ngay_sinh",
+                    "gioi_tinh",
+                    "email",
+                    "ma_nganh",
+                    "ma_lop",
+                    "khoa_hoc",
+                    "trang_thai_hoc_tap"
+                ],
+                "exact_match": false
+            },
+            "meta": {
+                "exp_id": "EXP-11",
+                "notes": "Bảng sinh_vien phải có đủ các cột cần thiết cho ETL pipeline."
+            }
+        }
+    ]
+}

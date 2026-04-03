@@ -2,12 +2,14 @@ apiVersion: 1
 datasources:
   - name: school_warehouse
     type: postgres
+    uid: warehouse-db
     url: postgres-warehouse:5432
     database: school_warehouse
     user: warehouse_user
     secureJsonData:
       password: warehouse_pass
     jsonData:
+      database: school_warehouse
       sslmode: disable
       postgresVersion: 1500
     isDefault: true
