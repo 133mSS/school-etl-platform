@@ -635,14 +635,22 @@ def _diem_sang_chu(d):
     ║  → GPA học kỳ = 4.0 trở nên cực kỳ hiếm           ║
     ╚══════════════════════════════════════════════════════╝
     """
-    if d >= 9.5: return "A+", 4.0   # ← TĂNG TỪ 9.2 LÊN 9.5
-    if d >= 8.5: return "A",  3.7
-    if d >= 8.0: return "B+", 3.5
-    if d >= 7.0: return "B",  3.0
-    if d >= 6.5: return "C+", 2.5
-    if d >= 5.5: return "C",  2.0
-    if d >= 5.0: return "D+", 1.5
-    if d >= 4.0: return "D",  1.0
+    if d >= 9.5:
+        return "A+", 4.0
+    if d >= 8.5:
+        return "A", 3.7
+    if d >= 8.0:
+        return "B+", 3.5
+    if d >= 7.0:
+        return "B", 3.0
+    if d >= 6.5:
+        return "C+", 2.5
+    if d >= 5.5:
+        return "C", 2.0
+    if d >= 5.0:
+        return "D+", 1.5
+    if d >= 4.0:
+        return "D", 1.0
     return "F", 0.0
 
 
@@ -1076,6 +1084,7 @@ def main():
 
             dk_buf = []
             dk_set = set()
+            sv_failed_courses = {}
             sv_hk_gpa = {}
 
             # ══════════════════════════════════════════════════════════
@@ -1114,8 +1123,6 @@ def main():
                             if cum_gpa < EVAL_CRITERIA["tot_nghiep_gpa_min"]:
                                 continue
 
-                        # ── Sinh điểm cho tất cả môn trong HK ──
-                        # Lưu dạng list để có thể áp dụng _cap_gpa_hk
                         sv_grades_raw = []
 
                         for (ma_mon, ten_mon, tc, lt, th, do_kho) in mons:
@@ -1143,7 +1150,49 @@ def main():
                                 "dat": grade["dat_mon"],
                                 "grade_full": grade,
                                 "gv": random.choice(gv_list),
+                                "do_kho": do_kho,
+                                "ten_mon": ten_mon,
+                                "lt": lt, "th": th,
                             })
+
+                        # ── HỌC LẠI: Đăng ký lại các môn đã rớt ở HK trước ──
+                        failed_list = sv_failed_courses.get(ma_sv, [])
+                        retake_this_hk = []
+
+                        # Giới hạn tối đa 2 môn học lại mỗi HK (thực tế)
+                        retake_candidates = failed_list[:2]
+
+                        for (r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho) in retake_candidates:
+                            key = (ma_sv, r_ma_mon, ma_hk)
+                            if key in dk_set:
+                                continue
+                            dk_set.add(key)
+
+                            gv_list = global_gv_per_mon.get(r_ma_mon)
+                            if not gv_list:
+                                continue
+
+                            # Sinh điểm học lại (có bonus +1.2 từ _gen_diem_mon)
+                            grade = _tao_diem_record(
+                                None, r_do_kho, profile,
+                                hk_idx, True,
+                                hk_obj.ngay_ket_thuc, hk_mod
+                            )
+
+                            sv_grades_raw.append({
+                                "ma_mon": r_ma_mon,
+                                "tc": r_tc,
+                                "he4": grade["diem_he_4"],
+                                "chu": grade["diem_chu"],
+                                "tong_ket": grade["diem_tong_ket"],
+                                "dat": grade["dat_mon"],
+                                "grade_full": grade,
+                                "gv": random.choice(gv_list),
+                                "do_kho": r_do_kho,
+                                "ten_mon": r_ten_mon,
+                                "lt": r_lt, "th": r_th,
+                            })
+                            retake_this_hk.append((r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho))
 
                         if not sv_grades_raw:
                             continue
@@ -1182,7 +1231,7 @@ def main():
                                 "ngay_dang_ky": hk_obj.ngay_bat_dau + timedelta(days=random.randint(1, 10)),
                                 "trang_thai": "Đã đăng ký",
                                 "_hk_idx": hk_idx,
-                                "_do_kho": 0,  # đã tính vào grade rồi
+                                "_do_kho": 0,
                                 "_profile": profile,
                                 "_kt_hk": hk_obj.ngay_ket_thuc,
                                 "_so_tin_chi": g["tc"],
@@ -1211,6 +1260,28 @@ def main():
                             "hk_idx": hk_idx,
                         })
 
+                        # Cập nhật danh sách môn rớt:
+                        # 1. Xóa môn đã đạt khi học lại
+                        for course_info in retake_this_hk:
+                            ma_mon_retake = course_info[0]
+                            # Tìm grade tương ứng
+                            retake_grade = next(
+                                (g for g in sv_grades_raw if g["ma_mon"] == ma_mon_retake and g["grade_full"]["hoc_lai"]),
+                                None
+                            )
+                            if retake_grade and retake_grade["dat"]:
+                                # Đã đạt → xóa khỏi danh sách rớt
+                                if course_info in sv_failed_courses.get(ma_sv, []):
+                                    sv_failed_courses[ma_sv].remove(course_info)
+
+                        # 2. Thêm môn mới rớt (chỉ thêm môn bắt buộc, bỏ qua tự chọn)
+                        for g in sv_grades_raw:
+                            if not g["dat"] and not g["grade_full"]["hoc_lai"]:
+                                course_info = (g["ma_mon"], g["ten_mon"], g["tc"], g["lt"], g["th"], g["do_kho"])
+                                sv_failed_courses.setdefault(ma_sv, [])
+                                if course_info not in sv_failed_courses[ma_sv]:
+                                    sv_failed_courses[ma_sv].append(course_info)
+
                     # ── Đánh giá sau mỗi HK ──
                     if is_graduation_hk:
                         for ev in hk_eval_data:
@@ -1234,11 +1305,16 @@ def main():
                                 drl_stds.get(profile, 7)
                             ))))
 
-                            if drl >= 90:   xl_rl = "Xuất sắc"
-                            elif drl >= 80: xl_rl = "Tốt"
-                            elif drl >= 65: xl_rl = "Khá"
-                            elif drl >= 50: xl_rl = "Trung bình"
-                            else:           xl_rl = "Yếu"
+                            if drl >= 90:
+                                xl_rl = "Xuất sắc"
+                            elif drl >= 80:
+                                xl_rl = "Tốt"
+                            elif drl >= 65:
+                                xl_rl = "Khá"
+                            elif drl >= 50:
+                                xl_rl = "Trung bình"
+                            else:
+                                xl_rl = "Yếu"
 
                             kl_ht, kl_ld = "", ""
                             if profile == "yếu" and random.random() < 0.15:
@@ -1315,7 +1391,7 @@ def main():
                                 if cum_gpa < EVAL_CRITERIA["buoc_thoi_hoc_gpa_hard"]:
                                     sv_active[ma_sv] = False
                                     sv_final_status[ma_sv] = "Thôi học"
-                                elif not sv_active.get(ma_sv, True) is False:
+                                elif sv_active.get(ma_sv, True) is not False:
                                     prob = 0.0
                                     if profile == "yếu" and cum_gpa < EVAL_CRITERIA["bao_luu_gpa_threshold"]:
                                         prob = EVAL_CRITERIA["bao_luu_prob_yeu"]
@@ -1347,9 +1423,12 @@ def main():
                                     loai_hb = tier["loai"]
                                     muc_tien = tier["muc_tien"]
                                     granted += 1
-                                    if tier["min_drl"] == 90:   total_hb_nganh["Xuất sắc"] += 1
-                                    elif tier["min_drl"] == 80: total_hb_nganh["Giỏi"] += 1
-                                    else:                        total_hb_nganh["Khá"] += 1
+                                    if tier["min_drl"] == 90:
+                                        total_hb_nganh["Xuất sắc"] += 1
+                                    elif tier["min_drl"] == 80:
+                                        total_hb_nganh["Giỏi"] += 1
+                                    else:
+                                        total_hb_nganh["Khá"] += 1
                                     break
                         all_csv_records.append({
                             "ma_sinh_vien": rec["ma_sinh_vien"],

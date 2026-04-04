@@ -1,30 +1,27 @@
 import pandas as pd
-import glob
+from pandas import DataFrame
 
-from pandas import read_csv
+def normalize_columns(df: pd.DataFrame, column_mapping: dict) -> pd.DataFrame:
+    df.columns = df.columns.str.strip().str.lower()
 
-def read_csv_safe(filepath: str) -> pd.DataFrame:
-    encodings = ["utf-8", "utf-8-sig", "cp1252", "latin-1"]
+    normalize_mapping ={
+        k.strip().lower(): v.strip().lower()
+        for k, v in column_mapping.items()
+        }
 
-    for x in encodings:
-        try:
-            df = pd.read_csv(filepath, encoding=x)
-            print(f"Doc thanh cong: {x}")
-            return df
-        except UnicodeDecodeError:
-            print(f" Encoding {x} that bai")
-        except FileNotFoundError:
-            print(f"khong tim thay file")
-            return pd.DataFrame()
-    print(f"khong the doc file voi bat ky encoding nao")
-    return pd.DataFrame()
+    df = df.rename(columns=normalize_mapping)
+    return df
 
-file = glob.glob("data/csv/*.csv")
-dfs = []
-for x in file:
-    df = read_csv_safe(x)
-    if not df.empty:
-        dfs.append(df)
-if dfs:
-    final_dfs = pd.concat(dfs, ignore_index = True)
-    print(final_dfs.head())
+df = pd.DataFrame({
+    " Diem_RL ": [80, 90],
+    "Hoc_Bong": ["A", "B"],
+    "Ten": ["An", "Binh"]
+})
+
+mapping = {
+    "diem_rl": "diem_ren_luyen",
+    "hoc_bong": "loai_hoc_bong"
+}
+
+df_new = normalize_columns(df, mapping)
+print(df_new.columns)
