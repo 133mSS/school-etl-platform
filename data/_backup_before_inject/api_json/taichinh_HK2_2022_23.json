@@ -81,7 +81,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 11500000,
     "da_dong": 11500000,
-    "con_no": 7377,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -210,7 +210,7 @@
   },
   {
     "ma_sinh_vien": "B21DCKT020",
-    "hoc_ky": "HocKy2202223",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 11040000,
     "da_dong": 11040000,
     "con_no": 0,
@@ -331,13 +331,14 @@
   },
   {
     "ma_sinh_vien": "B21DCKT031",
-    "hoc_ky": "HocKy2202223",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 10580000,
     "da_dong": 10580000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
-    "so_tien_mien_giam": 0
+    "so_tien_mien_giam": 0,
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCKT032",
@@ -630,7 +631,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 11500000,
     "da_dong": 11500000,
-    "con_no": 62538,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -953,7 +954,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20/03/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCKT088",
@@ -1059,7 +1060,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 10580000,
     "da_dong": 10580000,
-    "con_no": 7449,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -1386,7 +1387,7 @@
   },
   {
     "ma_sinh_vien": "B21DCKT128",
-    "hoc_ky": "Ky2-2022-23",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 11500000,
     "da_dong": 11500000,
     "con_no": 0,
@@ -1514,7 +1515,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCKT010",
@@ -1744,7 +1745,8 @@
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
-    "so_tien_mien_giam": 0
+    "so_tien_mien_giam": 0,
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCKT031",
@@ -1788,7 +1790,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "2023.03.20"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCKT035",
@@ -1904,7 +1906,7 @@
     "ma_sinh_vien": "B22DCKT045",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 7820000,
-    "da_dong": 11730000,
+    "da_dong": 7820000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
@@ -2034,7 +2036,7 @@
   },
   {
     "ma_sinh_vien": "B22DCKT057",
-    "hoc_ky": "Ky2-2022-23",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 7820000,
     "da_dong": 6596612,
     "con_no": 1223388,
@@ -2191,7 +2193,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 7480000,
     "da_dong": 7480000,
-    "con_no": 190570,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -2342,7 +2344,7 @@
   },
   {
     "ma_sinh_vien": "B22DCKT085",
-    "hoc_ky": "Ky2-2022-23",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8160000,
     "da_dong": 8160000,
     "con_no": 0,
@@ -2492,7 +2494,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20/03/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCKT099",
@@ -2569,7 +2571,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCKT106",
@@ -3101,7 +3103,7 @@
   },
   {
     "ma_sinh_vien": "B21DCVT015",
-    "hoc_ky": "HocKy2202223",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 9000000,
     "da_dong": 9000000,
     "con_no": 0,
@@ -3147,12 +3149,12 @@
     "ma_sinh_vien": "B21DCVT019",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8280000,
-    "da_dong": 12420000,
+    "da_dong": 8280000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCVT020",
@@ -3349,7 +3351,7 @@
     "con_no": 0,
     "duoc_mien_giam": true,
     "ly_do_mien_giam": "Dân tộc thiểu số",
-    "so_tien_mien_giam": -2484000,
+    "so_tien_mien_giam": 2484000,
     "ngay_dong_cuoi": "2023-03-20"
   },
   {
@@ -3459,7 +3461,8 @@
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
-    "so_tien_mien_giam": 0
+    "so_tien_mien_giam": 0,
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCVT050",
@@ -3760,7 +3763,7 @@
   },
   {
     "ma_sinh_vien": "B21DCVT077",
-    "hoc_ky": "hk2-2022-23",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 2376000,
     "da_dong": 2376000,
     "con_no": 0,
@@ -3840,7 +3843,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8280000,
     "da_dong": 8280000,
-    "con_no": 1493,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -3899,7 +3902,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "03/20/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCVT090",
@@ -4046,7 +4049,7 @@
   },
   {
     "ma_sinh_vien": "B21DCVT103",
-    "hoc_ky": "HocKy2202223",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8640000,
     "da_dong": 8640000,
     "con_no": 0,
@@ -4280,7 +4283,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 9000000,
     "da_dong": 9000000,
-    "con_no": 9920,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -4294,7 +4297,8 @@
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
-    "so_tien_mien_giam": 0
+    "so_tien_mien_giam": 0,
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCVT126",
@@ -4763,7 +4767,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 7480000,
     "da_dong": 5714733,
-    "con_no": 1759586,
+    "con_no": 1765267,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -4927,7 +4931,7 @@
     "ma_sinh_vien": "B22DCVT053",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8500000,
-    "da_dong": 12750000,
+    "da_dong": 8500000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
@@ -4961,7 +4965,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8500000,
     "da_dong": 8500000,
-    "con_no": 140892,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -5104,11 +5108,11 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 7480000,
     "da_dong": 5807684,
-    "con_no": 1819710,
+    "con_no": 1672316,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20/03/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCVT070",
@@ -5126,7 +5130,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 4080000,
     "da_dong": 4080000,
-    "con_no": 2177,
+    "con_no": 0,
     "duoc_mien_giam": true,
     "ly_do_mien_giam": "Cận hộ nghèo",
     "so_tien_mien_giam": 4080000,
@@ -5566,7 +5570,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8160000,
     "da_dong": 5523367,
-    "con_no": 2629917,
+    "con_no": 2636633,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -5581,7 +5585,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "03/20/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCVT113",
@@ -5621,7 +5625,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 4250000,
     "da_dong": 3341749,
-    "con_no": 903312,
+    "con_no": 908251,
     "duoc_mien_giam": true,
     "ly_do_mien_giam": "Mồ côi",
     "so_tien_mien_giam": 4250000,
@@ -5977,7 +5981,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCCN009",
@@ -6131,7 +6135,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20/03/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCCN025",
@@ -6201,7 +6205,7 @@
   },
   {
     "ma_sinh_vien": "B21DCCN031",
-    "hoc_ky": "hk2-2022-23",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8640000,
     "da_dong": 8640000,
     "con_no": 0,
@@ -6219,7 +6223,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCCN033",
@@ -6284,7 +6288,8 @@
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
-    "so_tien_mien_giam": 0
+    "so_tien_mien_giam": 0,
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCCN039",
@@ -6401,7 +6406,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8280000,
     "da_dong": 8280000,
-    "con_no": 97833,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -6533,7 +6538,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 5544000,
     "da_dong": 5544000,
-    "con_no": 52768,
+    "con_no": 0,
     "duoc_mien_giam": true,
     "ly_do_mien_giam": "Dân tộc thiểu số",
     "so_tien_mien_giam": 2376000,
@@ -6823,7 +6828,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "2023.03.20"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B21DCCN091",
@@ -7061,7 +7066,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8640000,
     "da_dong": 8640000,
-    "con_no": 155246,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -7355,7 +7360,7 @@
   },
   {
     "ma_sinh_vien": "B22DCCN011",
-    "hoc_ky": "HocKy2202223",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 9120000,
     "da_dong": 9120000,
     "con_no": 0,
@@ -7423,7 +7428,7 @@
     "ma_sinh_vien": "B22DCCN017",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8740000,
-    "da_dong": 17480000,
+    "da_dong": 8740000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
@@ -7435,7 +7440,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8740000,
     "da_dong": 8740000,
-    "con_no": 8805,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -7505,7 +7510,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "03/20/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN025",
@@ -7544,7 +7549,7 @@
     "ma_sinh_vien": "B22DCCN028",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8740000,
-    "da_dong": 17480000,
+    "da_dong": 8740000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
@@ -7571,7 +7576,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN031",
@@ -7586,7 +7591,7 @@
   },
   {
     "ma_sinh_vien": "B22DCCN032",
-    "hoc_ky": "hk2-2022-23",
+    "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 2736000,
     "da_dong": 1648449,
     "con_no": 1087551,
@@ -7654,7 +7659,7 @@
     "ma_sinh_vien": "B22DCCN038",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 9500000,
-    "da_dong": 14250000,
+    "da_dong": 9500000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
@@ -7670,7 +7675,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "2023.03.20"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN040",
@@ -7698,7 +7703,7 @@
     "ma_sinh_vien": "B22DCCN042",
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 9500000,
-    "da_dong": 14250000,
+    "da_dong": 9500000,
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
@@ -8073,7 +8078,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 9500000,
     "da_dong": 6099645,
-    "con_no": 3475205,
+    "con_no": 3400355,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -8110,7 +8115,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "2023.03.20"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN080",
@@ -8297,7 +8302,7 @@
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
-    "ngay_dong_cuoi": "20-03-2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN097",
@@ -8370,7 +8375,7 @@
     "hoc_ky": "HK2-2022-23",
     "hoc_phi_phai_dong": 8740000,
     "da_dong": 8740000,
-    "con_no": 91347,
+    "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
     "so_tien_mien_giam": 0,
@@ -8561,7 +8566,7 @@
     "duoc_mien_giam": true,
     "ly_do_mien_giam": "Con thương binh",
     "so_tien_mien_giam": 4750000,
-    "ngay_dong_cuoi": "20/03/2023"
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN121",
@@ -8670,7 +8675,8 @@
     "con_no": 0,
     "duoc_mien_giam": false,
     "ly_do_mien_giam": "",
-    "so_tien_mien_giam": 0
+    "so_tien_mien_giam": 0,
+    "ngay_dong_cuoi": "2023-03-20"
   },
   {
     "ma_sinh_vien": "B22DCCN131",
