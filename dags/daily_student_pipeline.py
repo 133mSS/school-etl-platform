@@ -301,3 +301,5 @@ with DAG(
         python_callable=task_alert_success,
         doc_md="Log tổng kết kết quả pipeline.",
     )
+
+start >> extract >> validate >> transform >> load >> alert >> end

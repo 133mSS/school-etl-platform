@@ -6,13 +6,9 @@ Validate dữ liệu từ MinIO staging bằng Great Expectations 0.18.8.
 4 suite files trong great_expectations/expectations/:
   students_suite.json   → df_students  (sinh_vien PostgreSQL)
   grades_suite.json     → df_grades    (diem_hoc_phan PostgreSQL)
-  ctsv_suite.json       → df_ctsv      (CSV Phong CTSV)
+  ctsv_suite.json       → df_ctsv      (CSV Phòng CTSV)
   tai_chinh_suite.json  → df_tc        (API JSON vendor)
-
-THAY DOI so voi version cu (attendance_suite dung chung):
-  - Tach attendance_suite thanh ctsv_suite + tai_chinh_suite
-  - Moi suite chi chua expectations phu hop voi DataFrame cua no
-  - Tranh KeyError khi column khong ton tai trong DataFrame
+  warehouse_suite.json  → agg_student_summary (sau khi rebuild)
 """
 
 import json
@@ -22,6 +18,7 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 import great_expectations as ge
 from great_expectations.core import ExpectationSuite
+
 from src.utils.minio_client import MinIOClient
 from src.utils.logger import get_logger
 
@@ -31,23 +28,21 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 GE_DIR        = _PROJECT_ROOT / "great_expectations"
 SUITE_DIR     = GE_DIR / "expectations"
 
-# Mapping 4 suite rieng biet
-# Cần thêm:
 SUITE_FILES = {
-    "students_suite":   SUITE_DIR / "students_suite.json",
-    "grades_suite":     SUITE_DIR / "grades_suite.json",
-    "ctsv_suite":       SUITE_DIR / "ctsv_suite.json",
-    "tai_chinh_suite":  SUITE_DIR / "tai_chinh_suite.json",
-    "warehouse_suite":  SUITE_DIR / "warehouse_suite.json",  # ← thêm
+    "students_suite":  SUITE_DIR / "students_suite.json",
+    "grades_suite":    SUITE_DIR / "grades_suite.json",
+    "ctsv_suite":      SUITE_DIR / "ctsv_suite.json",
+    "tai_chinh_suite": SUITE_DIR / "tai_chinh_suite.json",
+    "warehouse_suite": SUITE_DIR / "warehouse_suite.json",
 }
 
 
 def _load_suite(suite_name: str) -> ExpectationSuite:
     fpath = SUITE_FILES.get(suite_name)
     if fpath is None:
-        raise KeyError(f"Suite '{suite_name}' chua duoc dang ky trong SUITE_FILES")
+        raise KeyError(f"Suite '{suite_name}' chưa được đăng ký trong SUITE_FILES")
     if not fpath.exists():
-        raise FileNotFoundError(f"Khong tim thay suite file: {fpath}")
+        raise FileNotFoundError(f"Không tìm thấy suite file: {fpath}")
 
     with open(fpath, "r", encoding="utf-8") as f:
         suite_dict = json.load(f)
@@ -58,17 +53,28 @@ def _load_suite(suite_name: str) -> ExpectationSuite:
 
 
 def _run_suite(df: pd.DataFrame, suite_name: str, asset_name: str) -> Dict[str, Any]:
+    """
+    Chạy một GE expectation suite trên DataFrame.
+
+    Trả về dict gồm:
+      success   : bool — tất cả expectations đều pass
+      evaluated : int  — số expectations được kiểm tra
+      passed    : int  — số pass
+      failed    : int  — số fail
+      failures  : list — mô tả chi tiết từng failure
+      skipped   : bool — True nếu DataFrame rỗng (bỏ qua)
+    """
     if df is None or df.empty:
-        logger.warning(f"  GE | [{suite_name}] DataFrame rong — skip")
+        logger.warning(f"  GE | [{suite_name}] DataFrame rỗng — skip")
         return {
             "suite_name": suite_name, "asset_name": asset_name,
             "success": True, "evaluated": 0, "passed": 0,
             "failed": 0, "failures": [], "statistics": {}, "skipped": True,
         }
 
-    suite    = _load_suite(suite_name)
-    ge_df    = ge.from_pandas(df, expectation_suite=suite)
-    result   = ge_df.validate(result_format="SUMMARY", catch_exceptions=True)
+    suite  = _load_suite(suite_name)
+    ge_df  = ge.from_pandas(df, expectation_suite=suite)
+    result = ge_df.validate(result_format="SUMMARY", catch_exceptions=True)
 
     stats      = result.statistics
     evaluated  = stats.get("evaluated_expectations", 0)
@@ -95,7 +101,10 @@ def _run_suite(df: pd.DataFrame, suite_name: str, asset_name: str) -> Dict[str, 
                 msg += f" | EXC: {er.exception_info.get('exception_message','')[:60]}"
             failures.append(msg)
 
-    logger.info(f"  GE | [{suite_name}] {asset_name}: {passed}/{evaluated} ({'OK' if success else 'FAIL'})")
+    logger.info(
+        f"  GE | [{suite_name}] {asset_name}: {passed}/{evaluated} "
+        f"({'OK' if success else 'FAIL'})"
+    )
     for f in failures:
         logger.warning(f"    FAIL: {f}")
 
@@ -113,29 +122,40 @@ def _run_suite(df: pd.DataFrame, suite_name: str, asset_name: str) -> Dict[str, 
 
 
 class DataValidator:
+    """
+    Validate dữ liệu từ 3 nguồn (ETL pipeline) và từ warehouse (weekly).
+    """
+
     def __init__(self):
         if not GE_DIR.exists():
-            raise FileNotFoundError(f"Khong tim thay thu muc GE: {GE_DIR}")
+            raise FileNotFoundError(f"Không tìm thấy thư mục GE: {GE_DIR}")
         if not SUITE_DIR.exists():
-            raise FileNotFoundError(f"Khong tim thay thu muc expectations: {SUITE_DIR}")
-        logger.info(f"  GE | DataValidator khoi tao | GE dir: {GE_DIR}")
+            raise FileNotFoundError(f"Không tìm thấy thư mục expectations: {SUITE_DIR}")
+        logger.info(f"  GE | DataValidator khởi tạo | GE dir: {GE_DIR}")
 
+    # ────────────────────────────────────────────────────────────────
+    # VALIDATE ETL STAGING (dùng trong daily_student_pipeline)
+    # ────────────────────────────────────────────────────────────────
 
-    
     def validate_from_staging(self, run_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Download parquet từ MinIO raw-data rồi validate bằng 4 suites:
+          students_suite, grades_suite, ctsv_suite, tai_chinh_suite.
+        Nếu bất kỳ suite nào FAIL → pipeline Airflow sẽ dừng.
+        """
         client = MinIOClient()
         if run_id is None:
             run_id = client.get_latest_run_id(bucket="raw")
             if run_id is None:
-                raise FileNotFoundError("Khong co staging data trong MinIO.")
+                raise FileNotFoundError("Không có staging data trong MinIO.")
 
-        logger.info(f"  GE | Bat dau validation | run_id={run_id}")
+        logger.info(f"  GE | Bắt đầu validation | run_id={run_id}")
 
-        df_sv       = client.download_df("nguon1_sinh_vien.parquet", run_id)
-        df_diem     = client.download_df("nguon1_diem.parquet",      run_id)
+        df_sv       = client.download_df("nguon1_sinh_vien.parquet",        run_id)
+        df_diem     = client.download_df("nguon1_diem.parquet",             run_id)
         df_tong_hop = client.download_df("nguon1_tong_hop_ket_qua.parquet", run_id)
-        df_ctsv     = client.download_df("nguon2_ctsv.parquet",      run_id)
-        df_tc       = client.download_df("nguon3_tai_chinh.parquet", run_id)
+        df_ctsv     = client.download_df("nguon2_ctsv.parquet",             run_id)
+        df_tc       = client.download_df("nguon3_tai_chinh.parquet",        run_id)
 
         logger.info(
             f"  GE | Downloaded: sv={len(df_sv)}, diem={len(df_diem)}, "
@@ -147,17 +167,17 @@ class DataValidator:
         df_ctsv_ok  = self._prepare_ctsv_df(df_ctsv)
         df_tc_ok    = self._prepare_tc_df(df_tc)
 
-        logger.info("  GE | Chay 4 validation suites...")
+        logger.info("  GE | Chạy 4 validation suites...")
 
         suite_results = {
-            "students":   _run_suite(df_students, "students_suite",  "sinh_vien"),
-            "grades":     _run_suite(df_grades,   "grades_suite",    "diem_hoc_phan"),
-            "ctsv":       _run_suite(df_ctsv_ok,  "ctsv_suite",      "ctsv_data"),
-            "tai_chinh":  _run_suite(df_tc_ok,    "tai_chinh_suite", "tai_chinh_data"),
+            "students":  _run_suite(df_students, "students_suite",  "sinh_vien"),
+            "grades":    _run_suite(df_grades,   "grades_suite",    "diem_hoc_phan"),
+            "ctsv":      _run_suite(df_ctsv_ok,  "ctsv_suite",      "ctsv_data"),
+            "tai_chinh": _run_suite(df_tc_ok,    "tai_chinh_suite", "tai_chinh_data"),
         }
 
         all_failures: List[str] = []
-        total_evaluated = 0
+        total_evaluated  = 0
         total_successful = 0
         for r in suite_results.values():
             if r.get("skipped"):
@@ -184,32 +204,36 @@ class DataValidator:
             "failed_expectations":     all_failures,
             "suite_results":           suite_results,
         }
-# ge_validation.py — cần thêm hàm này:
+
+    # ────────────────────────────────────────────────────────────────
+    # VALIDATE WAREHOUSE (dùng trong weekly_summary_pipeline)
+    # ────────────────────────────────────────────────────────────────
+
     def validate_warehouse(self) -> Dict[str, Any]:
         """
         Validate bảng agg_student_summary trong Data Warehouse.
-        Dùng cho weekly_summary_pipeline sau khi rebuild xong.
+        Dùng sau khi WeeklyAggregator.rebuild_agg_student_summary() hoàn thành.
         """
-        import pandas as pd
         from src.config.database import warehouse_engine
 
         logger.info("  GE | Validate warehouse — agg_student_summary")
 
-        # Đọc từ warehouse DB, không phải MinIO
         df_agg = pd.read_sql("""
-            SELECT 
-                ma_sinh_vien, gpa_he_4, muc_do_rui_ro,
-                tong_no_hoc_phi, canh_bao_hoc_vu,
-                diem_rl_trung_binh, co_no_hoc_phi
+            SELECT
+                ma_sinh_vien,
+                gpa_he_4,
+                muc_do_rui_ro,
+                tong_no_hoc_phi,
+                canh_bao_hoc_vu,
+                diem_rl_trung_binh,
+                co_no_hoc_phi
             FROM agg_student_summary
         """, warehouse_engine)
 
         logger.info(f"  GE | agg_student_summary: {len(df_agg)} records")
 
-        # Chạy warehouse_suite
         result = _run_suite(df_agg, "warehouse_suite", "agg_student_summary")
 
-        # Trả về cùng format với validate_from_staging
         all_failures = result.get("failures", [])
         return {
             "success":                 result["success"],
@@ -217,26 +241,24 @@ class DataValidator:
             "successful_expectations": result["passed"],
             "failed_expectations":     all_failures,
             "suite_results":           {"warehouse": result},
-        }        
+        }
 
-    # Cần sửa:
+    # ────────────────────────────────────────────────────────────────
+    # DATA PREPARATION HELPERS
+    # ────────────────────────────────────────────────────────────────
+
     @staticmethod
-    def _prepare_students_df(df_sv, df_tong_hop):
+    def _prepare_students_df(df_sv: pd.DataFrame, df_tong_hop: pd.DataFrame) -> pd.DataFrame:
         df = df_sv.copy()
-
-        # Merge GPA và canh_bao vào để GE có thể validate
         if not df_tong_hop.empty:
             df = df.merge(
                 df_tong_hop[["ma_sinh_vien", "gpa_he_4", "canh_bao_hoc_vu"]],
-                on="ma_sinh_vien",
-                how="left"
+                on="ma_sinh_vien", how="left",
             )
-
         for col in ["ho", "ten", "email", "khoa_hoc",
                     "trang_thai_hoc_tap", "ma_nganh", "ma_lop"]:
             if col not in df.columns:
                 df[col] = None
-
         return df
 
     @staticmethod

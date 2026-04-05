@@ -10,18 +10,19 @@ from src.utils.minio_client import MinIOClient
 
 logger = get_logger("etl.transform")
 
+
 @dataclass
 class TransformedData:
     dim_giang_vien: pd.DataFrame = field(default_factory=pd.DataFrame)
-    dim_sinh_vien: pd.DataFrame = field(default_factory=pd.DataFrame)
-    dim_hoc_phan: pd.DataFrame = field(default_factory=pd.DataFrame)
-    dim_thoi_gian: pd.DataFrame = field(default_factory=pd.DataFrame)
+    dim_sinh_vien:  pd.DataFrame = field(default_factory=pd.DataFrame)
+    dim_hoc_phan:   pd.DataFrame = field(default_factory=pd.DataFrame)
+    dim_thoi_gian:  pd.DataFrame = field(default_factory=pd.DataFrame)
 
-    fact_diem: pd.DataFrame = field(default_factory=pd.DataFrame)
-    fact_ren_luyen: pd.DataFrame = field(default_factory=pd.DataFrame)
-    fact_tai_chinh: pd.DataFrame = field(default_factory=pd.DataFrame)
-
-    fact_tong_hop_sv: pd.DataFrame = field(default_factory=pd.DataFrame)
+    fact_diem:       pd.DataFrame = field(default_factory=pd.DataFrame)
+    fact_ren_luyen:  pd.DataFrame = field(default_factory=pd.DataFrame)
+    fact_tai_chinh:  pd.DataFrame = field(default_factory=pd.DataFrame)
+    # FIX: Bỏ fact_tong_hop_sv — trường này luôn rỗng và không được dùng.
+    # Aggregation được xử lý riêng bởi DataAggregator trong load.py.
 
     def summary(self) -> Dict[str, int]:
         counts = {}
@@ -31,9 +32,11 @@ class TransformedData:
                 counts[attr] = len(val)
         return counts
 
+
+# ── Thang điểm ───────────────────────────────────────────────────────────
 GRADE_SCALE = [
     (9.5,  10.01, "A+", 4.0),
-    (8.5,  9.0,   "A",  3.7),
+    (8.5,  9.5,   "A",  3.7),
     (8.0,  8.5,   "B+", 3.5),
     (7.0,  8.0,   "B",  3.0),
     (6.5,  7.0,   "C+", 2.5),
@@ -44,24 +47,26 @@ GRADE_SCALE = [
 ]
 
 WEIGHT_CHUYEN_CAN = 0.10
-WEIGHT_BAI_TAP = 0.10
-WEIGHT_GIUA_KY = 0.20
-WEIGHT_CUOI_KY = 0.60
-
-GPA_WARNING_LEVEL_1 = 1.0
-GPA_WARNING_LEVEL_2 = 1.2
+WEIGHT_BAI_TAP    = 0.10
+WEIGHT_GIUA_KY    = 0.20
+WEIGHT_CUOI_KY    = 0.60
 
 RL_THRESHOLDS = [
     (90, 100, "Xuất sắc"),
     (80, 90,  "Tốt"),
     (65, 80,  "Khá"),
     (50, 65,  "Trung bình"),
-    (0, 50,  "Yếu"),
+    (0,  50,  "Yếu"),
 ]
+
 
 class DataTransformer:
     def __init__(self):
         self._last_run_id: str = ""
+
+    # ────────────────────────────────────────────────────────────────
+    # MAIN ENTRY
+    # ────────────────────────────────────────────────────────────────
 
     def transform_all(self, extracted: ExtractedData) -> TransformedData:
         logger.info("==BẮT ĐẦU TRANSFORM==")
@@ -70,17 +75,10 @@ class DataTransformer:
         result = TransformedData()
 
         logger.info("── Bước 1: Transform Dimension Tables ──")
-
-        result.dim_thoi_gian = self._transform_dim_hoc_ky(
-            extracted.hoc_ky_nam_hoc
-        )
-        result.dim_giang_vien = self._transform_dim_giang_vien(
-            extracted.giang_vien, extracted.khoa
-        )
-        result.dim_hoc_phan = self._transform_dim_hoc_phan(
-            extracted.hoc_phan, extracted.khoa
-        )
-        result.dim_sinh_vien = self._transform_dim_sinh_vien(
+        result.dim_thoi_gian  = self._transform_dim_hoc_ky(extracted.hoc_ky_nam_hoc)
+        result.dim_giang_vien = self._transform_dim_giang_vien(extracted.giang_vien, extracted.khoa)
+        result.dim_hoc_phan   = self._transform_dim_hoc_phan(extracted.hoc_phan, extracted.khoa)
+        result.dim_sinh_vien  = self._transform_dim_sinh_vien(
             extracted.sinh_vien,
             extracted.nganh,
             extracted.lop_hanh_chinh,
@@ -89,20 +87,12 @@ class DataTransformer:
         )
 
         logger.info("── Bước 2: Transform Fact Tables ──")
-
-        result.fact_diem = self._transform_fact_diem(
+        result.fact_diem      = self._transform_fact_diem(
             extracted.diem_hoc_phan,
             extracted.dang_ky_hoc_phan,
         )
-        result.fact_ren_luyen = self._transform_fact_ren_luyen(
-            extracted.ctsv_data
-        )
-        result.fact_tai_chinh = self._transform_fact_tai_chinh(
-            extracted.tai_chinh_data
-        )
-
-        logger.info("── Bước 3: Tổng hợp đa nguồn ──")
-        result.fact_tong_hop_sv = pd.DataFrame()
+        result.fact_ren_luyen = self._transform_fact_ren_luyen(extracted.ctsv_data)
+        result.fact_tai_chinh = self._transform_fact_tai_chinh(extracted.tai_chinh_data)
 
         logger.info("=" * 70)
         logger.info("TRANSFORM HOÀN TẤT")
@@ -111,44 +101,48 @@ class DataTransformer:
         logger.info("=" * 70)
 
         self._save_to_staging(result)
-
         return result
 
     def _save_to_staging(self, data: TransformedData) -> None:
+        """
+        Upload TransformedData lên MinIO bucket staging-data.
+        FIX: Bỏ fact_tong_hop_sv (luôn rỗng, lãng phí bandwidth).
+        """
         try:
             client = MinIOClient()
             run_id = MinIOClient.make_run_id()
 
             upload_map = {
-                "dim_hoc_ky.parquet":       data.dim_thoi_gian,
-                "dim_giang_vien.parquet":   data.dim_giang_vien,
-                "dim_hoc_phan.parquet":     data.dim_hoc_phan,
-                "dim_sinh_vien.parquet":    data.dim_sinh_vien,
-                "fact_diem.parquet":        data.fact_diem,
-                "fact_ren_luyen.parquet":   data.fact_ren_luyen,
-                "fact_tai_chinh.parquet":   data.fact_tai_chinh,
-                "fact_tong_hop_sv.parquet": data.fact_tong_hop_sv,
+                "dim_hoc_ky.parquet":     data.dim_thoi_gian,
+                "dim_giang_vien.parquet": data.dim_giang_vien,
+                "dim_hoc_phan.parquet":   data.dim_hoc_phan,
+                "dim_sinh_vien.parquet":  data.dim_sinh_vien,
+                "fact_diem.parquet":      data.fact_diem,
+                "fact_ren_luyen.parquet": data.fact_ren_luyen,
+                "fact_tai_chinh.parquet": data.fact_tai_chinh,
             }
 
             results = {}
             for file_name, df in upload_map.items():
-                results[file_name] = client.upload_df(
-                    df, file_name, run_id, bucket="staging"
-                )
+                results[file_name] = client.upload_df(df, file_name, run_id, bucket="staging")
 
             self._last_run_id = run_id
 
             success = sum(results.values())
             total   = len(results)
             logger.info(
-                f"  MinIO staging-data: {success}/{total} files OK"
-                f" → run_id={run_id}"
+                f"  MinIO staging-data: {success}/{total} files OK → run_id={run_id}"
             )
 
         except Exception as e:
             logger.warning(f"  MinIO staging thất bại (pipeline vẫn tiếp tục): {e}")
 
-    def load_from_staging(self, run_id: str = None) -> TransformedData:
+    def load_from_staging(self, run_id: str = None) -> "TransformedData":
+        """
+        Đọc lại TransformedData từ MinIO staging-data bucket.
+        Dùng trong Airflow task_load để không extract/transform lại.
+        FIX: Bỏ fact_tong_hop_sv.
+        """
         client = MinIOClient()
 
         if run_id is None:
@@ -162,40 +156,33 @@ class DataTransformer:
         logger.info(f"  Load TransformedData từ MinIO staging: run_id={run_id}")
 
         data = TransformedData(
-            dim_thoi_gian    = client.download_df("dim_hoc_ky.parquet",       run_id, bucket="staging"),
-            dim_giang_vien   = client.download_df("dim_giang_vien.parquet",   run_id, bucket="staging"),
-            dim_hoc_phan     = client.download_df("dim_hoc_phan.parquet",     run_id, bucket="staging"),
-            dim_sinh_vien    = client.download_df("dim_sinh_vien.parquet",    run_id, bucket="staging"),
-            fact_diem        = client.download_df("fact_diem.parquet",        run_id, bucket="staging"),
-            fact_ren_luyen   = client.download_df("fact_ren_luyen.parquet",   run_id, bucket="staging"),
-            fact_tai_chinh   = client.download_df("fact_tai_chinh.parquet",   run_id, bucket="staging"),
-            fact_tong_hop_sv = client.download_df("fact_tong_hop_sv.parquet", run_id, bucket="staging"),
+            dim_thoi_gian  = client.download_df("dim_hoc_ky.parquet",     run_id, bucket="staging"),
+            dim_giang_vien = client.download_df("dim_giang_vien.parquet", run_id, bucket="staging"),
+            dim_hoc_phan   = client.download_df("dim_hoc_phan.parquet",   run_id, bucket="staging"),
+            dim_sinh_vien  = client.download_df("dim_sinh_vien.parquet",  run_id, bucket="staging"),
+            fact_diem      = client.download_df("fact_diem.parquet",      run_id, bucket="staging"),
+            fact_ren_luyen = client.download_df("fact_ren_luyen.parquet", run_id, bucket="staging"),
+            fact_tai_chinh = client.download_df("fact_tai_chinh.parquet", run_id, bucket="staging"),
         )
 
         logger.info(f"Load from staging-data OK — run_id={run_id}")
         return data
 
+    # ────────────────────────────────────────────────────────────────
+    # DIMENSION TRANSFORMS
+    # ────────────────────────────────────────────────────────────────
+
     def _transform_dim_hoc_ky(self, hk_df: pd.DataFrame) -> pd.DataFrame:
         if hk_df.empty:
             return pd.DataFrame()
 
-        result = hk_df[[
-            "ma_hoc_ky", "nam_hoc", "hoc_ky",
-            "ngay_bat_dau", "ngay_ket_thuc",
-        ]].copy()
-
-        result["ngay_bat_dau"] = pd.to_datetime(
-            result["ngay_bat_dau"], errors="coerce"
-        )
-        result["ngay_ket_thuc"] = pd.to_datetime(
-            result["ngay_ket_thuc"], errors="coerce"
-        )
-
-        result["nam_bat_dau"] = result["ngay_bat_dau"].dt.year
-        result["nam_ket_thuc"] = result["ngay_ket_thuc"].dt.year
-
+        result = hk_df[["ma_hoc_ky", "nam_hoc", "hoc_ky", "ngay_bat_dau", "ngay_ket_thuc"]].copy()
+        result["ngay_bat_dau"]  = pd.to_datetime(result["ngay_bat_dau"],  errors="coerce")
+        result["ngay_ket_thuc"] = pd.to_datetime(result["ngay_ket_thuc"], errors="coerce")
+        result["nam_bat_dau"]   = result["ngay_bat_dau"].dt.year
+        result["nam_ket_thuc"]  = result["ngay_ket_thuc"].dt.year
         result = result.drop_duplicates(subset=["ma_hoc_ky"])
-        logger.info(f"  dim_thoi_gian (→dim_hoc_ky)  → {len(result):>6,} records")
+        logger.info(f"  dim_thoi_gian               → {len(result):>6,} records")
         return result
 
     def _transform_dim_giang_vien(
@@ -210,16 +197,11 @@ class DataTransformer:
         ]
         existing_cols = [c for c in cols_needed if c in gv_df.columns]
         result = gv_df[existing_cols].copy()
-
-        result["ho_ten"] = (
-            result["ho"].str.strip() + " " + result["ten"].str.strip()
-        )
+        result["ho_ten"] = result["ho"].str.strip() + " " + result["ten"].str.strip()
 
         if not khoa_df.empty and "ma_khoa" in result.columns:
             result = result.merge(
-                khoa_df[["ma_khoa", "ten_khoa"]],
-                on="ma_khoa",
-                how="left",
+                khoa_df[["ma_khoa", "ten_khoa"]], on="ma_khoa", how="left"
             )
 
         result = result.drop_duplicates(subset=["ma_giang_vien"])
@@ -240,18 +222,13 @@ class DataTransformer:
         existing_cols = [c for c in cols_needed if c in hp_df.columns]
         result = hp_df[existing_cols].copy()
 
-        if "bat_buoc" in result.columns:
-            result["loai_hoc_phan"] = result["bat_buoc"].apply(
-                lambda x: "Bat buoc" if x else "Tu chon"
-            )
-        else:
-            result["loai_hoc_phan"] = "Bat buoc"
+        result["loai_hoc_phan"] = result.get("bat_buoc", pd.Series(True, index=result.index)).apply(
+            lambda x: "Bat buoc" if x else "Tu chon"
+        )
 
         if not khoa_df.empty and "ma_khoa" in result.columns:
             result = result.merge(
-                khoa_df[["ma_khoa", "ten_khoa"]],
-                on="ma_khoa",
-                how="left",
+                khoa_df[["ma_khoa", "ten_khoa"]], on="ma_khoa", how="left"
             )
 
         result = result.drop_duplicates(subset=["ma_hoc_phan"])
@@ -274,10 +251,7 @@ class DataTransformer:
             "gioi_tinh", "email", "ma_nganh", "ma_lop",
             "khoa_hoc", "trang_thai_hoc_tap",
         ]].copy()
-
-        result["ho_ten"] = (
-            result["ho"].str.strip() + " " + result["ten"].str.strip()
-        )
+        result["ho_ten"] = result["ho"].str.strip() + " " + result["ten"].str.strip()
 
         if not nganh_df.empty:
             nganh_cols = ["ma_nganh", "ten_nganh"]
@@ -285,15 +259,13 @@ class DataTransformer:
                 nganh_cols.append("ma_khoa")
             result = result.merge(
                 nganh_df[nganh_cols].drop_duplicates(subset=["ma_nganh"]),
-                on="ma_nganh",
-                how="left",
+                on="ma_nganh", how="left",
             )
 
         if not khoa_df.empty and "ma_khoa" in result.columns:
             result = result.merge(
                 khoa_df[["ma_khoa", "ten_khoa"]].drop_duplicates(subset=["ma_khoa"]),
-                on="ma_khoa",
-                how="left",
+                on="ma_khoa", how="left",
             )
 
         if not lop_df.empty:
@@ -302,23 +274,17 @@ class DataTransformer:
                 lop_cols.append("ma_co_van")
             result = result.merge(
                 lop_df[lop_cols].drop_duplicates(subset=["ma_lop"]),
-                on="ma_lop",
-                how="left",
+                on="ma_lop", how="left",
             )
 
         if not gv_df.empty and "ma_co_van" in result.columns:
             gv_name = gv_df[["ma_giang_vien", "ho", "ten"]].copy()
-            gv_name["ten_co_van"] = (
-                gv_name["ho"].str.strip() + " " + gv_name["ten"].str.strip()
-            )
+            gv_name["ten_co_van"] = gv_name["ho"].str.strip() + " " + gv_name["ten"].str.strip()
             gv_name = gv_name[["ma_giang_vien", "ten_co_van"]].drop_duplicates(
                 subset=["ma_giang_vien"]
             )
             result = result.merge(
-                gv_name,
-                left_on="ma_co_van",
-                right_on="ma_giang_vien",
-                how="left",
+                gv_name, left_on="ma_co_van", right_on="ma_giang_vien", how="left"
             )
             if "ma_giang_vien" in result.columns:
                 result = result.drop(columns=["ma_giang_vien"])
@@ -328,13 +294,14 @@ class DataTransformer:
         if "ma_co_van" not in result.columns:
             result["ma_co_van"] = None
 
-        result["ngay_sinh"] = pd.to_datetime(
-            result["ngay_sinh"], errors="coerce"
-        )
-
+        result["ngay_sinh"] = pd.to_datetime(result["ngay_sinh"], errors="coerce")
         result = result.drop_duplicates(subset=["ma_sinh_vien"])
         logger.info(f"  dim_sinh_vien               → {len(result):>6,} records")
         return result
+
+    # ────────────────────────────────────────────────────────────────
+    # FACT TRANSFORMS
+    # ────────────────────────────────────────────────────────────────
 
     def _transform_fact_diem(
         self, diem_df: pd.DataFrame, dk_df: pd.DataFrame
@@ -344,13 +311,8 @@ class DataTransformer:
             return pd.DataFrame()
 
         result = diem_df.merge(
-            dk_df[[
-                "ma_dang_ky", "ma_sinh_vien", "ma_hoc_phan",
-                "ma_hoc_ky", "ma_giang_vien",
-            ]],
-            on="ma_dang_ky",
-            how="left",
-            suffixes=("", "_dk"),
+            dk_df[["ma_dang_ky", "ma_sinh_vien", "ma_hoc_phan", "ma_hoc_ky", "ma_giang_vien"]],
+            on="ma_dang_ky", how="left", suffixes=("", "_dk"),
         )
 
         for col in ["ma_sinh_vien", "ma_hoc_phan", "ma_hoc_ky", "ma_giang_vien"]:
@@ -359,22 +321,17 @@ class DataTransformer:
                 result[col] = result[col].fillna(result[dk_col])
                 result = result.drop(columns=[dk_col])
 
-        score_cols = [
-            "diem_chuyen_can", "diem_bai_tap",
-            "diem_giua_ky", "diem_cuoi_ky",
-        ]
+        score_cols = ["diem_chuyen_can", "diem_bai_tap", "diem_giua_ky", "diem_cuoi_ky"]
         for col in score_cols:
             if col in result.columns:
                 result[col] = pd.to_numeric(result[col], errors="coerce")
 
         if "diem_tong_ket" not in result.columns:
             result["diem_tong_ket"] = np.nan
+        result["diem_tong_ket"] = pd.to_numeric(result["diem_tong_ket"], errors="coerce")
 
-        result["diem_tong_ket"] = pd.to_numeric(
-            result["diem_tong_ket"], errors="coerce"
-        )
-
-        mask_null = result["diem_tong_ket"].isna()
+        # Tính lại điểm tổng kết nếu NULL nhưng có đủ thành phần
+        mask_null      = result["diem_tong_ket"].isna()
         has_all_scores = pd.Series(True, index=result.index)
         for col in score_cols:
             if col in result.columns:
@@ -384,9 +341,9 @@ class DataTransformer:
         if recalc_mask.any():
             result.loc[recalc_mask, "diem_tong_ket"] = (
                 result.loc[recalc_mask, "diem_chuyen_can"] * WEIGHT_CHUYEN_CAN
-                + result.loc[recalc_mask, "diem_bai_tap"] * WEIGHT_BAI_TAP
-                + result.loc[recalc_mask, "diem_giua_ky"] * WEIGHT_GIUA_KY
-                + result.loc[recalc_mask, "diem_cuoi_ky"] * WEIGHT_CUOI_KY
+                + result.loc[recalc_mask, "diem_bai_tap"]  * WEIGHT_BAI_TAP
+                + result.loc[recalc_mask, "diem_giua_ky"]  * WEIGHT_GIUA_KY
+                + result.loc[recalc_mask, "diem_cuoi_ky"]  * WEIGHT_CUOI_KY
             ).round(2)
             logger.info(
                 f"  fact_diem | Tính lại điểm tổng kết cho {recalc_mask.sum()} bản ghi"
@@ -394,8 +351,7 @@ class DataTransformer:
 
         result["diem_chu"] = result["diem_tong_ket"].apply(self._to_letter_grade)
         result["diem_he_4"] = result["diem_tong_ket"].apply(self._to_gpa_4)
-
-        result["dat_mon"] = result["diem_tong_ket"] >= 4.0
+        result["dat_mon"]   = result["diem_tong_ket"] >= 4.0
 
         if "hoc_lai" not in result.columns:
             result["hoc_lai"] = False
@@ -403,15 +359,13 @@ class DataTransformer:
         output_cols = [
             "ma_dang_ky", "ma_sinh_vien", "ma_hoc_phan",
             "ma_hoc_ky", "ma_giang_vien",
-            "diem_chuyen_can", "diem_bai_tap",
-            "diem_giua_ky", "diem_cuoi_ky",
-            "diem_tong_ket", "diem_chu", "diem_he_4",
-            "dat_mon", "hoc_lai",
+            "diem_chuyen_can", "diem_bai_tap", "diem_giua_ky", "diem_cuoi_ky",
+            "diem_tong_ket", "diem_chu", "diem_he_4", "dat_mon", "hoc_lai",
         ]
         existing = [c for c in output_cols if c in result.columns]
         result = result[existing]
 
-        logger.info(f"  fact_diem (→fact_hoc_tap)    → {len(result):>6,} records")
+        logger.info(f"  fact_diem                   → {len(result):>6,} records")
         return result
 
     def _transform_fact_ren_luyen(self, ctsv_df: pd.DataFrame) -> pd.DataFrame:
@@ -420,24 +374,19 @@ class DataTransformer:
             return pd.DataFrame()
 
         result = ctsv_df.copy()
-
-        result["ma_sinh_vien"] = result["ma_sinh_vien"].str.strip().str.upper()
-
+        result["ma_sinh_vien"]   = result["ma_sinh_vien"].str.strip().str.upper()
         if "hoc_ky" in result.columns:
             result["hoc_ky"] = result["hoc_ky"].str.strip()
 
-        result["diem_ren_luyen"] = pd.to_numeric(
-            result["diem_ren_luyen"], errors="coerce"
-        )
-        result["muc_tien_hb"] = pd.to_numeric(
-            result["muc_tien_hb"], errors="coerce"
-        ).fillna(0)
+        result["diem_ren_luyen"] = pd.to_numeric(result["diem_ren_luyen"], errors="coerce")
+        result["muc_tien_hb"]    = pd.to_numeric(result["muc_tien_hb"], errors="coerce").fillna(0)
 
+        # Tính xếp loại nếu bị NULL
         mask = result["xep_loai_rl"].isna() & result["diem_ren_luyen"].notna()
         if mask.any():
-            result.loc[mask, "xep_loai_rl"] = result.loc[
-                mask, "diem_ren_luyen"
-            ].apply(self._classify_rl)
+            result.loc[mask, "xep_loai_rl"] = result.loc[mask, "diem_ren_luyen"].apply(
+                self._classify_rl
+            )
 
         result["co_hoc_bong"] = (
             result["loai_hoc_bong"].notna()
@@ -452,7 +401,7 @@ class DataTransformer:
             if col in result.columns:
                 result[col] = result[col].replace(r"^\s*$", np.nan, regex=True)
 
-        logger.info(f"  fact_ren_luyen (→fact_ctsv)  → {len(result):>6,} records")
+        logger.info(f"  fact_ren_luyen              → {len(result):>6,} records")
         return result
 
     def _transform_fact_tai_chinh(self, api_df: pd.DataFrame) -> pd.DataFrame:
@@ -462,21 +411,6 @@ class DataTransformer:
 
         result = api_df.copy()
 
-        col_mapping = {
-            "ma_sinh_vien": "ma_sinh_vien",
-            "hoc_ky": "hoc_ky",
-            "hoc_phi_phai_dong": "hoc_phi_phai_dong",
-            "da_dong": "da_dong",
-            "con_no": "con_no",
-            "duoc_mien_giam": "duoc_mien_giam",
-            "ly_do_mien_giam": "ly_do_mien_giam",
-            "so_tien_mien_giam": "so_tien_mien_giam",
-            "ngay_dong_cuoi": "ngay_dong_cuoi",
-        }
-        result = result.rename(columns={
-            k: v for k, v in col_mapping.items() if k in result.columns
-        })
-
         if "ma_sinh_vien" in result.columns:
             result["ma_sinh_vien"] = result["ma_sinh_vien"].str.strip().str.upper()
 
@@ -485,15 +419,14 @@ class DataTransformer:
                 result[col] = pd.to_numeric(result[col], errors="coerce").fillna(0)
 
         if "ngay_dong_cuoi" in result.columns:
-            result["ngay_dong_cuoi"] = pd.to_datetime(
-                result["ngay_dong_cuoi"], errors="coerce"
-            )
+            result["ngay_dong_cuoi"] = pd.to_datetime(result["ngay_dong_cuoi"], errors="coerce")
 
-        logger.info(f"  fact_tai_chinh               → {len(result):>6,} records")
+        logger.info(f"  fact_tai_chinh              → {len(result):>6,} records")
         return result
 
-
-
+    # ────────────────────────────────────────────────────────────────
+    # STATIC HELPERS
+    # ────────────────────────────────────────────────────────────────
 
     @staticmethod
     def _to_letter_grade(score: float) -> Optional[str]:
@@ -520,4 +453,4 @@ class DataTransformer:
         for lower, upper, label in RL_THRESHOLDS:
             if lower <= score < upper:
                 return label
-        return "Yeu"
+        return "Yếu"

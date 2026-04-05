@@ -37,20 +37,23 @@ WAREHOUSE_DB_URL = (
 CSV_DATA_DIR = os.getenv("CSV_DATA_DIR", str(BASE_DIR / "data" / "csv"))
 
 # ── API JSON fallback (Nguồn 3) ──
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:5055")
-API_JSON_DIR = os.getenv("API_JSON_DIR", str(BASE_DIR / "data" / "api_json"))
-API_TIMEOUT = int(os.getenv("API_TIMEOUT", "30"))
+API_BASE_URL    = os.getenv("API_BASE_URL", "http://localhost:5055")
+API_JSON_DIR    = os.getenv("API_JSON_DIR", str(BASE_DIR / "data" / "api_json"))
+API_TIMEOUT     = int(os.getenv("API_TIMEOUT", "30"))
 API_MAX_RETRIES = int(os.getenv("API_MAX_RETRIES", "3"))
 
-# ── ETL Settings ──────────────────────────────────  ← MỚI
+# ── ETL Settings ──────────────────────────────────
 ETL_BATCH_SIZE = int(os.getenv("ETL_BATCH_SIZE", "500"))
-ETL_LOG_LEVEL = os.getenv("ETL_LOG_LEVEL", "INFO")
+ETL_LOG_LEVEL  = os.getenv("ETL_LOG_LEVEL", "INFO")
 
 # ── MINIO ─────────────────────────────────────────
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "minio:9000")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-MINIO_BUCKET_RAW    = os.getenv("MINIO_BUCKET_RAW",    "raw-data")
+# FIX: Default phải có "http://" prefix để boto3 kết nối đúng.
+# Khi chạy local (ngoài Docker): http://localhost:9000
+# Khi chạy trong Docker Compose: http://minio:9000  (set qua .env)
+MINIO_ENDPOINT       = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
+MINIO_ACCESS_KEY     = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+MINIO_SECRET_KEY     = os.getenv("MINIO_SECRET_KEY", "minioadmin")
+MINIO_BUCKET_RAW     = os.getenv("MINIO_BUCKET_RAW",     "raw-data")
 MINIO_BUCKET_STAGING = os.getenv("MINIO_BUCKET_STAGING", "staging-data")
 
 # ── AIRFLOW ───────────────────────────────────────
