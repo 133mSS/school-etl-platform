@@ -118,9 +118,10 @@ class DataAggregator:
                 COALESCE(tc.duoc_mien_giam, FALSE) AS duoc_mien_giam,
                 CASE
                     WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0 AND COALESCE(rlavg.diem_rl_trung_binh, 100) < 50 AND COALESCE(tc.tong_no_hoc_phi, 0) > 0 THEN 'Rất cao'
-                    WHEN COALESCE(gpa.gpa_he_4, 0) < 1.5 THEN 'Cao'
+                    WHEN COALESCE(gpa.gpa_he_4, 0) < 1.5 AND (COALESCE(rlavg.diem_rl_trung_binh, 100) < 50 OR COALESCE(tc.tong_no_hoc_phi, 0) > 0) THEN 'Cao'
                     WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0 THEN 'Trung bình'
-                    ELSE 'Thấp'
+                     WHEN COALESCE(gpa.gpa_he_4, 0) < 2.5 THEN 'Thấp'
+                    ELSE 'Bình thường'
                 END AS muc_do_rui_ro,
                 (COALESCE(gpa.gpa_he_4, 0) < 2.0) AS canh_bao_hoc_vu,
                 lhk.hoc_ky_key_gan_nhat

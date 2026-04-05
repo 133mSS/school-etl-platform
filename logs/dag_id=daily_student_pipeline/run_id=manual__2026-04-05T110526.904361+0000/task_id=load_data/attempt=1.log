@@ -1,0 +1,164 @@
+[2026-04-05T11:05:38.698+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-04-05T11:05:26.904361+00:00 [queued]>
+[2026-04-05T11:05:38.706+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-04-05T11:05:26.904361+00:00 [queued]>
+[2026-04-05T11:05:38.707+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-05T11:05:38.719+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): load_data> on 2026-04-05 11:05:26.904361+00:00
+[2026-04-05T11:05:38.723+0000] {standard_task_runner.py:60} INFO - Started process 17127 to run task
+[2026-04-05T11:05:38.725+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'load_data', 'manual__2026-04-05T11:05:26.904361+00:00', '--job-id', '212', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpj4cou60l']
+[2026-04-05T11:05:38.727+0000] {standard_task_runner.py:88} INFO - Job 212: Subtask load_data
+[2026-04-05T11:05:38.796+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-05T11:05:26.904361+00:00 [running]> on host 1c62953c8918
+[2026-04-05T11:05:38.883+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='load_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-05T11:05:26.904361+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-05T11:05:26.904361+00:00'
+[2026-04-05T11:05:39.621+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.transform :   Load TransformedData từ MinIO staging: run_id=2026-04-05_11-05
+[2026-04-05T11:05:39.621+0000] {transform.py:156} INFO -   Load TransformedData từ MinIO staging: run_id=2026-04-05_11-05
+[2026-04-05T11:05:39.651+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_hoc_ky.parquet (9 rows)
+[2026-04-05T11:05:39.651+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_hoc_ky.parquet (9 rows)
+[2026-04-05T11:05:39.662+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_giang_vien.parquet (45 rows)
+[2026-04-05T11:05:39.662+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_giang_vien.parquet (45 rows)
+[2026-04-05T11:05:39.674+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_hoc_phan.parquet (121 rows)
+[2026-04-05T11:05:39.674+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_hoc_phan.parquet (121 rows)
+[2026-04-05T11:05:39.689+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-05T11:05:39.689+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-05T11:05:39.717+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/fact_diem.parquet (58,001 rows)
+[2026-04-05T11:05:39.716+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/fact_diem.parquet (58,001 rows)
+[2026-04-05T11:05:39.729+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/fact_ren_luyen.parquet (9,238 rows)
+[2026-04-05T11:05:39.729+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/fact_ren_luyen.parquet (9,238 rows)
+[2026-04-05T11:05:39.744+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-05_11-05/fact_tai_chinh.parquet (9,238 rows)
+[2026-04-05T11:05:39.743+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-05_11-05/fact_tai_chinh.parquet (9,238 rows)
+[2026-04-05T11:05:39.746+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.transform : Load from staging-data OK — run_id=2026-04-05_11-05
+[2026-04-05T11:05:39.746+0000] {transform.py:168} INFO - Load from staging-data OK — run_id=2026-04-05_11-05
+[2026-04-05T11:05:39.749+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-05T11:05:39.749+0000] {load.py:39} INFO - ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-05T11:05:39.750+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load : ======================================================================
+[2026-04-05T11:05:39.750+0000] {load.py:40} INFO - ======================================================================
+[2026-04-05T11:05:39.752+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load : Tạo schema warehouse từ warehouse_models.py...
+[2026-04-05T11:05:39.752+0000] {load.py:106} INFO - Tạo schema warehouse từ warehouse_models.py...
+[2026-04-05T11:05:39.774+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load :   Schema warehouse OK
+[2026-04-05T11:05:39.774+0000] {load.py:108} INFO -   Schema warehouse OK
+[2026-04-05T11:05:39.776+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-04-05T11:05:39.776+0000] {load.py:45} INFO - ── Bước 1: Load Dimension Tables ──
+[2026-04-05T11:05:39.807+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load :   dim_hoc_ky     →      9 records (new: 0)
+[2026-04-05T11:05:39.807+0000] {load.py:197} INFO -   dim_hoc_ky     →      9 records (new: 0)
+[2026-04-05T11:05:39.870+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-04-05T11:05:39.870+0000] {load.py:246} INFO -   dim_giang_vien →     45 records (new: 0)
+[2026-04-05T11:05:40.000+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:39] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-05T11:05:39.999+0000] {load.py:294} INFO -   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-05T11:05:43.261+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:43] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 0, fact cascade: 0)
+[2026-04-05T11:05:43.261+0000] {load.py:401} INFO -   dim_sinh_vien →  1,695 records (new: 0, SCD2: 0, fact cascade: 0)
+[2026-04-05T11:05:43.263+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:43] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-05T11:05:43.263+0000] {load.py:51} INFO - ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-05T11:05:43.264+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:43] INFO    etl.load : Building surrogate key caches...
+[2026-04-05T11:05:43.264+0000] {load.py:111} INFO - Building surrogate key caches...
+[2026-04-05T11:05:43.278+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:43] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=9
+[2026-04-05T11:05:43.278+0000] {load.py:139} INFO -   SV=1695, HP=121, GV=45, HK=9
+[2026-04-05T11:05:43.280+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:05:43] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-04-05T11:05:43.280+0000] {load.py:54} INFO - ── Bước 3: Load Fact Tables ──
+[2026-04-05T11:07:23.855+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:23] INFO    etl.load :   fact_hoc_tap   →      0 records
+[2026-04-05T11:07:23.854+0000] {load.py:544} INFO -   fact_hoc_tap   →      0 records
+[2026-04-05T11:07:32.599+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:32] INFO    etl.load :   fact_ctsv      →      0 records
+[2026-04-05T11:07:32.599+0000] {load.py:657} INFO -   fact_ctsv      →      0 records
+[2026-04-05T11:07:42.043+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:42] INFO    etl.load :   fact_tai_chinh →      0 records
+[2026-04-05T11:07:42.043+0000] {load.py:718} INFO -   fact_tai_chinh →      0 records
+[2026-04-05T11:07:42.045+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:42] INFO    etl.load : ── Bước 4: Build Aggregation ──
+[2026-04-05T11:07:42.045+0000] {load.py:59} INFO - ── Bước 4: Build Aggregation ──
+[2026-04-05T11:07:42.046+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:42] INFO    etl.aggregation : == BẮT ĐẦU AGGREGATION ==
+[2026-04-05T11:07:42.046+0000] {aggregation.py:12} INFO - == BẮT ĐẦU AGGREGATION ==
+[2026-04-05T11:07:42.048+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:42] INFO    etl.aggregation :   AGG | Tạo bảng tạm: agg_student_summary_temp_1775387262
+[2026-04-05T11:07:42.048+0000] {aggregation.py:181} INFO -   AGG | Tạo bảng tạm: agg_student_summary_temp_1775387262
+[2026-04-05T11:07:42.179+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:42] INFO    etl.aggregation :   AGG | Bảng tạm có 1,695 records — bắt đầu swap
+[2026-04-05T11:07:42.179+0000] {aggregation.py:199} INFO -   AGG | Bảng tạm có 1,695 records — bắt đầu swap
+[2026-04-05T11:07:42.206+0000] {logging_mixin.py:188} WARNING - [2026-04-05 11:07:42] ERROR   etl.aggregation :   AGG | Lỗi không mong đợi: (psycopg2.errors.DatatypeMismatch) column "sinh_vien_key" is of type integer but expression is of type character varying
+LINE 3:                     SELECT * FROM agg_student_summary_temp_1...
+                                   ^
+HINT:  You will need to rewrite or cast the expression.
+
+[SQL: 
+                    INSERT INTO agg_student_summary
+                    SELECT * FROM agg_student_summary_temp_1775387262
+                ]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+[2026-04-05T11:07:42.205+0000] {aggregation.py:240} ERROR -   AGG | Lỗi không mong đợi: (psycopg2.errors.DatatypeMismatch) column "sinh_vien_key" is of type integer but expression is of type character varying
+LINE 3:                     SELECT * FROM agg_student_summary_temp_1...
+                                   ^
+HINT:  You will need to rewrite or cast the expression.
+
+[SQL: 
+                    INSERT INTO agg_student_summary
+                    SELECT * FROM agg_student_summary_temp_1775387262
+                ]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+[2026-04-05T11:07:42.208+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.DatatypeMismatch: column "sinh_vien_key" is of type integer but expression is of type character varying
+LINE 3:                     SELECT * FROM agg_student_summary_temp_1...
+                                   ^
+HINT:  You will need to rewrite or cast the expression.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 169, in task_load
+    stats  = loader.load_all(transformed)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/load.py", line 61, in load_all
+    stats["agg_student_summary"] = aggregator.run_all()
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/aggregation.py", line 13, in run_all
+    agg_count = self.rebuild_agg_student_summary()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/aggregation.py", line 203, in rebuild_agg_student_summary
+    conn.execute(text(f"""
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1385, in execute
+    return meth(self, multiparams, params, _EMPTY_EXECUTION_OPTS)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 334, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1577, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1953, in _execute_context
+    self._handle_dbapi_exception(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2134, in _handle_dbapi_exception
+    util.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.DatatypeMismatch) column "sinh_vien_key" is of type integer but expression is of type character varying
+LINE 3:                     SELECT * FROM agg_student_summary_temp_1...
+                                   ^
+HINT:  You will need to rewrite or cast the expression.
+
+[SQL: 
+                    INSERT INTO agg_student_summary
+                    SELECT * FROM agg_student_summary_temp_1775387262
+                ]
+(Background on this error at: https://sqlalche.me/e/14/f405)
+[2026-04-05T11:07:42.236+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=load_data, execution_date=20260405T110526, start_date=20260405T110538, end_date=20260405T110742
+[2026-04-05T11:07:42.254+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 212 for task load_data ((psycopg2.errors.DatatypeMismatch) column "sinh_vien_key" is of type integer but expression is of type character varying
+LINE 3:                     SELECT * FROM agg_student_summary_temp_1...
+                                   ^
+HINT:  You will need to rewrite or cast the expression.
+
+[SQL: 
+                    INSERT INTO agg_student_summary
+                    SELECT * FROM agg_student_summary_temp_1775387262
+                ]
+(Background on this error at: https://sqlalche.me/e/14/f405); 17127)
+[2026-04-05T11:07:42.300+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-04-05T11:07:42.341+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

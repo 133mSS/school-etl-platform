@@ -21,8 +21,6 @@ class TransformedData:
     fact_diem:       pd.DataFrame = field(default_factory=pd.DataFrame)
     fact_ren_luyen:  pd.DataFrame = field(default_factory=pd.DataFrame)
     fact_tai_chinh:  pd.DataFrame = field(default_factory=pd.DataFrame)
-    # FIX: Bỏ fact_tong_hop_sv — trường này luôn rỗng và không được dùng.
-    # Aggregation được xử lý riêng bởi DataAggregator trong load.py.
 
     def summary(self) -> Dict[str, int]:
         counts = {}
