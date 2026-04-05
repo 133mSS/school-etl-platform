@@ -41,13 +41,7 @@ def task_aggregate_weekly(**context):
         f"{val_result['evaluated_expectations']} passed"
     )
 def task_generate_report(**context):
-    """
-    Tạo báo cáo tóm tắt tuần:
-    - Số SV cảnh báo học vụ mới
-    - Số SV đủ điều kiện học bổng
-    - Tỷ lệ đạt môn trung bình
-    - Top 10 môn có tỷ lệ rớt cao nhất
-    """
+    
     import sys
     sys.path.insert(0, "/opt/airflow")
 

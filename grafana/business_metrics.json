@@ -2,10 +2,10 @@
     "title": "Business Metrics - ETL Platform PTIT",
     "uid": "business-metrics-v8",
     "schemaVersion": 36,
-    "version": 8,
+    "version": 9,
     "refresh": "5m",
     "time": {
-        "from": "now-30d",
+        "from": "2021-09-01T00:00:00.000Z",
         "to": "now"
     },
     "tags": [
@@ -73,6 +73,7 @@
             "id": 2,
             "title": "Tỷ lệ Đạt môn ($hoc_ky)",
             "type": "stat",
+            "description": "FIX: Thêm f.diem_tong_ket IS NOT NULL để loại bỏ các bản ghi chưa có điểm khỏi mẫu số, tránh làm giảm tỷ lệ đạt ảo.",
             "gridPos": {
                 "x": 6,
                 "y": 0,
@@ -117,7 +118,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT ROUND(100.0 * SUM(CASE WHEN f.dat_mon = TRUE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as ty_le FROM fact_hoc_tap f JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky'",
+                    "rawSql": "SELECT ROUND(100.0 * SUM(CASE WHEN f.dat_mon = TRUE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as ty_le FROM fact_hoc_tap f JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' AND f.diem_tong_ket IS NOT NULL",
                     "refId": "A",
                     "format": "table"
                 }
@@ -229,6 +230,7 @@
         {
             "id": 5,
             "title": "Xu hướng GPA Trung bình qua các Học kỳ",
+            "description": "FIX: Dashboard time range đã được đổi sang 2021-09-01 → now để time series không bị 'Data outside time range'. Panel này dùng ngay_bat_dau làm trục thời gian.",
             "type": "timeseries",
             "gridPos": {
                 "x": 0,
@@ -314,7 +316,7 @@
         {
             "id": 7,
             "title": "⚠️ 1.1 — PHÁT HIỆN SỚM (GPA ≥ 2.0 nhưng DRL thấp / Nợ HP)",
-            "description": "Bài toán 1.1: Phát hiện SV có GPA tích lũy còn ổn (≥ 2.0) nhưng có dấu hiệu rủi ro từ DRL thấp hoặc nợ học phí. Cảnh báo SỚM — can thiệp trước khi GPA giảm xuống ngưỡng học vụ. Nguồn: GPA (PostgreSQL) + DRL (CSV) + Nợ HP (API).",
+            "description": "Bài toán 1.1: Phát hiện SV có GPA tích lũy còn ổn (≥ 2.0) nhưng có dấu hiệu rủi ro từ DRL thấp hoặc nợ học phí. FIX: Dùng COALESCE(diem_rl_trung_binh, 100) để xử lý SV chưa có dữ liệu RL — tránh bỏ sót SV có nợ HP nhưng thiếu dữ liệu DRL. Nguồn: GPA (PostgreSQL) + DRL (CSV) + Nợ HP (API).",
             "type": "table",
             "gridPos": {
                 "x": 0,
@@ -512,7 +514,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "WITH risk AS (SELECT sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc, agg.gpa_he_4, agg.diem_rl_trung_binh, agg.tong_no_hoc_phi, (CASE WHEN agg.diem_rl_trung_binh < 35 THEN 3 WHEN agg.diem_rl_trung_binh < 50 THEN 2 WHEN agg.diem_rl_trung_binh < 65 THEN 1 ELSE 0 END) + (CASE WHEN agg.tong_no_hoc_phi > 5000000 THEN 2 WHEN agg.tong_no_hoc_phi > 0 THEN 1 ELSE 0 END) AS rr FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 >= 1.8 AND agg.gpa_he_4 > 0 AND (agg.diem_rl_trung_binh < 65 OR agg.tong_no_hoc_phi > 0)) SELECT ma_sinh_vien AS \"Mã SV\", ho_ten AS \"Họ Tên\", ten_nganh AS \"Ngành\", khoa_hoc AS \"Khóa\", gpa_he_4 AS \"GPA Tích lũy\", diem_rl_trung_binh AS \"DRL TB\", CASE WHEN tong_no_hoc_phi > 0 THEN 'Có' ELSE 'Không' END AS \"Nợ HP\", rr AS \"Điểm RR\", CASE WHEN rr >= 3 THEN 'Cao' WHEN rr >= 2 THEN 'Trung Bình' ELSE 'Thấp' END AS \"Mức rủi ro\" FROM risk ORDER BY rr DESC, gpa_he_4 ASC LIMIT 100",
+                    "rawSql": "WITH risk AS (SELECT sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc, agg.gpa_he_4, agg.diem_rl_trung_binh, agg.tong_no_hoc_phi, (CASE WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 35 THEN 3 WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 50 THEN 2 WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 1 ELSE 0 END) + (CASE WHEN agg.tong_no_hoc_phi > 5000000 THEN 2 WHEN agg.tong_no_hoc_phi > 0 THEN 1 ELSE 0 END) AS rr FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 >= 1.8 AND agg.gpa_he_4 > 0 AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR agg.tong_no_hoc_phi > 0)) SELECT ma_sinh_vien AS \"Mã SV\", ho_ten AS \"Họ Tên\", ten_nganh AS \"Ngành\", khoa_hoc AS \"Khóa\", gpa_he_4 AS \"GPA Tích lũy\", diem_rl_trung_binh AS \"DRL TB\", CASE WHEN tong_no_hoc_phi > 0 THEN 'Có' ELSE 'Không' END AS \"Nợ HP\", rr AS \"Điểm RR\", CASE WHEN rr >= 3 THEN 'Cao' WHEN rr >= 2 THEN 'Trung Bình' ELSE 'Thấp' END AS \"Mức rủi ro\" FROM risk ORDER BY rr DESC, gpa_he_4 ASC LIMIT 100",
                     "refId": "A",
                     "format": "table"
                 }
@@ -562,6 +564,7 @@
         {
             "id": 9,
             "title": "Top 10 Môn Khó Nhất ($hoc_ky)",
+            "description": "FIX: Thêm diem_tong_ket IS NOT NULL để mẫu số chỉ tính SV thực sự đã thi, tránh tỷ lệ rớt bị pha loãng bởi bản ghi chưa có điểm.",
             "type": "table",
             "gridPos": {
                 "x": 12,
@@ -619,7 +622,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT hp.ten_mon as \"Tên Môn\", hp.so_tin_chi as \"TC\", COUNT(*) as \"Lượt ĐK\", ROUND(100.0 * SUM(CASE WHEN f.dat_mon = FALSE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as \"Tỷ lệ Rớt (%)\" FROM fact_hoc_tap f JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' GROUP BY hp.ten_mon, hp.so_tin_chi HAVING COUNT(*) >= 10 ORDER BY \"Tỷ lệ Rớt (%)\" DESC LIMIT 10",
+                    "rawSql": "SELECT hp.ten_mon as \"Tên Môn\", hp.so_tin_chi as \"TC\", COUNT(*) as \"Lượt ĐK\", ROUND(100.0 * SUM(CASE WHEN f.dat_mon = FALSE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as \"Tỷ lệ Rớt (%)\" FROM fact_hoc_tap f JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' AND f.diem_tong_ket IS NOT NULL GROUP BY hp.ten_mon, hp.so_tin_chi HAVING COUNT(*) >= 10 ORDER BY \"Tỷ lệ Rớt (%)\" DESC LIMIT 10",
                     "refId": "A",
                     "format": "table"
                 }
@@ -777,7 +780,7 @@
         {
             "id": 13,
             "title": "🔴 SV Nguy cơ Rất cao (GPA<2 + DRL<50 + Nợ HP)",
-            "description": "Bài toán 1.1: SV hội đủ CẢ 3 dấu hiệu bỏ học — dữ liệu từ 3 nguồn PostgreSQL + CSV + API",
+            "description": "Bài toán 1.1: SV hội đủ CẢ 3 dấu hiệu bỏ học. FIX: Dùng COALESCE(diem_rl_trung_binh, 100) để nhất quán với logic trong aggregation.py — khi không có dữ liệu RL mặc định coi là an toàn (100). Nguồn: PostgreSQL + CSV + API.",
             "type": "stat",
             "gridPos": {
                 "x": 0,
@@ -825,7 +828,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT COUNT(*) as total FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 AND agg.diem_rl_trung_binh < 50 AND agg.tong_no_hoc_phi > 0",
+                    "rawSql": "SELECT COUNT(*) as total FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 AND COALESCE(agg.diem_rl_trung_binh, 100) < 50 AND agg.tong_no_hoc_phi > 0",
                     "refId": "A",
                     "format": "table"
                 }
@@ -838,7 +841,7 @@
         {
             "id": 14,
             "title": "1.2 — Phân loại Cảnh báo Học vụ (theo GPA Tích lũy)",
-            "description": "Bài toán 1.2: GPA tích lũy < 1.0 → Buộc thôi học | < 1.2 + DRL<50 → Buộc thôi học | < 1.2 → CB lần 2 | < 1.5 → CB lần 1.",
+            "description": "Bài toán 1.2: GPA tích lũy < 1.0 → Buộc thôi học | < 1.2 + DRL<50 → Buộc thôi học | < 1.2 → CB lần 2 | < 1.5 → CB lần 1. FIX: COALESCE(diem_rl_trung_binh, 100) tránh SV thiếu DRL bị phân loại sai. FIX: HAVING loại bỏ nhóm NULL khỏi biểu đồ.",
             "type": "barchart",
             "gridPos": {
                 "x": 6,
@@ -895,7 +898,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học'  WHEN agg.gpa_he_4 < 1.5 AND EXISTS ( SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE )  THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND agg.diem_rl_trung_binh < 65 THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END as \"Mức cảnh báo\", COUNT(*) as \"Số SV\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 < 1.5 AND agg.gpa_he_4 > 0 GROUP BY 1 ORDER BY MIN(agg.gpa_he_4) ASC",
+                    "rawSql": "SELECT CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE) THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END as \"Mức cảnh báo\", COUNT(*) as \"Số SV\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 < 1.5 AND agg.gpa_he_4 > 0 GROUP BY 1 HAVING (CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE) THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END) IS NOT NULL ORDER BY MIN(agg.gpa_he_4) ASC",
                     "refId": "A",
                     "format": "table"
                 }
@@ -908,7 +911,7 @@
         {
             "id": 15,
             "title": "1.2 — CHI TIẾT SV CẢNH BÁO HỌC VỤ (GPA Tích lũy)",
-            "description": "Bài toán 1.2: SV 'Đang học' có GPA tích lũy < 2.0. Bao gồm mức cảnh báo theo quy chế và tình trạng kỷ luật gần nhất (từ CSV phòng CTSV).",
+            "description": "Bài toán 1.2: SV 'Đang học' có GPA tích lũy < 2.0. FIX: COALESCE(diem_rl_trung_binh, 100) để SV thiếu dữ liệu RL không bị xếp sai mức cảnh báo. Tình trạng kỷ luật gần nhất từ CSV phòng CTSV.",
             "type": "table",
             "gridPos": {
                 "x": 0,
@@ -1076,7 +1079,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\", sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\", agg.gpa_he_4 AS \"GPA Tích lũy\", agg.tong_tin_chi_dang_ky AS \"TC Tích lũy\", agg.diem_rl_trung_binh AS \"DRL TB\", CASE WHEN kl.hinh_thuc_kl IS NOT NULL THEN 'Có' ELSE 'Không' END AS \"Kỷ luật\", CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học'  WHEN agg.gpa_he_4 < 1.5 AND kl.hinh_thuc_kl IS NOT NULL THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND agg.diem_rl_trung_binh < 65 THEN 'Cảnh báo lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'Cảnh báo lần 1' ELSE 'Theo dõi' END AS \"Mức cảnh báo\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key LEFT JOIN LATERAL (SELECT c.hinh_thuc_kl FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.hinh_thuc_kl IS NOT NULL AND c.hinh_thuc_kl != '' ORDER BY c.hoc_ky_key DESC LIMIT 1) kl ON TRUE WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 ORDER BY agg.gpa_he_4 ASC LIMIT 100",
+                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\", sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\", agg.gpa_he_4 AS \"GPA Tích lũy\", agg.tong_tin_chi_dang_ky AS \"TC Tích lũy\", agg.diem_rl_trung_binh AS \"DRL TB\", CASE WHEN kl.hinh_thuc_kl IS NOT NULL THEN 'Có' ELSE 'Không' END AS \"Kỷ luật\", CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND kl.hinh_thuc_kl IS NOT NULL THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'Cảnh báo lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'Cảnh báo lần 1' ELSE 'Theo dõi' END AS \"Mức cảnh báo\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key LEFT JOIN LATERAL (SELECT c.hinh_thuc_kl FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.hinh_thuc_kl IS NOT NULL AND c.hinh_thuc_kl != '' ORDER BY c.hoc_ky_key DESC LIMIT 1) kl ON TRUE WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 ORDER BY agg.gpa_he_4 ASC LIMIT 100",
                     "refId": "A",
                     "format": "table"
                 }
@@ -1089,7 +1092,7 @@
         {
             "id": 16,
             "title": "2.1 — DANH SÁCH SV ĐỦ ĐIỀU KIỆN HỌC BỔNG KKHT ($hoc_ky)",
-            "description": "Bài toán 2.1: Tích hợp CẢ 3 NGUỒN — GPA ≥ 2.5 (PostgreSQL) + DRL ≥ 65 & không kỷ luật (CSV) + không nợ HP (API).",
+            "description": "Bài toán 2.1: Tích hợp CẢ 3 NGUỒN — GPA ≥ 2.5 (PostgreSQL) + DRL ≥ 65 & không kỷ luật (CSV) + không nợ HP (API). FIX: Dùng COALESCE(d.bi_ky_luat, FALSE) = FALSE thay vì d.bi_ky_luat = FALSE để xử lý đúng khi LEFT JOIN trả về NULL (SV không có dữ liệu CTSV vẫn được xét nếu đủ điều kiện khác).",
             "type": "table",
             "gridPos": {
                 "x": 0,
@@ -1217,7 +1220,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "WITH gpa_hk AS (SELECT f.sinh_vien_key, LEAST( ROUND((SUM(f.diem_he_4 * hp.so_tin_chi) / NULLIF(SUM(hp.so_tin_chi), 0))::numeric, 2), 3.97 ) as gpa FROM fact_hoc_tap f JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' AND f.diem_he_4 IS NOT NULL GROUP BY f.sinh_vien_key), drl_hk AS (SELECT c.sinh_vien_key, c.diem_rl, COALESCE(c.bi_ky_luat, FALSE) as bi_ky_luat FROM fact_ctsv c JOIN dim_hoc_ky hk ON c.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky'), no_hp AS (SELECT tc.sinh_vien_key, SUM(tc.con_no) as tong_no FROM fact_tai_chinh tc JOIN dim_hoc_ky hk ON tc.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' GROUP BY tc.sinh_vien_key) SELECT sv.ma_sinh_vien as \"Mã SV\", sv.ho_ten as \"Họ Tên\", sv.ten_nganh as \"Ngành\", sv.khoa_hoc as \"Khóa\", g.gpa as \"GPA HK\", d.diem_rl as \"ĐRL\", CASE WHEN g.gpa >= 3.6 AND d.diem_rl >= 90 THEN 'Xuất sắc (8tr)' WHEN g.gpa >= 3.2 AND d.diem_rl >= 80 THEN 'Giỏi (3.6tr)' WHEN g.gpa >= 2.5 AND d.diem_rl >= 65 THEN 'Khá (1.2tr)' END as \"Loại HB\" FROM gpa_hk g JOIN dim_sinh_vien sv ON g.sinh_vien_key = sv.sinh_vien_key LEFT JOIN drl_hk d ON g.sinh_vien_key = d.sinh_vien_key LEFT JOIN no_hp n ON g.sinh_vien_key = n.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND g.gpa >= 2.5 AND d.diem_rl >= 65 AND d.bi_ky_luat = FALSE AND COALESCE(n.tong_no, 0) <= 0 ORDER BY g.gpa DESC, d.diem_rl DESC",
+                    "rawSql": "WITH gpa_hk AS (SELECT f.sinh_vien_key, LEAST(ROUND((SUM(f.diem_he_4 * hp.so_tin_chi) / NULLIF(SUM(hp.so_tin_chi), 0))::numeric, 2), 3.97) as gpa FROM fact_hoc_tap f JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' AND f.diem_he_4 IS NOT NULL GROUP BY f.sinh_vien_key), drl_hk AS (SELECT c.sinh_vien_key, c.diem_rl, COALESCE(c.bi_ky_luat, FALSE) as bi_ky_luat FROM fact_ctsv c JOIN dim_hoc_ky hk ON c.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky'), no_hp AS (SELECT tc.sinh_vien_key, SUM(tc.con_no) as tong_no FROM fact_tai_chinh tc JOIN dim_hoc_ky hk ON tc.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' GROUP BY tc.sinh_vien_key) SELECT sv.ma_sinh_vien as \"Mã SV\", sv.ho_ten as \"Họ Tên\", sv.ten_nganh as \"Ngành\", sv.khoa_hoc as \"Khóa\", g.gpa as \"GPA HK\", d.diem_rl as \"ĐRL\", CASE WHEN g.gpa >= 3.6 AND d.diem_rl >= 90 THEN 'Xuất sắc (8tr)' WHEN g.gpa >= 3.2 AND d.diem_rl >= 80 THEN 'Giỏi (3.6tr)' WHEN g.gpa >= 2.5 AND d.diem_rl >= 65 THEN 'Khá (1.2tr)' END as \"Loại HB\" FROM gpa_hk g JOIN dim_sinh_vien sv ON g.sinh_vien_key = sv.sinh_vien_key LEFT JOIN drl_hk d ON g.sinh_vien_key = d.sinh_vien_key LEFT JOIN no_hp n ON g.sinh_vien_key = n.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND g.gpa >= 2.5 AND d.diem_rl >= 65 AND COALESCE(d.bi_ky_luat, FALSE) = FALSE AND COALESCE(n.tong_no, 0) <= 0 ORDER BY g.gpa DESC, d.diem_rl DESC",
                     "refId": "A",
                     "format": "table"
                 }

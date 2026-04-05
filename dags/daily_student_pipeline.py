@@ -114,13 +114,7 @@ def task_validate(**context):
 # ════════════════════════════════════════════════════════════════════════════
 
 def task_transform(**context):
-    """
-    Transform dữ liệu từ MinIO staging:
-      - Chuẩn hóa, xử lý NULL, loại trùng lặp
-      - Tính GPA, xếp loại học lực, điểm rèn luyện
-      - Merge 3 nguồn → TransformedData
-      - Upload kết quả lên MinIO staging-data bucket
-    """
+    
     import sys
     sys.path.insert(0, "/opt/airflow")
 
@@ -178,9 +172,7 @@ def task_load(**context):
 # ════════════════════════════════════════════════════════════════════════════
 
 def task_alert_success(**context):
-    """
-    ĐÃ SỬA: Thêm kiểm tra None trước khi dùng validation_result.
-    """
+   
     ti = context['ti']
     validation_result = ti.xcom_pull(
         task_ids='validate_data',
