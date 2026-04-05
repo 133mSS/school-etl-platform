@@ -1,0 +1,44 @@
+# =====================================================================
+# great_expectations/checkpoints/weekly_checkpoint.yml
+# =====================================================================
+name: weekly_checkpoint
+config_version: 1.0
+class_name: Checkpoint
+run_name_template: "%Y%m%d-%H%M%S-weekly-ptit"
+
+validations:
+  # ── Kiểm tra agg_student_summary đã được rebuild đầy đủ ──────────
+  - batch_request:
+      datasource_name: nguon1_postgres
+      data_connector_name: default_runtime_data_connector
+      data_asset_name: agg_student_summary
+      runtime_parameters:
+        query: >
+          SELECT ma_sinh_vien, gpa_he_4, diem_rl_trung_binh,
+                 tong_no_hoc_phi, muc_do_rui_ro, canh_bao_hoc_vu
+          FROM agg_student_summary
+      batch_identifiers:
+        run_id: "__weekly_run_id__"
+    expectation_suite_name: warehouse_suite
+    action_list:
+      - name: store_validation_result
+        action:
+          class_name: StoreValidationResultAction
+      - name: update_data_docs
+        action:
+          class_name: UpdateDataDocsAction
+          site_names:
+            - local_site
+
+action_list:
+  - name: store_validation_result
+    action:
+      class_name: StoreValidationResultAction
+  - name: update_data_docs
+    action:
+      class_name: UpdateDataDocsAction
+      site_names:
+        - local_site
+
+evaluation_parameters: {}
+runtime_configuration: {}

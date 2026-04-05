@@ -6,6 +6,7 @@ scripts/inject_errors.py
   JSON taichinh         : con_no tính sai, ngay_dong format lạ, da_dong vượt phi, hoc_ky sai
 """
 
+
 import os
 import sys
 import json

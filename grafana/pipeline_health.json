@@ -26,8 +26,12 @@
                     "type": "postgres",
                     "uid": "airflow-db"
                 },
+                "refresh": 1,
+                "sort": 0,
+                "current": {},
+                "multi": false,
                 "includeAll": true,
-                "allValue": "%"
+                "allValue": ".*"
             },
             {
                 "name": "time_range",

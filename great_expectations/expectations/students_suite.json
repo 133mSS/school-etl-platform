@@ -4,9 +4,16 @@
     "ge_cloud_id": null,
     "meta": {
         "great_expectations_version": "0.18.8",
-        "description": "Kiểm tra chất lượng dữ liệu Sinh viên (Nguồn 1 — PostgreSQL)",
+        "description": "Validate Nguồn 1 PostgreSQL — bảng sinh_vien. Chạy trong ge_validation.py bước validate_data của Airflow DAG daily_student_pipeline.",
         "owner": "Nhom8 ETL Platform PTIT",
-        "updated": "2026-01-01"
+        "updated": "2026-01-01",
+        "data_asset": "sinh_vien (sau khi merge với tong_hop_ket_qua)",
+        "inject_error_rates": {
+            "PG_SV_email_sai_format": "2.0%",
+            "PG_SV_trang_thai_cu": "1.5%",
+            "PG_SV_gioi_tinh_la": "1.0%",
+            "PG_SV_ngay_sinh_tuong_lai": "0.5%"
+        }
     },
     "expectations": [
         {
@@ -16,8 +23,9 @@
                 "max_value": null
             },
             "meta": {
-                "exp_id": "EXP-01",
-                "notes": "Bảng sinh_vien phải có ít nhất 100 bản ghi."
+                "exp_id": "EXP-SV-01",
+                "category": "completeness",
+                "notes": "Tổng SV >= 100. Thực tế ~1650 SV (4 khóa x 3 ngành). Dưới 100 = extract bị lỗi nghiêm trọng."
             }
         },
         {
@@ -26,8 +34,9 @@
                 "column": "ma_sinh_vien"
             },
             "meta": {
-                "exp_id": "EXP-02a",
-                "notes": "Mã sinh viên không được NULL — đây là khóa chính."
+                "exp_id": "EXP-SV-02a",
+                "category": "completeness",
+                "notes": "Khóa chính — tuyệt đối không NULL. 100% phải có giá trị."
             }
         },
         {
@@ -36,8 +45,9 @@
                 "column": "ho"
             },
             "meta": {
-                "exp_id": "EXP-02b",
-                "notes": "Họ sinh viên không được NULL."
+                "exp_id": "EXP-SV-02b",
+                "category": "completeness",
+                "notes": "Họ SV không được NULL."
             }
         },
         {
@@ -46,8 +56,9 @@
                 "column": "ten"
             },
             "meta": {
-                "exp_id": "EXP-02c",
-                "notes": "Tên sinh viên không được NULL."
+                "exp_id": "EXP-SV-02c",
+                "category": "completeness",
+                "notes": "Tên SV không được NULL."
             }
         },
         {
@@ -56,8 +67,9 @@
                 "column": "email"
             },
             "meta": {
-                "exp_id": "EXP-02d",
-                "notes": "Email không được NULL."
+                "exp_id": "EXP-SV-02d",
+                "category": "completeness",
+                "notes": "Email không được NULL — dùng để gửi thông báo học vụ."
             }
         },
         {
@@ -66,8 +78,20 @@
                 "column": "khoa_hoc"
             },
             "meta": {
-                "exp_id": "EXP-02e",
-                "notes": "Khóa học không được NULL."
+                "exp_id": "EXP-SV-02e",
+                "category": "completeness",
+                "notes": "Khóa học B21/B22/B23/B24 không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_nganh"
+            },
+            "meta": {
+                "exp_id": "EXP-SV-02f",
+                "category": "completeness",
+                "notes": "Mã ngành không được NULL — dùng để join với dim_hoc_phan."
             }
         },
         {
@@ -76,19 +100,21 @@
                 "column": "ma_sinh_vien"
             },
             "meta": {
-                "exp_id": "EXP-03",
-                "notes": "Mã sinh viên phải duy nhất."
+                "exp_id": "EXP-SV-03",
+                "category": "uniqueness",
+                "notes": "Mã SV phải duy nhất — không cho phép duplicate PK."
             }
         },
         {
             "expectation_type": "expect_column_values_to_match_regex",
             "kwargs": {
-                "column": "email",
-                "regex": ".*@.*\\..*"
+                "column": "ma_sinh_vien",
+                "regex": "^B2[1-4]DC[A-Z]{2,3}[0-9]{3}$"
             },
             "meta": {
-                "exp_id": "EXP-04",
-                "notes": "Email phải có định dạng hợp lệ."
+                "exp_id": "EXP-SV-04",
+                "category": "validity",
+                "notes": "Format chuẩn PTIT: B21DCKT001, B22DCCN003, B23DCVT010. PK không thể bị inject_errors sửa nên mostly=1.0."
             }
         },
         {
@@ -103,8 +129,9 @@
                 ]
             },
             "meta": {
-                "exp_id": "EXP-05",
-                "notes": "Khóa học chỉ được phép là B21-B24."
+                "exp_id": "EXP-SV-05",
+                "category": "validity",
+                "notes": "Chỉ 4 khóa hợp lệ. Khóa học là fix tại thời điểm nhập học, không thay đổi."
             }
         },
         {
@@ -116,43 +143,26 @@
                     "Bảo lưu",
                     "Thôi học",
                     "Tốt nghiệp"
-                ]
+                ],
+                "mostly": 0.97
             },
             "meta": {
-                "exp_id": "EXP-06",
-                "notes": "Trạng thái học tập chỉ nhận 4 giá trị hợp lệ."
+                "exp_id": "EXP-SV-06",
+                "category": "validity",
+                "notes": "4 trạng thái hợp lệ theo quy chế. mostly=0.97 vì inject_errors.py thay ~1.5% thành format cũ ('dang hoc', 'THOI_HOC'...). Transform sẽ chuẩn hóa lại."
             }
         },
         {
             "expectation_type": "expect_column_values_to_match_regex",
             "kwargs": {
-                "column": "ma_sinh_vien",
-                "regex": "^B2[1-4]DC[A-Z]{2,3}[0-9]{3}$"
+                "column": "email",
+                "regex": ".*@.*\\..*",
+                "mostly": 0.98
             },
             "meta": {
-                "exp_id": "EXP-07",
-                "notes": "Mã SV phải đúng format PTIT."
-            }
-        },
-        {
-            "expectation_type": "expect_column_values_to_be_of_type",
-            "kwargs": {
-                "column": "ma_sinh_vien",
-                "type_": "str"
-            },
-            "meta": {
-                "exp_id": "EXP-08",
-                "notes": "Mã sinh viên phải là kiểu chuỗi."
-            }
-        },
-        {
-            "expectation_type": "expect_column_values_to_not_be_null",
-            "kwargs": {
-                "column": "ma_nganh"
-            },
-            "meta": {
-                "exp_id": "EXP-09",
-                "notes": "Mã ngành không được NULL."
+                "exp_id": "EXP-SV-07",
+                "category": "validity",
+                "notes": "Email phải có @. mostly=0.98 vì inject_errors.py xóa @ ở ~2% record. Transform sẽ flag bản ghi lỗi."
             }
         },
         {
@@ -166,8 +176,9 @@
                 ]
             },
             "meta": {
-                "exp_id": "EXP-10",
-                "notes": "Mã ngành chỉ được phép là KETOAN, CNTT hoặc DTVT."
+                "exp_id": "EXP-SV-08",
+                "category": "validity",
+                "notes": "3 ngành của trường. Giá trị ngoài set = lỗi migrate từ hệ thống cũ."
             }
         },
         {
@@ -188,8 +199,9 @@
                 "exact_match": false
             },
             "meta": {
-                "exp_id": "EXP-11",
-                "notes": "ĐÃ SỬA: Dùng match_set thay vì ordered_list. exact_match=false cho phép có thêm cột phụ."
+                "exp_id": "EXP-SV-09",
+                "category": "schema",
+                "notes": "Dùng match_set thay vì match_ordered_list vì parquet có thể có thêm cột join. exact_match=false cho phép thêm cột."
             }
         }
     ]

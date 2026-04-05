@@ -1,0 +1,103 @@
+{
+    "data_asset_type": null,
+    "expectation_suite_name": "warehouse_suite",
+    "ge_cloud_id": null,
+    "meta": {
+        "great_expectations_version": "0.18.8",
+        "description": "Validate bảng agg_student_summary trong Data Warehouse sau khi WeeklyAggregator rebuild. Kiểm tra tính toàn vẹn của dữ liệu tổng hợp 3 nguồn.",
+        "owner": "Nhom8 ETL Platform PTIT",
+        "updated": "2026-01-01",
+        "data_asset": "agg_student_summary (tổng hợp từ fact_hoc_tap + fact_ctsv + fact_tai_chinh)",
+        "called_by": "weekly_summary_pipeline.py → WeeklyAggregator"
+    },
+    "expectations": [
+        {
+            "expectation_type": "expect_table_row_count_to_be_between",
+            "kwargs": {
+                "min_value": 100,
+                "max_value": null
+            },
+            "meta": {
+                "exp_id": "EXP-WH-01",
+                "category": "completeness",
+                "notes": "agg_student_summary phải có ít nhất 100 records sau rebuild. Ít hơn = aggregation chạy sai hoặc warehouse bị xóa nhầm."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "ma_sinh_vien"
+            },
+            "meta": {
+                "exp_id": "EXP-WH-02",
+                "category": "completeness",
+                "notes": "Natural key không được NULL."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_unique",
+            "kwargs": {
+                "column": "ma_sinh_vien"
+            },
+            "meta": {
+                "exp_id": "EXP-WH-03",
+                "category": "uniqueness",
+                "notes": "Mỗi SV chỉ có 1 dòng trong agg_student_summary. TRUNCATE + INSERT nên đảm bảo điều này."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "gpa_he_4",
+                "min_value": 0.0,
+                "max_value": 4.0
+            },
+            "meta": {
+                "exp_id": "EXP-WH-04",
+                "category": "validity",
+                "notes": "GPA tích lũy hệ 4 phải trong [0.0, 4.0]. SV chưa có điểm = 0.0 (COALESCE)."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_in_set",
+            "kwargs": {
+                "column": "muc_do_rui_ro",
+                "value_set": [
+                    "Thấp",
+                    "Trung bình",
+                    "Cao",
+                    "Rất cao"
+                ]
+            },
+            "meta": {
+                "exp_id": "EXP-WH-05",
+                "category": "validity",
+                "notes": "4 mức rủi ro theo logic business trong aggregation.py. Giá trị ngoài set = bug trong SQL aggregation."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "tong_no_hoc_phi",
+                "min_value": 0,
+                "max_value": null
+            },
+            "meta": {
+                "exp_id": "EXP-WH-06",
+                "category": "validity",
+                "notes": "Tổng nợ học phí >= 0. aggregation.py dùng COALESCE(..., 0) nên không có NULL hay âm."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "canh_bao_hoc_vu"
+            },
+            "meta": {
+                "exp_id": "EXP-WH-07",
+                "category": "completeness",
+                "notes": "Flag cảnh báo học vụ không được NULL — dùng trực tiếp trong Grafana dashboard và báo cáo tuần."
+            }
+        }
+    ]
+}

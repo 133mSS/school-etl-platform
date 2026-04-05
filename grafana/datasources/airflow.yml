@@ -12,7 +12,6 @@ datasources:
     secureJsonData:
       password: airflow
     jsonData:
-      database: airflow
       sslmode: disable
       postgresVersion: 1500
       timescaledb: false

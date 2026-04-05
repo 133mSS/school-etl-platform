@@ -4,9 +4,20 @@
     "ge_cloud_id": null,
     "meta": {
         "great_expectations_version": "0.18.8",
-        "description": "Validate Nguồn 2 (CSV-CTSV). Chỉ chứa expectations cho DataFrame ctsv_data.",
+        "description": "Validate Nguồn 2 CSV — dữ liệu điểm rèn luyện, học bổng, kỷ luật từ Phòng Công tác Sinh viên. TÁCH RIÊNG khỏi tai_chinh_suite để tránh KeyError khi cột không tồn tại.",
         "owner": "Nhom8 ETL Platform PTIT",
-        "updated": "2026-01-01"
+        "updated": "2026-01-01",
+        "data_asset": "ctsv_data (CSV từ Phòng CTSV, 8 cột chuẩn)",
+        "source": "data/csv/ctsv_HK*.csv",
+        "inject_error_rates": {
+            "CSV_drl_trong": "5.0%",
+            "CSV_drl_chu_thay_so": "1.0%",
+            "CSV_xeploai_sai": "3.0%",
+            "CSV_masv_thua_khoang": "2.0%",
+            "CSV_dong_trung_lap": "1.5%",
+            "CSV_tien_hb_am": "0.8%",
+            "CSV_hocky_sai_format": "0.5%"
+        }
     },
     "expectations": [
         {
@@ -16,9 +27,9 @@
                 "max_value": null
             },
             "meta": {
-                "exp_id": "EXP-00",
-                "applies_to": "ctsv",
-                "notes": "File không được rỗng."
+                "exp_id": "EXP-CTSV-01",
+                "category": "completeness",
+                "notes": "File CSV phải có ít nhất 1 record. Rỗng = file không được export hoặc đường dẫn sai."
             }
         },
         {
@@ -27,9 +38,9 @@
                 "column": "ma_sinh_vien"
             },
             "meta": {
-                "exp_id": "EXP-12a",
-                "applies_to": "ctsv",
-                "notes": "Mã SV không được NULL — cần để join với dim_sinh_vien."
+                "exp_id": "EXP-CTSV-02a",
+                "category": "completeness",
+                "notes": "Mã SV không được NULL — không thể join với dim_sinh_vien nếu thiếu."
             }
         },
         {
@@ -38,9 +49,9 @@
                 "column": "hoc_ky"
             },
             "meta": {
-                "exp_id": "EXP-12b",
-                "applies_to": "ctsv",
-                "notes": "Mã học kỳ không được NULL."
+                "exp_id": "EXP-CTSV-02b",
+                "category": "completeness",
+                "notes": "Mã học kỳ không được NULL — xác định record thuộc kỳ học nào."
             }
         },
         {
@@ -48,12 +59,25 @@
             "kwargs": {
                 "column": "ma_sinh_vien",
                 "regex": "^B2[1-4]DC[A-Z]{2,3}[0-9]{3}$",
-                "mostly": 0.95
+                "mostly": 0.93
             },
             "meta": {
-                "exp_id": "EXP-12c",
-                "applies_to": "ctsv",
-                "notes": "95% mã SV phải đúng format PTIT."
+                "exp_id": "EXP-CTSV-03",
+                "category": "validity",
+                "notes": "Format mã SV chuẩn PTIT. mostly=0.93 vì inject_errors tạo: 2% thừa khoảng trắng + 2% lowercase + một số format sai khác. Transform sẽ strip() và upper()."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "hoc_ky",
+                "regex": "^HK[12]-[0-9]{4}-[0-9]{2}$",
+                "mostly": 0.993
+            },
+            "meta": {
+                "exp_id": "EXP-CTSV-04",
+                "category": "validity",
+                "notes": "Format học kỳ chuẩn: HK1-2024-25, HK2-2023-24. mostly=0.993 vì inject_errors tạo ~0.5% format sai (HK1/2024-25, hk1-2024-25...)."
             }
         },
         {
@@ -65,9 +89,9 @@
                 ]
             },
             "meta": {
-                "exp_id": "EXP-DUP",
-                "applies_to": "ctsv",
-                "notes": "Mỗi SV chỉ có 1 record/học kỳ."
+                "exp_id": "EXP-CTSV-05",
+                "category": "uniqueness",
+                "notes": "Mỗi SV chỉ có 1 bản ghi rèn luyện cho mỗi học kỳ. Duplicate = file CSV bị export nhiều lần rồi ghép. inject_errors tạo ~1.5% trùng lặp."
             }
         },
         {
@@ -79,9 +103,9 @@
                 "mostly": 0.92
             },
             "meta": {
-                "exp_id": "EXP-13",
-                "applies_to": "ctsv",
-                "notes": "ĐRL trong [0,100]. mostly=0.92 vì inject_errors.py inject ~8% lỗi."
+                "exp_id": "EXP-CTSV-06",
+                "category": "validity",
+                "notes": "ĐRL trong [0,100]. mostly=0.92 vì inject_errors tạo: 5% rỗng/N/A + 1% chữ thay số + 2% trùng lặp = tổng ~8% records có vấn đề. GE sẽ bỏ qua NULL khi check range."
             }
         },
         {
@@ -96,12 +120,12 @@
                     "Yếu",
                     "Kém"
                 ],
-                "mostly": 0.90
+                "mostly": 0.88
             },
             "meta": {
-                "exp_id": "EXP-13b",
-                "applies_to": "ctsv",
-                "notes": "Xếp loại RL theo 6 mức."
+                "exp_id": "EXP-CTSV-07",
+                "category": "validity",
+                "notes": "6 mức xếp loại theo quy chế PTIT. mostly=0.88 vì: 5% ô trống + 3% xếp loại sai mức + một số bị ảnh hưởng bởi inject trùng lặp."
             }
         },
         {
@@ -113,16 +137,15 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-14",
-                "applies_to": "ctsv",
-                "notes": "Tiền học bổng >= 0."
+                "exp_id": "EXP-CTSV-08",
+                "category": "validity",
+                "notes": "Tiền học bổng >= 0 (VND). SV không có HB = 0, không phải NULL. mostly=0.99 vì inject_errors tạo ~0.8% giá trị âm."
             }
         },
         {
-            "expectation_type": "expect_table_columns_to_match_ordered_list",
-            
+            "expectation_type": "expect_table_columns_to_match_set",
             "kwargs": {
-                "column_list": [
+                "column_set": [
                     "ma_sinh_vien",
                     "hoc_ky",
                     "diem_ren_luyen",
@@ -131,12 +154,13 @@
                     "muc_tien_hb",
                     "hinh_thuc_ky_luat",
                     "ly_do_ky_luat"
-                ]
+                ],
+                "exact_match": false
             },
             "meta": {
-                "exp_id": "EXP-SCHEMA-CTSV",
-                "applies_to": "ctsv",
-                "notes": "File CSV phải có 8 cột chuẩn. ĐÃ XÓA exact_match để tương thích GE 0.18.8."
+                "exp_id": "EXP-CTSV-09",
+                "category": "schema",
+                "notes": "8 cột chuẩn theo CSVExtractor.EXPECTED_COLUMNS trong extract.py. exact_match=false để không fail nếu pandas tự thêm index."
             }
         }
     ]

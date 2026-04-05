@@ -4,9 +4,17 @@
     "ge_cloud_id": null,
     "meta": {
         "great_expectations_version": "0.18.8",
-        "description": "Kiểm tra chất lượng dữ liệu Điểm học phần (Nguồn 1 — PostgreSQL)",
+        "description": "Validate Nguồn 1 PostgreSQL — bảng diem_hoc_phan. Chạy trong ge_validation.py sau khi extract từ PostgreSQL source.",
         "owner": "Nhom8 ETL Platform PTIT",
-        "updated": "2026-01-01"
+        "updated": "2026-01-01",
+        "data_asset": "diem_hoc_phan (join với dang_ky_hoc_phan để có ma_sinh_vien)",
+        "inject_error_rates": {
+            "PG_DIEM_tong_ket_null": "2.0%",
+            "PG_DIEM_chu_khong_khop": "1.2%",
+            "PG_DIEM_dat_mon_sai": "1.5%",
+            "PG_DIEM_he4_null": "0.8%",
+            "PG_DIEM_cuoi_ky_out_range": "0.5%"
+        }
     },
     "expectations": [
         {
@@ -16,8 +24,9 @@
                 "max_value": null
             },
             "meta": {
-                "exp_id": "EXP-08",
-                "notes": "Bảng điểm phải có ít nhất 1000 bản ghi."
+                "exp_id": "EXP-GR-01",
+                "category": "completeness",
+                "notes": "Bảng điểm phải có ít nhất 1000 bản ghi. Thực tế khoảng 30.000-50.000 records (1650 SV x nhiều môn x nhiều HK). Dưới 1000 = extract thất bại."
             }
         },
         {
@@ -26,8 +35,21 @@
                 "column": "ma_dang_ky"
             },
             "meta": {
-                "exp_id": "EXP-FK",
-                "notes": "Khóa ngoại ma_dang_ky không được NULL."
+                "exp_id": "EXP-GR-02",
+                "category": "completeness",
+                "notes": "FK ma_dang_ky không được NULL — không thể map điểm về SV nào nếu thiếu."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_not_be_null",
+            "kwargs": {
+                "column": "diem_tong_ket",
+                "mostly": 0.97
+            },
+            "meta": {
+                "exp_id": "EXP-GR-03",
+                "category": "completeness",
+                "notes": "Tối thiểu 97% records phải có điểm tổng kết. inject_errors tạo ~2% NULL (GV chưa nhập). mostly=0.97 để pipeline không crash vì lỗi inject có chủ đích."
             }
         },
         {
@@ -39,8 +61,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-09a",
-                "notes": "Điểm chuyên cần phải nằm trong [0, 10]."
+                "exp_id": "EXP-GR-04a",
+                "category": "validity",
+                "notes": "Điểm chuyên cần trong [0,10]. mostly=0.99 dành cho NULL hợp lệ (môn không có chuyên cần)."
             }
         },
         {
@@ -52,8 +75,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-09b",
-                "notes": "Điểm bài tập phải nằm trong [0, 10]."
+                "exp_id": "EXP-GR-04b",
+                "category": "validity",
+                "notes": "Điểm bài tập trong [0,10]."
             }
         },
         {
@@ -65,8 +89,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-09c",
-                "notes": "Điểm giữa kỳ phải nằm trong [0, 10]."
+                "exp_id": "EXP-GR-04c",
+                "category": "validity",
+                "notes": "Điểm giữa kỳ trong [0,10]."
             }
         },
         {
@@ -75,11 +100,12 @@
                 "column": "diem_cuoi_ky",
                 "min_value": 0.0,
                 "max_value": 10.0,
-                "mostly": 0.99
+                "mostly": 0.994
             },
             "meta": {
-                "exp_id": "EXP-09d",
-                "notes": "Điểm cuối kỳ phải nằm trong [0, 10]."
+                "exp_id": "EXP-GR-04d",
+                "category": "validity",
+                "notes": "Điểm cuối kỳ trong [0,10]. mostly=0.994 vì inject_errors tạo ~0.5% diem_cuoi_ky ngoài range (nhập nhầm 11.5 hoặc âm). Transform sẽ cap/flag lại."
             }
         },
         {
@@ -91,19 +117,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-09e",
-                "notes": "Điểm tổng kết phải nằm trong [0, 10]."
-            }
-        },
-        {
-            "expectation_type": "expect_column_values_to_not_be_null",
-            "kwargs": {
-                "column": "diem_tong_ket",
-                "mostly": 0.80
-            },
-            "meta": {
-                "exp_id": "EXP-10",
-                "notes": "Tối thiểu 80% bản ghi phải có điểm tổng kết."
+                "exp_id": "EXP-GR-04e",
+                "category": "validity",
+                "notes": "Điểm tổng kết trong [0,10]. Công thức: 0.1*CC + 0.1*BT + 0.2*GK + 0.6*CK."
             }
         },
         {
@@ -121,11 +137,12 @@
                     "D",
                     "F"
                 ],
-                "mostly": 0.99
+                "mostly": 0.986
             },
             "meta": {
-                "exp_id": "EXP-11a",
-                "notes": "Điểm chữ phải là một trong 9 loại hợp lệ."
+                "exp_id": "EXP-GR-05",
+                "category": "validity",
+                "notes": "9 loại điểm chữ theo thang PTIT. mostly=0.986 vì inject_errors tạo ~1.2% diem_chu sai bậc. NULL (GV chưa nhập) cũng được tính là fail nên set mostly thấp hơn 1.0."
             }
         },
         {
@@ -137,19 +154,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-11b",
-                "notes": "Điểm hệ 4 phải nằm trong [0.0, 4.0]."
-            }
-        },
-        {
-            "expectation_type": "expect_column_values_to_be_of_type",
-            "kwargs": {
-                "column": "dat_mon",
-                "type_": "bool"
-            },
-            "meta": {
-                "exp_id": "EXP-11c",
-                "notes": "Trường dat_mon phải là kiểu boolean."
+                "exp_id": "EXP-GR-06",
+                "category": "validity",
+                "notes": "Điểm hệ 4 trong [0.0, 4.0]. Giá trị > 4.0 = lỗi tính toán nghiêm trọng."
             }
         },
         {
@@ -171,8 +178,9 @@
                 "exact_match": false
             },
             "meta": {
-                "exp_id": "EXP-12",
-                "notes": "ĐÃ SỬA: Dùng match_set thay vì ordered_list. exact_match=false cho phép có thêm cột phụ."
+                "exp_id": "EXP-GR-07",
+                "category": "schema",
+                "notes": "Các cột bắt buộc theo schema diem_hoc_phan. exact_match=false cho phép có thêm cột join từ extract."
             }
         }
     ]

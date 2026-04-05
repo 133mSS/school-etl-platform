@@ -4,9 +4,19 @@
     "ge_cloud_id": null,
     "meta": {
         "great_expectations_version": "0.18.8",
-        "description": "Validate Nguồn 3 (API JSON tài chính). Chỉ chứa expectations cho DataFrame tai_chinh_data.",
+        "description": "Validate Nguồn 3 API JSON — dữ liệu học phí, nợ, miễn giảm từ Portal Tài chính vendor. TÁCH RIÊNG khỏi ctsv_suite để tránh KeyError khi cột không tồn tại.",
         "owner": "Nhom8 ETL Platform PTIT",
-        "updated": "2026-01-01"
+        "updated": "2026-01-01",
+        "data_asset": "tai_chinh_data (JSON từ mock_api_server.py hoặc vendor API thật)",
+        "source": "data/api_json/taichinh_HK*.json",
+        "inject_error_rates": {
+            "JSON_cono_tinh_sai": "3.0%",
+            "JSON_ngay_dong_sai_format": "2.5%",
+            "JSON_dadong_vuot_phi": "1.0%",
+            "JSON_hocky_sai_format": "1.5%",
+            "JSON_tien_mien_giam_am": "0.5%",
+            "JSON_thieu_truong": "0.8%"
+        }
     },
     "expectations": [
         {
@@ -16,9 +26,9 @@
                 "max_value": null
             },
             "meta": {
-                "exp_id": "EXP-00",
-                "applies_to": "tai_chinh",
-                "notes": "File không được rỗng."
+                "exp_id": "EXP-TC-01",
+                "category": "completeness",
+                "notes": "File JSON phải có ít nhất 1 record. Rỗng = API không trả dữ liệu hoặc file JSON bị corrupt."
             }
         },
         {
@@ -27,9 +37,9 @@
                 "column": "ma_sinh_vien"
             },
             "meta": {
-                "exp_id": "EXP-12a",
-                "applies_to": "tai_chinh",
-                "notes": "Mã SV không được NULL — cần để join với dim_sinh_vien."
+                "exp_id": "EXP-TC-02",
+                "category": "completeness",
+                "notes": "Mã SV không được NULL — không thể map về dim_sinh_vien nếu thiếu."
             }
         },
         {
@@ -38,9 +48,9 @@
                 "column": "hoc_ky"
             },
             "meta": {
-                "exp_id": "EXP-12b",
-                "applies_to": "tai_chinh",
-                "notes": "Mã học kỳ không được NULL."
+                "exp_id": "EXP-TC-03",
+                "category": "completeness",
+                "notes": "Học kỳ không được NULL — cần để join với dim_hoc_ky."
             }
         },
         {
@@ -51,9 +61,22 @@
                 "mostly": 0.95
             },
             "meta": {
-                "exp_id": "EXP-12c",
-                "applies_to": "tai_chinh",
-                "notes": "95% mã SV phải đúng format PTIT."
+                "exp_id": "EXP-TC-04",
+                "category": "validity",
+                "notes": "Format mã SV chuẩn PTIT. mostly=0.95 vì API vendor đôi khi trả mã uppercase đúng, nhưng inject_errors có thể tạo một số format sai."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_match_regex",
+            "kwargs": {
+                "column": "hoc_ky",
+                "regex": "^HK[12]-[0-9]{4}-[0-9]{2}$",
+                "mostly": 0.983
+            },
+            "meta": {
+                "exp_id": "EXP-TC-05",
+                "category": "validity",
+                "notes": "Format học kỳ chuẩn. mostly=0.983 vì inject_errors tạo ~1.5% format sai (HK1_2024_25, Ky1-2024-25...)."
             }
         },
         {
@@ -65,9 +88,9 @@
                 ]
             },
             "meta": {
-                "exp_id": "EXP-DUP",
-                "applies_to": "tai_chinh",
-                "notes": "Mỗi SV chỉ có 1 record/học kỳ."
+                "exp_id": "EXP-TC-06",
+                "category": "uniqueness",
+                "notes": "Mỗi SV chỉ có 1 bản ghi tài chính cho mỗi học kỳ. Duplicate = API bị gọi nhiều lần hoặc pagination bị lỗi."
             }
         },
         {
@@ -79,9 +102,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-15",
-                "applies_to": "tai_chinh",
-                "notes": "Học phí >= 0."
+                "exp_id": "EXP-TC-07",
+                "category": "validity",
+                "notes": "Học phí phải đóng >= 0 VND. Khoảng 4.8M - 7.5M tùy số tín chỉ."
             }
         },
         {
@@ -93,9 +116,9 @@
                 "mostly": 0.99
             },
             "meta": {
-                "exp_id": "EXP-TC-02",
-                "applies_to": "tai_chinh",
-                "notes": "Số tiền đã đóng >= 0."
+                "exp_id": "EXP-TC-08",
+                "category": "validity",
+                "notes": "Số tiền đã đóng >= 0. SV chưa đóng = 0, không phải NULL."
             }
         },
         {
@@ -104,12 +127,48 @@
                 "column": "con_no",
                 "min_value": 0,
                 "max_value": null,
-                "mostly": 0.97
+                "mostly": 0.968
             },
             "meta": {
-                "exp_id": "EXP-16a",
-                "applies_to": "tai_chinh",
-                "notes": "con_no >= 0. mostly=0.97 vì inject_errors.py tạo ~3% con_no sai."
+                "exp_id": "EXP-TC-09",
+                "category": "validity",
+                "notes": "Nợ học phí >= 0. mostly=0.968 vì inject_errors tạo ~3% con_no sai (vendor API làm tròn sai hoặc da_dong > hoc_phi). Transform sẽ recalculate: con_no = max(0, hoc_phi - da_dong)."
+            }
+        },
+        {
+            "expectation_type": "expect_column_values_to_be_between",
+            "kwargs": {
+                "column": "so_tien_mien_giam",
+                "min_value": 0,
+                "max_value": null,
+                "mostly": 0.994
+            },
+            "meta": {
+                "exp_id": "EXP-TC-10",
+                "category": "validity",
+                "notes": "Tiền miễn giảm >= 0. mostly=0.994 vì inject_errors tạo ~0.5% giá trị âm (vendor bug khi SV không được miễn giảm)."
+            }
+        },
+        {
+            "expectation_type": "expect_table_columns_to_match_set",
+            "kwargs": {
+                "column_set": [
+                    "ma_sinh_vien",
+                    "hoc_ky",
+                    "hoc_phi_phai_dong",
+                    "da_dong",
+                    "con_no",
+                    "duoc_mien_giam",
+                    "ly_do_mien_giam",
+                    "so_tien_mien_giam",
+                    "ngay_dong_cuoi"
+                ],
+                "exact_match": false
+            },
+            "meta": {
+                "exp_id": "EXP-TC-11",
+                "category": "schema",
+                "notes": "9 trường theo contract API vendor. exact_match=false vì inject_errors xóa ngay_dong_cuoi ở ~0.8% records — field này optional trong schema."
             }
         }
     ]

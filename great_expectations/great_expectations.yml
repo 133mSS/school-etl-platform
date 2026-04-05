@@ -8,6 +8,7 @@ config_version: 3.0
 # ── Datasources ──────────────────────────────────────────────────────
 # Khai báo 3 nguồn dữ liệu tương ứng 3 nguồn trong ETL pipeline
 datasources:
+
   # Nguồn 1: PostgreSQL Source (dữ liệu học vụ)
   nguon1_postgres:
     class_name: Datasource

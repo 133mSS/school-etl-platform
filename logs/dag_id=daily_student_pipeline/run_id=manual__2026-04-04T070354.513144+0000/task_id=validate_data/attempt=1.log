@@ -1,0 +1,116 @@
+[2026-04-04T07:03:56.245+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-04T07:03:54.513144+00:00 [queued]>
+[2026-04-04T07:03:56.265+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-04T07:03:54.513144+00:00 [queued]>
+[2026-04-04T07:03:56.267+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-04T07:03:56.299+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-04-04 07:03:54.513144+00:00
+[2026-04-04T07:03:56.315+0000] {standard_task_runner.py:60} INFO - Started process 699 to run task
+[2026-04-04T07:03:56.321+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'manual__2026-04-04T07:03:54.513144+00:00', '--job-id', '180', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpvipqzupb']
+[2026-04-04T07:03:56.330+0000] {standard_task_runner.py:88} INFO - Job 180: Subtask validate_data
+[2026-04-04T07:03:56.603+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-04T07:03:54.513144+00:00 [running]> on host 1c62953c8918
+[2026-04-04T07:03:56.904+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-04T07:03:54.513144+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-04T07:03:54.513144+00:00'
+[2026-04-04T07:04:02.092+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | DataValidator khởi tạo | GE dir: /opt/***/great_expectations
+[2026-04-04T07:04:02.092+0000] {ge_validation.py:204} INFO -  GE | DataValidator khởi tạo | GE dir: /opt/***/great_expectations
+[2026-04-04T07:04:02.178+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Bắt đầu validation | run_id=2026-04-04_07-04
+[2026-04-04T07:04:02.178+0000] {ge_validation.py:229} INFO -  GE | Bắt đầu validation | run_id=2026-04-04_07-04
+[2026-04-04T07:04:02.180+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | GE suites directory: /opt/***/great_expectations/expectations
+[2026-04-04T07:04:02.180+0000] {ge_validation.py:230} INFO -  GE | GE suites directory: /opt/***/great_expectations/expectations
+[2026-04-04T07:04:02.182+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Downloading staging data từ MinIO...
+[2026-04-04T07:04:02.182+0000] {ge_validation.py:233} INFO -  GE | Downloading staging data từ MinIO...
+[2026-04-04T07:04:02.223+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-04T07:04:02.223+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-04T07:04:02.264+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon1_diem.parquet (58,001 rows)
+[2026-04-04T07:04:02.263+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon1_diem.parquet (58,001 rows)
+[2026-04-04T07:04:02.283+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-04T07:04:02.283+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-04T07:04:02.299+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon2_ctsv.parquet (9,629 rows)
+[2026-04-04T07:04:02.299+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon2_ctsv.parquet (9,629 rows)
+[2026-04-04T07:04:02.321+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon3_tai_chinh.parquet (9,238 rows)
+[2026-04-04T07:04:02.321+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-04_07-04/nguon3_tai_chinh.parquet (9,238 rows)
+[2026-04-04T07:04:02.324+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Downloaded: sv=1695, diem=58001, ctsv=9629, tc=9238
+[2026-04-04T07:04:02.323+0000] {ge_validation.py:241} INFO -  GE | Downloaded: sv=1695, diem=58001, ctsv=9629, tc=9238
+[2026-04-04T07:04:02.334+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Chạy validation suites...
+[2026-04-04T07:04:02.333+0000] {ge_validation.py:254} INFO -  GE | Chạy validation suites...
+[2026-04-04T07:04:02.358+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Loaded suite 'students_suite' (15 expectations)
+[2026-04-04T07:04:02.358+0000] {ge_validation.py:69} INFO -  GE | Loaded suite 'students_suite' (15 expectations)
+[2026-04-04T07:04:02.362+0000] {data_asset.py:541} INFO - 	15 expectation(s) included in expectation_suite.
+[2026-04-04T07:04:02.386+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | [students_suite] sinh_vien: 13/15 passed (FAIL)
+[2026-04-04T07:04:02.386+0000] {ge_validation.py:158} INFO -  GE | [students_suite] sinh_vien: 13/15 passed (FAIL)
+[2026-04-04T07:04:02.389+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] WARNING validation.ge :     FAIL: [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+[2026-04-04T07:04:02.389+0000] {ge_validation.py:165} WARNING -     FAIL: [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+[2026-04-04T07:04:02.391+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] WARNING validation.ge :     FAIL: [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records)
+[2026-04-04T07:04:02.390+0000] {ge_validation.py:165} WARNING -     FAIL: [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records)
+[2026-04-04T07:04:02.443+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Loaded suite 'grades_suite' (12 expectations)
+[2026-04-04T07:04:02.443+0000] {ge_validation.py:69} INFO -  GE | Loaded suite 'grades_suite' (12 expectations)
+[2026-04-04T07:04:02.450+0000] {data_asset.py:541} INFO - 	12 expectation(s) included in expectation_suite.
+[2026-04-04T07:04:02.504+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | [grades_suite] diem_hoc_phan: 12/12 passed (OK)
+[2026-04-04T07:04:02.504+0000] {ge_validation.py:158} INFO -  GE | [grades_suite] diem_hoc_phan: 12/12 passed (OK)
+[2026-04-04T07:04:02.521+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Loaded suite 'ctsv_suite' (9 expectations)
+[2026-04-04T07:04:02.521+0000] {ge_validation.py:69} INFO -  GE | Loaded suite 'ctsv_suite' (9 expectations)
+[2026-04-04T07:04:02.525+0000] {data_asset.py:541} INFO - 	9 expectation(s) included in expectation_suite.
+[2026-04-04T07:04:02.552+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | [ctsv_suite] ctsv_data: 9/9 passed (OK)
+[2026-04-04T07:04:02.552+0000] {ge_validation.py:158} INFO -  GE | [ctsv_suite] ctsv_data: 9/9 passed (OK)
+[2026-04-04T07:04:02.563+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Loaded suite 'tai_chinh_suite' (8 expectations)
+[2026-04-04T07:04:02.563+0000] {ge_validation.py:69} INFO -  GE | Loaded suite 'tai_chinh_suite' (8 expectations)
+[2026-04-04T07:04:02.566+0000] {data_asset.py:541} INFO - 	8 expectation(s) included in expectation_suite.
+[2026-04-04T07:04:02.588+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | [tai_chinh_suite] tai_chinh_data: 8/8 passed (OK)
+[2026-04-04T07:04:02.587+0000] {ge_validation.py:158} INFO -  GE | [tai_chinh_suite] tai_chinh_data: 8/8 passed (OK)
+[2026-04-04T07:04:02.589+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge : ============================================================
+[2026-04-04T07:04:02.589+0000] {ge_validation.py:291} INFO - ============================================================
+[2026-04-04T07:04:02.593+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | VALIDATION FAILED
+[2026-04-04T07:04:02.593+0000] {ge_validation.py:292} INFO -  GE | VALIDATION FAILED
+[2026-04-04T07:04:02.596+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | run_id         : 2026-04-04_07-04
+[2026-04-04T07:04:02.596+0000] {ge_validation.py:293} INFO -  GE | run_id         : 2026-04-04_07-04
+[2026-04-04T07:04:02.599+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Tổng expectations : 44
+[2026-04-04T07:04:02.598+0000] {ge_validation.py:294} INFO -  GE | Tổng expectations : 44
+[2026-04-04T07:04:02.600+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Passed           : 42
+[2026-04-04T07:04:02.600+0000] {ge_validation.py:295} INFO -  GE | Passed           : 42
+[2026-04-04T07:04:02.601+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Failed           : 2
+[2026-04-04T07:04:02.601+0000] {ge_validation.py:296} INFO -  GE | Failed           : 2
+[2026-04-04T07:04:02.602+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :  GE | Suite results:
+[2026-04-04T07:04:02.602+0000] {ge_validation.py:297} INFO -  GE | Suite results:
+[2026-04-04T07:04:02.603+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :      students       : FAIL (13/15)
+[2026-04-04T07:04:02.603+0000] {ge_validation.py:300} INFO -      students       : FAIL (13/15)
+[2026-04-04T07:04:02.603+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :      grades         : OK (12/12)
+[2026-04-04T07:04:02.603+0000] {ge_validation.py:300} INFO -      grades         : OK (12/12)
+[2026-04-04T07:04:02.605+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :      ctsv           : OK (9/9)
+[2026-04-04T07:04:02.604+0000] {ge_validation.py:300} INFO -      ctsv           : OK (9/9)
+[2026-04-04T07:04:02.606+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge :      tai_chinh      : OK (8/8)
+[2026-04-04T07:04:02.606+0000] {ge_validation.py:300} INFO -      tai_chinh      : OK (8/8)
+[2026-04-04T07:04:02.608+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] ERROR   validation.ge :  GE | 2 expectations thất bại:
+[2026-04-04T07:04:02.608+0000] {ge_validation.py:305} ERROR -  GE | 2 expectations thất bại:
+[2026-04-04T07:04:02.609+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] ERROR   validation.ge :     FAIL: [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+[2026-04-04T07:04:02.609+0000] {ge_validation.py:307} ERROR -     FAIL: [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+[2026-04-04T07:04:02.610+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] ERROR   validation.ge :     FAIL: [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records)
+[2026-04-04T07:04:02.610+0000] {ge_validation.py:307} ERROR -     FAIL: [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records)
+[2026-04-04T07:04:02.611+0000] {logging_mixin.py:188} WARNING - [2026-04-04 07:04:02] INFO    validation.ge : ============================================================
+[2026-04-04T07:04:02.611+0000] {ge_validation.py:308} INFO - ============================================================
+[2026-04-04T07:04:02.639+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-04T07:04:02.640+0000] {logging_mixin.py:188} INFO - GREAT EXPECTATIONS — VALIDATION FAILED
+[2026-04-04T07:04:02.641+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-04T07:04:02.641+0000] {logging_mixin.py:188} INFO -   Suite 'students': 2 failures
+[2026-04-04T07:04:02.642+0000] {logging_mixin.py:188} INFO -     - [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+[2026-04-04T07:04:02.642+0000] {logging_mixin.py:188} INFO -     - [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records)
+[2026-04-04T07:04:02.643+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-04T07:04:02.643+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 98, in task_validate
+    raise ValueError(
+ValueError: Great Expectations validation FAILED!
+  2 expectation(s) không đạt:
+  - [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+  - [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records)
+[2026-04-04T07:04:02.664+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260404T070354, start_date=20260404T070356, end_date=20260404T070402
+[2026-04-04T07:04:02.683+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 180 for task validate_data (Great Expectations validation FAILED!
+  2 expectation(s) không đạt:
+  - [sinh_vien] expect_column_values_to_match_regex | column='email' | unexpected=1.2% (20/1695 records)
+  - [sinh_vien] expect_column_values_to_be_in_set | column='trang_thai_hoc_tap' | unexpected=1.5% (25/1695 records); 699)
+[2026-04-04T07:04:02.750+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-04-04T07:04:02.775+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
