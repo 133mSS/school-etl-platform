@@ -12,24 +12,34 @@ DEFAULT_ARGS = {
 
 
 def task_aggregate_weekly(**context):
-    """
-    Tính lại toàn bộ agg_student_summary từ data warehouse.
-    Đây là "weekly refresh" — đảm bảo số liệu tổng hợp chính xác
-    sau 1 tuần chạy daily pipeline.
-    """
-    import sys
-    sys.path.insert(0, "/opt/airflow")
+    from airflow.utils.log.logging_mixin import LoggingMixin
+    logger = LoggingMixin().log
 
     from src.etl.aggregation import WeeklyAggregator
+    from src.validation.ge_validation import DataValidator
 
-    agg    = WeeklyAggregator()
+    # Bước 1
+    agg = WeeklyAggregator()
     result = agg.run()
-
     context["ti"].xcom_push(key="agg_result", value=result)
-    print(f"Weekly aggregation xong: {result}")
-    return result
 
+    # Bước 2
+    validator = DataValidator()
+    val_result = validator.validate_warehouse()
 
+    if not val_result["success"]:
+        failed = val_result["failed_expectations"]
+        raise ValueError(
+            f"Warehouse validation FAILED!\n"
+            f"  {len(failed)} expectation(s) không đạt:\n"
+            + "\n".join(f"  - {e}" for e in failed)
+        )
+
+    logger.info(
+        f"Warehouse OK: "
+        f"{val_result['successful_expectations']}/"
+        f"{val_result['evaluated_expectations']} passed"
+    )
 def task_generate_report(**context):
     """
     Tạo báo cáo tóm tắt tuần:

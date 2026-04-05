@@ -32,11 +32,13 @@ GE_DIR        = _PROJECT_ROOT / "great_expectations"
 SUITE_DIR     = GE_DIR / "expectations"
 
 # Mapping 4 suite rieng biet
+# Cần thêm:
 SUITE_FILES = {
     "students_suite":   SUITE_DIR / "students_suite.json",
     "grades_suite":     SUITE_DIR / "grades_suite.json",
     "ctsv_suite":       SUITE_DIR / "ctsv_suite.json",
     "tai_chinh_suite":  SUITE_DIR / "tai_chinh_suite.json",
+    "warehouse_suite":  SUITE_DIR / "warehouse_suite.json",  # ← thêm
 }
 
 
@@ -118,6 +120,8 @@ class DataValidator:
             raise FileNotFoundError(f"Khong tim thay thu muc expectations: {SUITE_DIR}")
         logger.info(f"  GE | DataValidator khoi tao | GE dir: {GE_DIR}")
 
+
+    
     def validate_from_staging(self, run_id: Optional[str] = None) -> Dict[str, Any]:
         client = MinIOClient()
         if run_id is None:
@@ -180,15 +184,59 @@ class DataValidator:
             "failed_expectations":     all_failures,
             "suite_results":           suite_results,
         }
+# ge_validation.py — cần thêm hàm này:
+    def validate_warehouse(self) -> Dict[str, Any]:
+        """
+        Validate bảng agg_student_summary trong Data Warehouse.
+        Dùng cho weekly_summary_pipeline sau khi rebuild xong.
+        """
+        import pandas as pd
+        from src.config.database import warehouse_engine
 
+        logger.info("  GE | Validate warehouse — agg_student_summary")
+
+        # Đọc từ warehouse DB, không phải MinIO
+        df_agg = pd.read_sql("""
+            SELECT 
+                ma_sinh_vien, gpa_he_4, muc_do_rui_ro,
+                tong_no_hoc_phi, canh_bao_hoc_vu,
+                diem_rl_trung_binh, co_no_hoc_phi
+            FROM agg_student_summary
+        """, warehouse_engine)
+
+        logger.info(f"  GE | agg_student_summary: {len(df_agg)} records")
+
+        # Chạy warehouse_suite
+        result = _run_suite(df_agg, "warehouse_suite", "agg_student_summary")
+
+        # Trả về cùng format với validate_from_staging
+        all_failures = result.get("failures", [])
+        return {
+            "success":                 result["success"],
+            "evaluated_expectations":  result["evaluated"],
+            "successful_expectations": result["passed"],
+            "failed_expectations":     all_failures,
+            "suite_results":           {"warehouse": result},
+        }        
+
+    # Cần sửa:
     @staticmethod
-    def _prepare_students_df(df_sv: pd.DataFrame, df_tong_hop: pd.DataFrame) -> pd.DataFrame:
-        if df_sv.empty:
-            return pd.DataFrame()
+    def _prepare_students_df(df_sv, df_tong_hop):
         df = df_sv.copy()
-        for col in ["ho", "ten", "email", "khoa_hoc", "trang_thai_hoc_tap", "ma_nganh", "ma_lop"]:
+
+        # Merge GPA và canh_bao vào để GE có thể validate
+        if not df_tong_hop.empty:
+            df = df.merge(
+                df_tong_hop[["ma_sinh_vien", "gpa_he_4", "canh_bao_hoc_vu"]],
+                on="ma_sinh_vien",
+                how="left"
+            )
+
+        for col in ["ho", "ten", "email", "khoa_hoc",
+                    "trang_thai_hoc_tap", "ma_nganh", "ma_lop"]:
             if col not in df.columns:
                 df[col] = None
+
         return df
 
     @staticmethod

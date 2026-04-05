@@ -390,3 +390,43 @@ LINE 1: UPDATE fact_tai_chinh SET ngay_dong_cuoi='NaT'::timestamp WH...
 [2026-04-05 04:48:24] INFO    etl.load :   agg_student_summary      :    1,695 records
 [2026-04-05 04:48:24] INFO    etl.load :   TỔNG                     :    1,895 records
 [2026-04-05 04:48:24] INFO    etl.load : ======================================================================
+[2026-04-05 12:38:51] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-05 12:38:51] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-05 12:38:51] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-05 12:38:51] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-05 12:38:51] INFO    validation.ge :   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | [students_suite] mock_students: 12/14 (FAIL)
+[2026-04-05 12:39:12] WARNING validation.ge :     FAIL: [mock_students] expect_table_row_count_to_be_between
+[2026-04-05 12:39:12] WARNING validation.ge :     FAIL: [mock_students] expect_table_columns_to_match_set
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | [grades_suite] mock_grades: 10/11 (FAIL)
+[2026-04-05 12:39:12] WARNING validation.ge :     FAIL: [mock_grades] expect_table_row_count_to_be_between
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | [ctsv_suite] mock_ctsv: 10/10 (OK)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | [tai_chinh_suite] mock_tc: 11/11 (OK)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-05 12:39:12] INFO    validation.ge :   GE | [warehouse_suite] mock_warehouse: 6/7 (FAIL)
+[2026-04-05 12:39:12] WARNING validation.ge :     FAIL: [mock_warehouse] expect_table_row_count_to_be_between
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | [students_suite] mock_students: 14/14 (OK)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | [grades_suite] mock_grades: 10/11 (FAIL)
+[2026-04-05 12:41:29] WARNING validation.ge :     FAIL: [mock_grades] expect_table_row_count_to_be_between
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | [ctsv_suite] mock_ctsv: 10/10 (OK)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | [tai_chinh_suite] mock_tc: 11/11 (OK)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-05 12:41:29] INFO    validation.ge :   GE | [warehouse_suite] mock_warehouse: 7/7 (OK)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | [students_suite] mock_students: 14/14 (OK)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | [grades_suite] mock_grades: 11/11 (OK)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | [ctsv_suite] mock_ctsv: 10/10 (OK)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | [tai_chinh_suite] mock_tc: 11/11 (OK)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-05 12:42:01] INFO    validation.ge :   GE | [warehouse_suite] mock_warehouse: 7/7 (OK)
