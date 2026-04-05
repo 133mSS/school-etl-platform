@@ -97,11 +97,11 @@ class DataAggregator:
                 COALESCE(gpa.gpa_he_4, 0.00) AS gpa_he_4,
                 COALESCE(gpa.gpa_he_10, 0.00) AS gpa_he_10,
                 CASE
-                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Xuat sac'
-                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.2 THEN 'Gioi'
-                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.5 THEN 'Kha'
-                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung binh'
-                    ELSE 'Yeu'
+                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Xuất Sắc'
+                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.2 THEN 'Giỏi'
+                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.5 THEN 'Khá'
+                    WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung bình'
+                    ELSE 'Yếu'
                 END AS xep_loai_hoc_luc,
                 COALESCE(gpa.tong_tin_chi_dang_ky, 0) AS tong_tin_chi_dang_ky,
                 COALESCE(gpa.tin_chi_dat, 0) AS tin_chi_dat,

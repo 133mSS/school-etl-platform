@@ -305,11 +305,12 @@ class DataLoader:
         if df.empty:
             return 0
 
-        session        = WarehouseSession()
-        inserted       = 0
-        updated        = 0
+        session = WarehouseSession()
+        inserted = 0
+        updated  = 0
         cascaded_facts = 0
 
+        # Các cột trigger SCD Type 2 — thay đổi những cột này → tạo bản ghi mới
         scd2_cols = ["trang_thai_hoc_tap", "ma_nganh", "ma_lop", "ma_khoa"]
 
         try:
@@ -318,99 +319,83 @@ class DataLoader:
                 if not ma_sv:
                     continue
 
-                today = date.today()   # Dùng nhất quán trong cả vòng lặp
-
                 current = session.query(DimSinhVien).filter(
-                    DimSinhVien.ma_sinh_vien  == ma_sv,
+                    DimSinhVien.ma_sinh_vien == ma_sv,
                     DimSinhVien.la_ban_hien_tai == True,
                 ).first()
 
                 if current is None:
-                    # ── Sinh viên mới → Insert ─────────────────────────
+                    # Sinh viên mới → insert
                     obj = DimSinhVien(
-                        ma_sinh_vien        = ma_sv,
-                        ho                  = row.get("ho"),
-                        ten                 = row.get("ten"),
-                        ho_ten              = row.get("ho_ten", ""),
-                        ngay_sinh           = self._to_date(row.get("ngay_sinh")),
-                        gioi_tinh           = row.get("gioi_tinh"),
-                        email               = row.get("email"),
-                        khoa_hoc            = row.get("khoa_hoc"),
-                        trang_thai_hoc_tap  = row.get("trang_thai_hoc_tap"),
-                        ma_nganh            = row.get("ma_nganh"),
-                        ten_nganh           = row.get("ten_nganh"),
-                        ma_khoa             = row.get("ma_khoa"),
-                        ten_khoa            = row.get("ten_khoa"),
-                        ma_co_van           = row.get("ma_co_van"),
-                        ten_co_van          = row.get("ten_co_van"),
-                        ma_lop              = row.get("ma_lop"),
-                        ten_lop             = row.get("ten_lop"),
-                        la_ban_hien_tai     = True,
-                        phien_ban           = 1,
-                        # FIX: Thêm ngay_hieu_luc cho bản ghi mới
-                        ngay_hieu_luc       = today,
-                        ngay_het_hieu_luc   = None,   # None = vô thời hạn
+                        ma_sinh_vien=ma_sv,
+                        ho=row.get("ho"),
+                        ten=row.get("ten"),
+                        ho_ten=row.get("ho_ten", ""),
+                        ngay_sinh=self._to_date(row.get("ngay_sinh")),
+                        gioi_tinh=row.get("gioi_tinh"),
+                        email=row.get("email"),
+                        khoa_hoc=row.get("khoa_hoc"),
+                        trang_thai_hoc_tap=row.get("trang_thai_hoc_tap"),
+                        ma_nganh=row.get("ma_nganh"),
+                        ten_nganh=row.get("ten_nganh"),
+                        ma_khoa=row.get("ma_khoa"),
+                        ten_khoa=row.get("ten_khoa"),
+                        ma_co_van=row.get("ma_co_van"),
+                        ten_co_van=row.get("ten_co_van"),
+                        ma_lop=row.get("ma_lop"),
+                        ten_lop=row.get("ten_lop"),
+                        la_ban_hien_tai=True,
+                        phien_ban=1,
                     )
                     session.add(obj)
                     inserted += 1
-
                 else:
                     changed = self._check_scd2_changed(current, row, scd2_cols)
 
                     if changed:
-                        # ── SCD Type 2: Đóng bản cũ ───────────────────
+                        # SCD Type 2: đánh dấu bản cũ hết hiệu lực
                         old_key = current.sinh_vien_key
                         current.la_ban_hien_tai   = False
-                        current.ngay_het_hieu_luc = today   # Ngày hết hiệu lực = hôm nay
+                        current.ngay_het_hieu_luc = date.today()
 
-                        # ── Tạo bản ghi mới ────────────────────────────
+                        # Tạo bản ghi mới
                         new_obj = DimSinhVien(
-                            ma_sinh_vien        = ma_sv,
-                            ho                  = row.get("ho"),
-                            ten                 = row.get("ten"),
-                            ho_ten              = row.get("ho_ten", ""),
-                            ngay_sinh           = self._to_date(row.get("ngay_sinh")),
-                            gioi_tinh           = row.get("gioi_tinh"),
-                            email               = row.get("email"),
-                            khoa_hoc            = row.get("khoa_hoc"),
-                            trang_thai_hoc_tap  = row.get("trang_thai_hoc_tap"),
-                            ma_nganh            = row.get("ma_nganh"),
-                            ten_nganh           = row.get("ten_nganh"),
-                            ma_khoa             = row.get("ma_khoa"),
-                            ten_khoa            = row.get("ten_khoa"),
-                            ma_co_van           = row.get("ma_co_van"),
-                            ten_co_van          = row.get("ten_co_van"),
-                            ma_lop              = row.get("ma_lop"),
-                            ten_lop             = row.get("ten_lop"),
-                            la_ban_hien_tai     = True,
-                            phien_ban           = current.phien_ban + 1,
-                            # FIX: Ngày hiệu lực của bản mới = hôm nay
-                            ngay_hieu_luc       = today,
-                            ngay_het_hieu_luc   = None,
+                            ma_sinh_vien=ma_sv,
+                            ho=row.get("ho"),
+                            ten=row.get("ten"),
+                            ho_ten=row.get("ho_ten", ""),
+                            ngay_sinh=self._to_date(row.get("ngay_sinh")),
+                            gioi_tinh=row.get("gioi_tinh"),
+                            email=row.get("email"),
+                            khoa_hoc=row.get("khoa_hoc"),
+                            trang_thai_hoc_tap=row.get("trang_thai_hoc_tap"),
+                            ma_nganh=row.get("ma_nganh"),
+                            ten_nganh=row.get("ten_nganh"),
+                            ma_khoa=row.get("ma_khoa"),
+                            ten_khoa=row.get("ten_khoa"),
+                            ma_co_van=row.get("ma_co_van"),
+                            ten_co_van=row.get("ten_co_van"),
+                            ma_lop=row.get("ma_lop"),
+                            ten_lop=row.get("ten_lop"),
+                            la_ban_hien_tai=True,
+                            phien_ban=current.phien_ban + 1,
                         )
                         session.add(new_obj)
-                        session.flush()   # Để lấy new_obj.sinh_vien_key
+                        session.flush()
 
                         new_key = new_obj.sinh_vien_key
                         n = self._cascade_sv_key_update(session, old_key, new_key)
                         cascaded_facts += n
                         updated += 1
-
-                        logger.debug(
-                            f"  SCD2 | {ma_sv}: phien_ban "
-                            f"{current.phien_ban} → {new_obj.phien_ban} | "
-                            f"cascade {n} facts"
-                        )
-
                     else:
-                        # ── Không đổi SCD2 cols → update trường phụ ───
-                        current.ho_ten     = row.get("ho_ten",     current.ho_ten)
-                        current.email      = row.get("email",      current.email)
-                        current.ten_nganh  = row.get("ten_nganh",  current.ten_nganh)
-                        current.ten_khoa   = row.get("ten_khoa",   current.ten_khoa)
-                        current.ten_lop    = row.get("ten_lop",    current.ten_lop)
+                        # Không đổi SCD2 cols → chỉ update các trường phụ
+                        current.ho_ten     = row.get("ho_ten", current.ho_ten)
+                        current.email      = row.get("email", current.email)
+                        current.ten_nganh  = row.get("ten_nganh", current.ten_nganh)
+                        current.ten_khoa   = row.get("ten_khoa", current.ten_khoa)
+                        current.ten_lop    = row.get("ten_lop", current.ten_lop)
                         current.ten_co_van = row.get("ten_co_van", current.ten_co_van)
-                        current.ma_co_van  = row.get("ma_co_van",  current.ma_co_van)
+                        current.ma_co_van  = row.get("ma_co_van", current.ma_co_van)
 
             session.commit()
             logger.info(
@@ -426,6 +411,7 @@ class DataLoader:
             return 0
         finally:
             session.close()
+
     # ────────────────────────────────────────────────────────────────
     # SCD TYPE 2 HELPERS
     # ────────────────────────────────────────────────────────────────
