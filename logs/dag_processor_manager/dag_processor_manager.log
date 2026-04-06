@@ -104187,3 +104187,922 @@ File Path                                     PID    Runtime      # DAGs    # Er
 /opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T15:53:20
 /opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T15:53:19
 ================================================================================
+[2026-04-05T15:54:16.789+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T15:54:05
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T15:53:50
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.23s           2026-04-05T15:53:49
+================================================================================
+[2026-04-05T15:54:47.241+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T15:54:36
+/opt/airflow/dags/test_dag.py                                          1           0  0.47s           2026-04-05T15:54:21
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.19s           2026-04-05T15:54:20
+================================================================================
+[2026-04-05T15:55:17.740+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T15:55:06
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T15:54:51
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T15:54:50
+================================================================================
+[2026-04-05T15:55:48.204+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T15:55:37
+/opt/airflow/dags/test_dag.py                                          1           0  0.17s           2026-04-05T15:55:21
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T15:55:20
+================================================================================
+[2026-04-05T15:56:18.663+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.18s           2026-04-05T15:56:07
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T15:55:52
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.33s           2026-04-05T15:55:51
+================================================================================
+[2026-04-05T15:56:49.169+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.16s           2026-04-05T15:56:38
+/opt/airflow/dags/test_dag.py                                          1           0  0.20s           2026-04-05T15:56:22
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T15:56:21
+================================================================================
+[2026-04-05T15:57:19.605+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T15:57:08
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T15:56:53
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T15:56:52
+================================================================================
+[2026-04-05T15:57:49.069+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T15:57:49.114+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T15:57:50.134+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T15:57:39
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T15:57:23
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.19s           2026-04-05T15:57:22
+================================================================================
+[2026-04-05T15:58:20.572+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T15:58:09
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T15:57:54
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T15:57:53
+================================================================================
+[2026-04-05T15:58:51.055+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.17s           2026-04-05T15:58:40
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T15:58:24
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T15:58:23
+================================================================================
+[2026-04-05T15:59:21.553+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T15:59:10
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T15:58:55
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T15:58:54
+================================================================================
+[2026-04-05T15:59:51.997+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.16s           2026-04-05T15:59:41
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T15:59:25
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T15:59:24
+================================================================================
+[2026-04-05T16:00:22.479+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:00:11
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T15:59:56
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.19s           2026-04-05T15:59:55
+================================================================================
+[2026-04-05T16:00:52.843+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:00:41
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:00:26
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:00:25
+================================================================================
+[2026-04-05T16:01:23.238+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.11s           2026-04-05T16:01:12
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:00:57
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.11s           2026-04-05T16:00:55
+================================================================================
+[2026-04-05T16:01:53.657+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:01:42
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:01:27
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:01:26
+================================================================================
+[2026-04-05T16:02:24.193+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:02:13
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:01:57
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:01:56
+================================================================================
+[2026-04-05T16:02:49.531+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:02:49.562+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:02:54.615+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:02:43
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:02:28
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:02:27
+================================================================================
+[2026-04-05T16:03:25.070+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:03:13
+/opt/airflow/dags/test_dag.py                                          1           0  0.14s           2026-04-05T16:02:58
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.21s           2026-04-05T16:02:57
+================================================================================
+[2026-04-05T16:03:55.458+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:03:44
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:03:29
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:03:28
+================================================================================
+[2026-04-05T16:04:25.867+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.11s           2026-04-05T16:04:14
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:03:59
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:03:58
+================================================================================
+[2026-04-05T16:04:56.321+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:04:45
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:04:30
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:04:29
+================================================================================
+[2026-04-05T16:05:26.742+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:05:15
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:05:00
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:04:59
+================================================================================
+[2026-04-05T16:05:57.199+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.16s           2026-04-05T16:05:46
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:05:31
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:05:29
+================================================================================
+[2026-04-05T16:06:27.631+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:06:16
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:06:01
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:06:00
+================================================================================
+[2026-04-05T16:06:58.058+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:06:47
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:06:31
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:06:30
+================================================================================
+[2026-04-05T16:07:28.540+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:07:17
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:07:02
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:07:01
+================================================================================
+[2026-04-05T16:07:49.861+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:07:49.909+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:07:58.996+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:07:47
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:07:32
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:07:31
+================================================================================
+[2026-04-05T16:08:29.410+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:08:18
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:08:03
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:08:02
+================================================================================
+[2026-04-05T16:08:59.787+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:08:48
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:08:33
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:08:32
+================================================================================
+[2026-04-05T16:09:30.174+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:09:19
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:09:03
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:09:02
+================================================================================
+[2026-04-05T16:10:00.615+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:09:49
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:09:34
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:09:33
+================================================================================
+[2026-04-05T16:10:31.039+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:10:20
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:10:04
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:10:03
+================================================================================
+[2026-04-05T16:11:01.466+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:10:50
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:10:35
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:10:34
+================================================================================
+[2026-04-05T16:11:31.983+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.17s           2026-04-05T16:11:20
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:11:05
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:11:04
+================================================================================
+[2026-04-05T16:12:02.474+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:11:51
+/opt/airflow/dags/test_dag.py                                          1           0  0.17s           2026-04-05T16:11:36
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:11:35
+================================================================================
+[2026-04-05T16:12:32.975+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:12:21
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:12:06
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:12:05
+================================================================================
+[2026-04-05T16:12:50.254+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:12:50.308+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:13:03.445+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:12:52
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:12:37
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:12:36
+================================================================================
+[2026-04-05T16:13:33.943+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:13:22
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:13:07
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:13:06
+================================================================================
+[2026-04-05T16:14:04.374+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.21s           2026-04-05T16:13:40
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:13:38
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T16:13:37
+================================================================================
+[2026-04-05T16:14:34.765+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:14:10
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:14:08
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:14:07
+================================================================================
+[2026-04-05T16:15:05.159+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:14:40
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:14:38
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:14:37
+================================================================================
+[2026-04-05T16:15:35.558+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:15:11
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:15:09
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:15:08
+================================================================================
+[2026-04-05T16:16:05.940+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:15:41
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:15:39
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:15:38
+================================================================================
+[2026-04-05T16:16:36.327+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:16:12
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:16:10
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:16:09
+================================================================================
+[2026-04-05T16:17:06.788+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:16:42
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:16:40
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:16:39
+================================================================================
+[2026-04-05T16:17:37.248+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:17:13
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:17:11
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:17:09
+================================================================================
+[2026-04-05T16:17:50.558+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:17:50.608+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:18:07.759+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:17:43
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:17:41
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.21s           2026-04-05T16:17:40
+================================================================================
+[2026-04-05T16:18:38.510+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:18:14
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:18:11
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:18:10
+================================================================================
+[2026-04-05T16:19:08.985+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:18:44
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:18:42
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:18:41
+================================================================================
+[2026-04-05T16:19:39.493+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:19:15
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:19:13
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:19:12
+================================================================================
+[2026-04-05T16:20:09.937+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:19:45
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:19:43
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T16:19:42
+================================================================================
+[2026-04-05T16:20:40.379+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:20:16
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:20:14
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:20:13
+================================================================================
+[2026-04-05T16:21:10.875+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.22s           2026-04-05T16:20:46
+/opt/airflow/dags/test_dag.py                                          1           0  0.14s           2026-04-05T16:20:44
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.20s           2026-04-05T16:20:43
+================================================================================
+[2026-04-05T16:21:41.334+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.16s           2026-04-05T16:21:17
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:21:15
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:21:14
+================================================================================
+[2026-04-05T16:22:11.869+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:21:47
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:21:45
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:21:44
+================================================================================
+[2026-04-05T16:22:42.251+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.18s           2026-04-05T16:22:18
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:22:16
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:22:15
+================================================================================
+[2026-04-05T16:22:50.632+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:22:50.688+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:23:12.720+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:22:48
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:22:46
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:22:45
+================================================================================
+[2026-04-05T16:23:43.135+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:23:18
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:23:16
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:23:15
+================================================================================
+[2026-04-05T16:24:13.529+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:23:49
+/opt/airflow/dags/test_dag.py                                          1           0  0.14s           2026-04-05T16:23:47
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:23:46
+================================================================================
+[2026-04-05T16:24:43.980+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:24:19
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:24:17
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:24:16
+================================================================================
+[2026-04-05T16:25:14.447+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.16s           2026-04-05T16:24:50
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:24:48
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:24:47
+================================================================================
+[2026-04-05T16:25:44.888+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:25:20
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:25:18
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:25:17
+================================================================================
+[2026-04-05T16:26:15.422+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:25:51
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:25:49
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.20s           2026-04-05T16:25:48
+================================================================================
+[2026-04-05T16:26:45.918+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:26:21
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:26:19
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:26:18
+================================================================================
+[2026-04-05T16:27:16.340+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:26:52
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:26:50
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:26:49
+================================================================================
+[2026-04-05T16:27:46.724+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:27:22
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:27:20
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:27:19
+================================================================================
+[2026-04-05T16:27:50.772+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:27:50.812+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:28:17.168+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:27:53
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:27:50
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.12s           2026-04-05T16:27:49
+================================================================================
+[2026-04-05T16:28:47.754+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:28:23
+/opt/airflow/dags/test_dag.py                                          1           0  0.20s           2026-04-05T16:28:21
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:28:20
+================================================================================
+[2026-04-05T16:29:18.204+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.16s           2026-04-05T16:28:54
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:28:51
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T16:28:50
+================================================================================
+[2026-04-05T16:29:48.600+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:29:24
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:29:22
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:29:21
+================================================================================
+[2026-04-05T16:30:19.032+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.12s           2026-04-05T16:29:54
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:29:52
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:29:51
+================================================================================
+[2026-04-05T16:30:49.458+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:30:25
+/opt/airflow/dags/test_dag.py                                          1           0  0.14s           2026-04-05T16:30:23
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:30:22
+================================================================================
+[2026-04-05T16:31:19.949+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:30:55
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:30:53
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.19s           2026-04-05T16:30:52
+================================================================================
+[2026-04-05T16:31:50.366+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:31:26
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:31:24
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:31:23
+================================================================================
+[2026-04-05T16:32:20.866+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:31:56
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:31:54
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:31:53
+================================================================================
+[2026-04-05T16:32:51.379+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:32:51.430+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:32:51.447+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:32:27
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:32:25
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:32:24
+================================================================================
+[2026-04-05T16:33:21.804+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:32:57
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:32:55
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T16:32:54
+================================================================================
+[2026-04-05T16:33:52.227+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:33:28
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:33:26
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:33:24
+================================================================================
+[2026-04-05T16:34:22.643+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:33:58
+/opt/airflow/dags/test_dag.py                                          1           0  0.15s           2026-04-05T16:33:56
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:33:55
+================================================================================
+[2026-04-05T16:34:53.144+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:34:28
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:34:26
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:34:25
+================================================================================
+[2026-04-05T16:35:23.577+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:34:59
+/opt/airflow/dags/test_dag.py                                          1           0  0.10s           2026-04-05T16:34:57
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.13s           2026-04-05T16:34:56
+================================================================================
+[2026-04-05T16:35:54.095+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:35:29
+/opt/airflow/dags/test_dag.py                                          1           0  0.13s           2026-04-05T16:35:27
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:35:26
+================================================================================
+[2026-04-05T16:36:24.583+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:36:00
+/opt/airflow/dags/test_dag.py                                          1           0  0.20s           2026-04-05T16:35:58
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:35:57
+================================================================================
+[2026-04-05T16:36:55.082+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.18s           2026-04-05T16:36:31
+/opt/airflow/dags/test_dag.py                                          1           0  0.14s           2026-04-05T16:36:28
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:36:27
+================================================================================
+[2026-04-05T16:37:25.548+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.20s           2026-04-05T16:37:01
+/opt/airflow/dags/test_dag.py                                          1           0  0.35s           2026-04-05T16:36:59
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T16:36:58
+================================================================================
+[2026-04-05T16:37:51.989+0000] {manager.py:738} INFO - Searching for files in /opt/airflow/dags
+[2026-04-05T16:37:52.044+0000] {manager.py:741} INFO - There are 3 files in /opt/airflow/dags
+[2026-04-05T16:37:56.093+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.42s           2026-04-05T16:37:32
+/opt/airflow/dags/test_dag.py                                          1           0  0.14s           2026-04-05T16:37:29
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.16s           2026-04-05T16:37:28
+================================================================================
+[2026-04-05T16:38:26.617+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.15s           2026-04-05T16:38:02
+/opt/airflow/dags/test_dag.py                                          1           0  0.12s           2026-04-05T16:38:00
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:37:59
+================================================================================
+[2026-04-05T16:38:57.078+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.13s           2026-04-05T16:38:32
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:38:30
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.14s           2026-04-05T16:38:29
+================================================================================
+[2026-04-05T16:39:27.548+0000] {manager.py:879} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                     PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run
+--------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------
+/opt/airflow/dags/daily_student_pipeline.py                            1           0  0.14s           2026-04-05T16:39:03
+/opt/airflow/dags/test_dag.py                                          1           0  0.11s           2026-04-05T16:39:01
+/opt/airflow/dags/weekly_summary_pipeline.py                           1           0  0.15s           2026-04-05T16:39:00
+================================================================================
+[2026-04-05T16:39:33.745+0000] {manager.py:451} INFO - Exiting gracefully upon receiving signal 15
