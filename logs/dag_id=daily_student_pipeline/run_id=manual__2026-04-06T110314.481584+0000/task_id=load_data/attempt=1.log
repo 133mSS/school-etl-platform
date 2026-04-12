@@ -1,0 +1,156 @@
+[2026-04-06T11:03:46.407+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-04-06T11:03:14.481584+00:00 [queued]>
+[2026-04-06T11:03:46.424+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-04-06T11:03:14.481584+00:00 [queued]>
+[2026-04-06T11:03:46.425+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-06T11:03:46.451+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): load_data> on 2026-04-06 11:03:14.481584+00:00
+[2026-04-06T11:03:46.460+0000] {standard_task_runner.py:60} INFO - Started process 10547 to run task
+[2026-04-06T11:03:46.465+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'load_data', 'manual__2026-04-06T11:03:14.481584+00:00', '--job-id', '287', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmp6nasb1nt']
+[2026-04-06T11:03:46.469+0000] {standard_task_runner.py:88} INFO - Job 287: Subtask load_data
+[2026-04-06T11:03:46.618+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-06T11:03:14.481584+00:00 [running]> on host 1c62953c8918
+[2026-04-06T11:03:46.920+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='load_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-06T11:03:14.481584+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-06T11:03:14.481584+00:00'
+[2026-04-06T11:03:48.736+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:48] INFO    etl.transform :   Load TransformedData từ MinIO staging: run_id=2026-04-06_11-03
+[2026-04-06T11:03:48.736+0000] {transform.py:159} INFO -   Load TransformedData từ MinIO staging: run_id=2026-04-06_11-03
+[2026-04-06T11:03:48.798+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:48] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_hoc_ky.parquet (9 rows)
+[2026-04-06T11:03:48.798+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_hoc_ky.parquet (9 rows)
+[2026-04-06T11:03:48.833+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:48] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_giang_vien.parquet (45 rows)
+[2026-04-06T11:03:48.833+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_giang_vien.parquet (45 rows)
+[2026-04-06T11:03:48.872+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:48] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_hoc_phan.parquet (121 rows)
+[2026-04-06T11:03:48.871+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_hoc_phan.parquet (121 rows)
+[2026-04-06T11:03:48.914+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:48] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-06T11:03:48.914+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-06T11:03:48.978+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:48] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_diem.parquet (58,001 rows)
+[2026-04-06T11:03:48.977+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_diem.parquet (58,001 rows)
+[2026-04-06T11:03:49.028+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_dang_ky.parquet (58,001 rows)
+[2026-04-06T11:03:49.027+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_dang_ky.parquet (58,001 rows)
+[2026-04-06T11:03:49.056+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_ren_luyen.parquet (9,238 rows)
+[2026-04-06T11:03:49.056+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_ren_luyen.parquet (9,238 rows)
+[2026-04-06T11:03:49.091+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_tai_chinh.parquet (9,238 rows)
+[2026-04-06T11:03:49.091+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-06_11-03/fact_tai_chinh.parquet (9,238 rows)
+[2026-04-06T11:03:49.095+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.transform : Load from staging-data OK — run_id=2026-04-06_11-03
+[2026-04-06T11:03:49.094+0000] {transform.py:172} INFO - Load from staging-data OK — run_id=2026-04-06_11-03
+[2026-04-06T11:03:49.099+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-06T11:03:49.099+0000] {load.py:39} INFO - ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-06T11:03:49.103+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load : ======================================================================
+[2026-04-06T11:03:49.103+0000] {load.py:40} INFO - ======================================================================
+[2026-04-06T11:03:49.107+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load : Tạo schema warehouse từ warehouse_models.py...
+[2026-04-06T11:03:49.107+0000] {load.py:109} INFO - Tạo schema warehouse từ warehouse_models.py...
+[2026-04-06T11:03:49.169+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load :   Schema warehouse OK
+[2026-04-06T11:03:49.169+0000] {load.py:111} INFO -   Schema warehouse OK
+[2026-04-06T11:03:49.173+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-04-06T11:03:49.173+0000] {load.py:45} INFO - ── Bước 1: Load Dimension Tables ──
+[2026-04-06T11:03:49.255+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load :   dim_hoc_ky     →      9 records (new: 0)
+[2026-04-06T11:03:49.254+0000] {load.py:200} INFO -   dim_hoc_ky     →      9 records (new: 0)
+[2026-04-06T11:03:49.431+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-04-06T11:03:49.431+0000] {load.py:250} INFO -   dim_giang_vien →     45 records (new: 0)
+[2026-04-06T11:03:49.677+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:49] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-06T11:03:49.677+0000] {load.py:298} INFO -   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-06T11:03:56.602+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:56] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 25, fact cascade: 2040)
+[2026-04-06T11:03:56.602+0000] {load.py:407} INFO -   dim_sinh_vien →  1,695 records (new: 0, SCD2: 25, fact cascade: 2040)
+[2026-04-06T11:03:56.609+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:56] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-06T11:03:56.608+0000] {load.py:51} INFO - ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-06T11:03:56.612+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:56] INFO    etl.load : Building surrogate key caches...
+[2026-04-06T11:03:56.612+0000] {load.py:114} INFO - Building surrogate key caches...
+[2026-04-06T11:03:56.654+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:56] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=9
+[2026-04-06T11:03:56.653+0000] {load.py:142} INFO -   SV=1695, HP=121, GV=45, HK=9
+[2026-04-06T11:03:56.658+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:03:56] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-04-06T11:03:56.657+0000] {load.py:54} INFO - ── Bước 3: Load Fact Tables ──
+[2026-04-06T11:06:59.078+0000] {logging_mixin.py:188} WARNING - [2026-04-06 11:06:59] INFO    etl.load :   fact_hoc_tap   →      0 records
+[2026-04-06T11:06:59.078+0000] {load.py:546} INFO -   fact_hoc_tap   →      0 records
+[2026-04-06T11:08:40.927+0000] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-04-06T11:08:41.230+0000] {process_utils.py:131} INFO - Sending 15 to group 10547. PIDs of all processes in the group: [10547]
+[2026-04-06T11:08:41.279+0000] {process_utils.py:86} INFO - Sending the signal 15 to group 10547
+[2026-04-06T11:08:41.280+0000] {taskinstance.py:2450} ERROR - Received SIGTERM. Terminating subprocesses.
+[2026-04-06T11:08:41.549+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.OperationalError: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/airflow/src/etl/load.py", line 588, in _load_fact_dang_ky
+    ).first()
+      ^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2824, in first
+    return self.limit(1)._iter().first()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2916, in _iter
+    result = self.session.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1717, in execute
+    result = conn._execute_20(statement, params or {}, execution_options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1710, in _execute_20
+    return meth(self, args_10style, kwargs_10style, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 334, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1577, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1953, in _execute_context
+    self._handle_dbapi_exception(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2134, in _handle_dbapi_exception
+    util.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1910, in _execute_context
+    self.dialect.do_execute(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+[SQL: SELECT fact_dang_ky.dang_ky_key AS fact_dang_ky_dang_ky_key, fact_dang_ky.sinh_vien_key AS fact_dang_ky_sinh_vien_key, fact_dang_ky.hoc_phan_key AS fact_dang_ky_hoc_phan_key, fact_dang_ky.giang_vien_key AS fact_dang_ky_giang_vien_key, fact_dang_ky.hoc_ky_key AS fact_dang_ky_hoc_ky_key, fact_dang_ky.date_key AS fact_dang_ky_date_key, fact_dang_ky.ma_sinh_vien AS fact_dang_ky_ma_sinh_vien, fact_dang_ky.ma_hoc_phan AS fact_dang_ky_ma_hoc_phan, fact_dang_ky.ma_dang_ky AS fact_dang_ky_ma_dang_ky, fact_dang_ky.trang_thai AS fact_dang_ky_trang_thai, fact_dang_ky.so_tin_chi AS fact_dang_ky_so_tin_chi, fact_dang_ky.ngay_dang_ky AS fact_dang_ky_ngay_dang_ky, fact_dang_ky.ngay_load AS fact_dang_ky_ngay_load, fact_dang_ky.nguon_du_lieu AS fact_dang_ky_nguon_du_lieu 
+FROM fact_dang_ky 
+WHERE fact_dang_ky.ma_sinh_vien = %(ma_sinh_vien_1)s AND fact_dang_ky.ma_hoc_phan = %(ma_hoc_phan_1)s AND fact_dang_ky.hoc_ky_key = %(hoc_ky_key_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'ma_sinh_vien_1': 'B23DCCN071', 'ma_hoc_phan_1': 'CN026', 'hoc_ky_key_1': 5, 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 163, in task_load
+    stats  = loader.load_all(transformed)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/load.py", line 57, in load_all
+    stats["fact_dang_ky"]   = self._load_fact_dang_ky(data.fact_dang_ky)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/load.py", line 620, in _load_fact_dang_ky
+    session.rollback()
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1402, in rollback
+    self._transaction.rollback(_to_root=self.future)
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 876, in rollback
+    transaction._restore_snapshot(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 699, in _restore_snapshot
+    s._expire(s.dict, self.session.identity_map._modified)
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/state.py", line 659, in _expire
+    for key in self.manager._all_key_set.intersection(dict_):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 2452, in signal_handler
+    raise AirflowException("Task received SIGTERM signal")
+airflow.exceptions.AirflowException: Task received SIGTERM signal
+[2026-04-06T11:08:41.741+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=load_data, execution_date=20260406T110314, start_date=20260406T110346, end_date=20260406T110841
+[2026-04-06T11:08:41.795+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 287 for task load_data (Task received SIGTERM signal; 10547)
+[2026-04-06T11:08:41.893+0000] {process_utils.py:79} INFO - Process psutil.Process(pid=10547, status='terminated', exitcode=1, started='11:03:46') (10547) terminated with exit code 1
+[2026-04-06T11:08:41.897+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 143
+[2026-04-06T11:08:41.969+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-04-06T11:08:45.292+0000] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-04-06T11:08:45.294+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 143

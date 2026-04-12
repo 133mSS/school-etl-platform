@@ -31,7 +31,7 @@
                 "current": {},
                 "multi": false,
                 "includeAll": true,
-                "allValue": ".*"
+                "allValue": "%"
             },
             {
                 "name": "time_range",
@@ -850,7 +850,7 @@
             "id": 12,
             "title": "🏥 Trạng thái Data Quality (từ Great Expectations)",
             "type": "table",
-            "description": "Kết quả 23 expectation checks từ ge_validation.py — chạy sau mỗi Extract step",
+            "description": "Kiểm tra chất lượng dữ liệu sau ETL — phát hiện lỗi inject_errors.py còn sót lại trong warehouse",
             "gridPos": {
                 "x": 0,
                 "y": 27,
@@ -909,7 +909,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT 'Nguồn 1 — Sinh viên' AS \"Nguồn\", COUNT(*) AS \"Tổng SV\", SUM(CASE WHEN trang_thai_hoc_tap IS NOT NULL AND ma_nganh IS NOT NULL THEN 1 ELSE 0 END) AS \"SV hợp lệ\", CASE WHEN COUNT(*) >= 100 AND SUM(CASE WHEN ma_sinh_vien IS NULL THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END AS \"Kết quả\" FROM dim_sinh_vien WHERE la_ban_hien_tai = TRUE UNION ALL SELECT 'Nguồn 1 — Điểm HP', COUNT(*), SUM(CASE WHEN diem_tong_ket IS NOT NULL THEN 1 ELSE 0 END), CASE WHEN COUNT(*) >= 1000 AND SUM(CASE WHEN diem_tong_ket > 10 OR diem_tong_ket < 0 THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END FROM fact_hoc_tap UNION ALL SELECT 'Nguồn 2 — CTSV', COUNT(*), SUM(CASE WHEN diem_rl BETWEEN 0 AND 100 THEN 1 ELSE 0 END), CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN diem_rl > 100 OR diem_rl < 0 THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END FROM fact_ctsv UNION ALL SELECT 'Nguồn 3 — Tài chính', COUNT(*), SUM(CASE WHEN con_no >= 0 THEN 1 ELSE 0 END), CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN con_no < 0 THEN 1 ELSE 0 END) = 0 THEN 'PASS' ELSE 'FAIL' END FROM fact_tai_chinh",
+                    "rawSql": "SELECT\n  'Nguồn 1 — Sinh viên' AS \"Nguồn\",\n  COUNT(*) AS \"Tổng bản ghi\",\n  SUM(CASE WHEN email LIKE '%@%'\n       AND trang_thai_hoc_tap IN ('Đang học','Bảo lưu','Thôi học','Tốt nghiệp')\n       AND ma_nganh IS NOT NULL\n  THEN 1 ELSE 0 END) AS \"Hợp lệ\",\n  CASE\n    WHEN COUNT(*) < 100 THEN 'FAIL'\n    WHEN SUM(CASE WHEN email NOT LIKE '%@%' THEN 1 ELSE 0 END) > 0 THEN 'WARN'\n    WHEN SUM(CASE WHEN trang_thai_hoc_tap NOT IN ('Đang học','Bảo lưu','Thôi học','Tốt nghiệp') THEN 1 ELSE 0 END) > 0 THEN 'WARN'\n    ELSE 'PASS'\n  END AS \"Kết quả\"\nFROM dim_sinh_vien WHERE la_ban_hien_tai = TRUE\n\nUNION ALL\n\nSELECT\n  'Nguồn 1 — Điểm HP',\n  COUNT(*),\n  SUM(CASE WHEN diem_tong_ket IS NOT NULL AND diem_tong_ket BETWEEN 0 AND 10 THEN 1 ELSE 0 END),\n  CASE\n    WHEN COUNT(*) < 1000 THEN 'FAIL'\n    WHEN SUM(CASE WHEN diem_tong_ket IS NULL THEN 1 ELSE 0 END) > COUNT(*) * 0.03 THEN 'WARN'\n    WHEN SUM(CASE WHEN diem_tong_ket > 10 OR diem_tong_ket < 0 THEN 1 ELSE 0 END) > 0 THEN 'FAIL'\n    ELSE 'PASS'\n  END\nFROM fact_hoc_tap\n\nUNION ALL\n\nSELECT\n  'Nguồn 2 — CTSV',\n  COUNT(*),\n  SUM(CASE WHEN diem_rl BETWEEN 0 AND 100 THEN 1 ELSE 0 END),\n  CASE\n    WHEN COUNT(*) = 0 THEN 'FAIL'\n    WHEN SUM(CASE WHEN diem_rl IS NULL THEN 1 ELSE 0 END) > COUNT(*) * 0.08 THEN 'WARN'\n    WHEN SUM(CASE WHEN diem_rl > 100 OR diem_rl < 0 THEN 1 ELSE 0 END) > 0 THEN 'FAIL'\n    ELSE 'PASS'\n  END\nFROM fact_ctsv\n\nUNION ALL\n\nSELECT\n  'Nguồn 3 — Tài chính',\n  COUNT(*),\n  SUM(CASE WHEN con_no >= 0 AND da_dong <= hoc_phi_phai_dong THEN 1 ELSE 0 END),\n  CASE\n    WHEN COUNT(*) = 0 THEN 'FAIL'\n    WHEN SUM(CASE WHEN da_dong > hoc_phi_phai_dong THEN 1 ELSE 0 END) > COUNT(*) * 0.005 THEN 'WARN'\n    WHEN SUM(CASE WHEN con_no < 0 THEN 1 ELSE 0 END) > 0 THEN 'FAIL'\n    ELSE 'PASS'\n  END\nFROM fact_tai_chinh",
                     "refId": "A",
                     "format": "table",
                     "datasource": {
