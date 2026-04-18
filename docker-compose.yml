@@ -149,7 +149,6 @@ services:
       retries: 5
     networks:
       - school-network
-
   # =============================
   # Airflow Init
   # =============================
@@ -290,7 +289,17 @@ services:
     networks:
       - school-network
     restart: unless-stopped
-
+ # MOCK-API
+  # Thêm vào docker-compose.yml
+  mock-api:
+    build: .
+    command: python scripts/mock_api_server.py --port 5055
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "5055:5055"
+    networks:
+      - school-network
 volumes:
   postgres_airflow_data:
   postgres_source_data:

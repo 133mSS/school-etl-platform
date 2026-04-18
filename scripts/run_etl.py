@@ -1,24 +1,4 @@
-"""
-scripts/run_etl.py — Chạy pipeline ETL thủ công
-=================================================
-Dùng để:
-  1. Test pipeline end-to-end trước khi cấu hình Airflow
-  2. Chạy lại khi cần thiết (debug, reprocess)
-  3. Kiểm tra MinIO staging hoạt động đúng
 
-Cách dùng:
-  # Full extract + transform + load
-  python scripts/run_etl.py
-
-  # Chỉ chạy 1 học kỳ cụ thể
-  python scripts/run_etl.py --mode incremental --hoc-ky HK1-2024-25
-
-  # Resume từ MinIO (không Extract lại, dùng staging có sẵn)
-  python scripts/run_etl.py --mode resume
-
-  # Resume từ run_id cụ thể
-  python scripts/run_etl.py --mode resume --run-id 2024-01-15_02-00
-"""
 
 import sys
 import argparse

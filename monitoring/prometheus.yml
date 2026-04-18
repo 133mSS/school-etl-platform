@@ -10,3 +10,14 @@ scrape_configs:
   - job_name: "airflow"
     static_configs:
       - targets: ["statsd-exporter:9102"]
+  # monitoring/prometheus.yml
+  - job_name: "postgres_source"
+    static_configs:
+      - targets: ["postgres-exporter-source:9187"]
+  - job_name: "postgres_warehouse"
+    static_configs:
+      - targets: ["postgres-exporter-warehouse:9187"]
+  - job_name: "minio"
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ["minio:9000"]

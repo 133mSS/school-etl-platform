@@ -4,6 +4,7 @@ import json as json_lib
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
+from sqlalchemy import text
 import pandas as pd
 
 from src.config.settings import (
@@ -57,10 +58,11 @@ class PostgreSQLExtractor:
     def __init__(self):
         self.engine = source_engine
 
-    def _read_table(self, table_name: str, query: str = None) -> pd.DataFrame:
+    def _read_table(self, table_name, query=None, params=None):
+    	
         try:
             if query:
-                df = pd.read_sql(query, self.engine)
+                df = pd.read_sql(text(query), self.engine, params=params)
             else:
                 df = pd.read_sql_table(table_name, self.engine)
             logger.info(f"  PostgreSQL | {table_name:<25s} → {len(df):>6,} records")
@@ -99,9 +101,11 @@ class PostgreSQLExtractor:
                        "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc"]:
             result[table] = self._read_table(table)
 
-        result["dang_ky_hoc_phan"] = self._read_table(
-            "dang_ky_hoc_phan",
-            f"SELECT * FROM dang_ky_hoc_phan WHERE ma_hoc_ky = '{ma_hoc_ky}'"
+        
+        result["dang_ky_hoc_phan"] = pd.read_sql(
+            text("SELECT * FROM dang_ky_hoc_phan WHERE ma_hoc_ky = :hk"),
+            self.engine,  # ← đúng
+            params={"hk": ma_hoc_ky}
         )
         result["diem_hoc_phan"] = self._read_table(
             "diem_hoc_phan",

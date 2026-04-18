@@ -15,30 +15,6 @@ from sqlalchemy.orm import relationship
 from src.config.database import WarehouseBase
 
 
-# =============================================
-# DIM_DATE
-# =============================================
-class DimDate(WarehouseBase):
-    __tablename__ = "dim_date"
-
-    date_key        = Column(Integer, primary_key=True)
-    full_date       = Column(Date, unique=True, nullable=False)
-    day_of_week     = Column(Integer, nullable=False)
-    day_name        = Column(String(20), nullable=False)
-    day_of_month    = Column(Integer, nullable=False)
-    day_of_year     = Column(Integer, nullable=False)
-    week_of_year    = Column(Integer, nullable=False)
-    month_num       = Column(Integer, nullable=False)
-    month_name      = Column(String(20), nullable=False)
-    quarter         = Column(Integer, nullable=False)
-    year            = Column(Integer, nullable=False)
-    is_weekend      = Column(Boolean, nullable=False)
-    academic_year   = Column(String(50))
-    academic_term   = Column(String(20))
-
-    def __repr__(self):
-        return f"<DimDate {self.full_date}>"
-
 
 # =============================================
 # DIM_SINH_VIEN (SCD Type 2)
@@ -187,7 +163,7 @@ class FactHocTap(WarehouseBase):
     hoc_phan_key    = Column(Integer, ForeignKey("dim_hoc_phan.hoc_phan_key"), nullable=False)
     giang_vien_key  = Column(Integer, ForeignKey("dim_giang_vien.giang_vien_key"))
     hoc_ky_key      = Column(Integer, ForeignKey("dim_hoc_ky.hoc_ky_key"), nullable=False)
-    date_key        = Column(Integer, ForeignKey("dim_date.date_key"))
+  
 
     ma_sinh_vien    = Column(String(20), nullable=False)
     ma_hoc_phan     = Column(String(20), nullable=False)
@@ -230,7 +206,7 @@ class FactDangKy(WarehouseBase):
     hoc_phan_key    = Column(Integer, ForeignKey("dim_hoc_phan.hoc_phan_key"), nullable=False)
     giang_vien_key  = Column(Integer, ForeignKey("dim_giang_vien.giang_vien_key"))
     hoc_ky_key      = Column(Integer, ForeignKey("dim_hoc_ky.hoc_ky_key"), nullable=False)
-    date_key        = Column(Integer, ForeignKey("dim_date.date_key"))
+
 
     ma_sinh_vien    = Column(String(20), nullable=False)
     ma_hoc_phan     = Column(String(20), nullable=False)

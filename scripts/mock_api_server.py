@@ -74,7 +74,7 @@ def hoc_ky_list():
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--port", type=int, default=5050)
+    p.add_argument("--port", type=int, default=5055)
     p.add_argument("--host", default="0.0.0.0")
     a = p.parse_args()
     print(f"Running on http://{a.host}:{a.port}")
