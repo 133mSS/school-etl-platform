@@ -224,11 +224,43 @@ class APIExtractor:
             resp = requests.get(url, params={"hoc_ky": ma_hoc_ky}, timeout=API_TIMEOUT)
             resp.raise_for_status()
             data = resp.json()
-            records = data["data"] if isinstance(data, dict) and "data" in data else data
+            
+            # Unwrap envelope nếu API trả về metadata wrapper (v2.2)
+            if isinstance(data, dict) and "data" in data:
+                records = data["data"]
+                metadata = data.get("metadata", {})
+                logger.info(
+                    f"  API | metadata: generated_at={metadata.get('generated_at')}, "
+                    f"schema_version={metadata.get('schema_version')}"
+                )
+            else:
+                records = data
+            
             df = pd.DataFrame(records)
+            
+            if df.empty:
+                return df
+            
+            # ★ DEDUP: Loại bỏ duplicate (ma_sinh_vien, hoc_ky)
+            # Nguyên nhân: API có thể trả duplicate do pagination bug hoặc
+            # data source đã có duplicate. ETL pipeline phải xử lý gracefully.
+            before = len(df)
+            df = df.drop_duplicates(
+                subset=["ma_sinh_vien", "hoc_ky"], 
+                keep="last"  # Giữ record mới nhất (cuối cùng)
+            )
+            dupes = before - len(df)
+            if dupes > 0:
+                logger.warning(
+                    f"  API | (HTTP) HK {ma_hoc_ky}: "
+                    f"Loại bỏ {dupes} duplicate records (ma_sinh_vien, hoc_ky)"
+                )
+            
             logger.info(f"  API | (HTTP) HK {ma_hoc_ky} → {len(df):>6,} records")
             return df
-        except Exception:
+            
+        except Exception as e:
+            logger.debug(f"  API | HTTP không khả dụng: {e}")
             return pd.DataFrame()
 
     def _try_json_file(self, ma_hoc_ky: str) -> pd.DataFrame:
@@ -241,12 +273,45 @@ class APIExtractor:
             if os.path.exists(fpath):
                 try:
                     with open(fpath, "r", encoding="utf-8") as f:
-                        records = json_lib.load(f)
+                        payload = json_lib.load(f)
+                    
+                    # ★ FIX v2.2: Unwrap envelope metadata
+                    if isinstance(payload, dict) and "data" in payload:
+                        records = payload["data"]
+                        metadata = payload.get("metadata", {})
+                        logger.info(
+                            f"  API | (JSON) {fname} | "
+                            f"generated_at={metadata.get('generated_at', 'N/A')}"
+                        )
+                    else:
+                        records = payload  # Backward compat với file cũ
+                    
+                    # ★ Lọc bỏ records không phải dict (string, None...)
+                    records = [r for r in records if isinstance(r, dict)]
+                    
                     df = pd.DataFrame(records)
+                    
+                    if df.empty:
+                        return df
+                    
+                    # ★ DEDUP
+                    before = len(df)
+                    df = df.drop_duplicates(
+                        subset=["ma_sinh_vien", "hoc_ky"],
+                        keep="last"
+                    )
+                    dupes = before - len(df)
+                    if dupes > 0:
+                        logger.warning(
+                            f"  API | (JSON) {fname}: "
+                            f"Loại bỏ {dupes} duplicate records"
+                        )
+                    
                     logger.info(f"  API | (JSON) {fname} → {len(df):>6,} records")
                     return df
+                    
                 except Exception as e:
-                    logger.error(f"  API | Lỗi đọc JSON: {e}")
+                    logger.error(f"  API | Lỗi đọc JSON '{fname}': {e}")
         return pd.DataFrame()
 
     def extract_all_semesters(self, semester_list: List[str]) -> pd.DataFrame:

@@ -85,7 +85,8 @@
                 "column_list": [
                     "ma_sinh_vien",
                     "hoc_ky"
-                ]
+                ],
+                "mostly": 0.98
             },
             "meta": {
                 "exp_id": "EXP-TC-06",

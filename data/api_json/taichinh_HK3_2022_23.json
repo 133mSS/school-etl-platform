@@ -1,0 +1,101 @@
+{
+  "metadata": {
+    "generated_at": "2026-04-19T21:19:42",
+    "schema_version": "3.0",
+    "source_system": "PTIT_PortalTaiChinh",
+    "hoc_ky": "HK3-2022-23",
+    "record_count": 8,
+    "api_endpoint": "/api/tai-chinh/sinh-vien?hoc_ky=HK3-2022-23",
+    "includes_hk3": true
+  },
+  "data": [
+    {
+      "ma_sinh_vien": "B21DCKT001",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 5324000,
+      "da_dong": 5324000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-20"
+    },
+    {
+      "ma_sinh_vien": "B22DCKT006",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 4791600,
+      "da_dong": 4791600,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "07/20/2023"
+    },
+    {
+      "ma_sinh_vien": "B22DCKT019",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 3194400,
+      "da_dong": 3194400,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-18"
+    },
+    {
+      "ma_sinh_vien": "B22DCKT050",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 3194400,
+      "da_dong": 1787423,
+      "con_no": 1406977,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-21"
+    },
+    {
+      "ma_sinh_vien": "B22DCVT009",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 3726800,
+      "da_dong": 2298878,
+      "con_no": 1427922,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-17"
+    },
+    {
+      "ma_sinh_vien": "B22DCVT075",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 1064800,
+      "da_dong": 1064800,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-18"
+    },
+    {
+      "ma_sinh_vien": "B22DCCN030",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 1597200,
+      "da_dong": 814716,
+      "con_no": 782484,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-16"
+    },
+    {
+      "ma_sinh_vien": "B22DCCN116",
+      "hoc_ky": "HK3-2022-23",
+      "hoc_phi_phai_dong": 4259200,
+      "da_dong": 4259200,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2023-07-19"
+    }
+  ]
+}

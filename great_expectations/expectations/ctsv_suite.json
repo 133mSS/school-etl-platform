@@ -71,7 +71,7 @@
             "expectation_type": "expect_column_values_to_match_regex",
             "kwargs": {
                 "column": "hoc_ky",
-                "regex": "^HK[12]-[0-9]{4}-[0-9]{2}$",
+                "regex": "^HK[123]-[0-9]{4}-[0-9]{2}$",
                 "mostly": 0.993
             },
             "meta": {

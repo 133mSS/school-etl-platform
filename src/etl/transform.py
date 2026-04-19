@@ -455,19 +455,31 @@ class DataTransformer:
         if "ma_sinh_vien" in result.columns:
             result["ma_sinh_vien"] = result["ma_sinh_vien"].str.strip().str.upper()
 
-        # FIX (giữ lại từ file mới): coerce + fillna(0) thay vì raise lỗi
-        # Giá trị âm (do inject_errors) được clamp về 0, pipeline không crash
         for col in ["hoc_phi_phai_dong", "da_dong", "con_no", "so_tien_mien_giam"]:
             if col in result.columns:
                 result[col] = (
                     pd.to_numeric(result[col], errors="coerce")
                     .fillna(0)
-                    .clip(lower=0)   # clamp âm → 0, log warning nếu cần
+                    .clip(lower=0)
                 )
 
         if "ngay_dong_cuoi" in result.columns:
             result["ngay_dong_cuoi"] = pd.to_datetime(
-                result["ngay_dong_cuoi"], errors="coerce"
+                result["ngay_dong_cuoi"], 
+                errors="coerce",
+                infer_datetime_format=True 
+            )
+
+        # ★ DEDUP lần 2: Đảm bảo không có duplicate trước khi load vào DW
+        before = len(result)
+        result = result.drop_duplicates(
+            subset=["ma_sinh_vien", "hoc_ky"],
+            keep="last"
+        )
+        if len(result) < before:
+            logger.warning(
+                f"  fact_tai_chinh | Transform dedup: "
+                f"loại bỏ {before - len(result)} records"
             )
 
         logger.info(f"  fact_tai_chinh              → {len(result):>6,} records")
