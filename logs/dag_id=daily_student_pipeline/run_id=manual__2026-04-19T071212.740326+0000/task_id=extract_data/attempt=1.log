@@ -1,0 +1,143 @@
+[2026-04-19T07:12:17.625+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data manual__2026-04-19T07:12:12.740326+00:00 [queued]>
+[2026-04-19T07:12:17.638+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data manual__2026-04-19T07:12:12.740326+00:00 [queued]>
+[2026-04-19T07:12:17.638+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-19T07:12:17.658+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_data> on 2026-04-19 07:12:12.740326+00:00
+[2026-04-19T07:12:17.664+0000] {standard_task_runner.py:60} INFO - Started process 1419 to run task
+[2026-04-19T07:12:17.666+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_data', 'manual__2026-04-19T07:12:12.740326+00:00', '--job-id', '334', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpoc90azty']
+[2026-04-19T07:12:17.668+0000] {standard_task_runner.py:88} INFO - Job 334: Subtask extract_data
+[2026-04-19T07:12:17.739+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_data manual__2026-04-19T07:12:12.740326+00:00 [running]> on host eb2cbdc99987
+[2026-04-19T07:12:17.914+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-19T07:12:12.740326+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-19T07:12:12.740326+00:00'
+[2026-04-19T07:12:21.987+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:21] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-04-19T07:12:21.987+0000] {extract.py:281} INFO - ==BẮT ĐẦU FULL EXTRACT==
+[2026-04-19T07:12:21.990+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:21] INFO    etl.extract : ======================================================================
+[2026-04-19T07:12:21.989+0000] {extract.py:282} INFO - ======================================================================
+[2026-04-19T07:12:22.008+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:22.008+0000] {extract.py:84} INFO - ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:22.010+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-19T07:12:22.010+0000] {extract.py:85} INFO - NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-19T07:12:22.011+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:22.011+0000] {extract.py:86} INFO - ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:22.092+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-04-19T07:12:22.092+0000] {extract.py:68} INFO -   PostgreSQL | khoa                      →      4 records
+[2026-04-19T07:12:22.113+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-04-19T07:12:22.113+0000] {extract.py:68} INFO -   PostgreSQL | nganh                     →      3 records
+[2026-04-19T07:12:22.147+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-04-19T07:12:22.147+0000] {extract.py:68} INFO -   PostgreSQL | giang_vien                →     45 records
+[2026-04-19T07:12:22.183+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-19T07:12:22.183+0000] {extract.py:68} INFO -   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-19T07:12:22.276+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-19T07:12:22.276+0000] {extract.py:68} INFO -   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-19T07:12:22.301+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-19T07:12:22.301+0000] {extract.py:68} INFO -   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-19T07:12:22.313+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:22] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →      9 records
+[2026-04-19T07:12:22.313+0000] {extract.py:68} INFO -   PostgreSQL | hoc_ky_nam_hoc            →      9 records
+[2026-04-19T07:12:23.045+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:23] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 57,782 records
+[2026-04-19T07:12:23.045+0000] {extract.py:68} INFO -   PostgreSQL | dang_ky_hoc_phan          → 57,782 records
+[2026-04-19T07:12:24.332+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 57,292 records
+[2026-04-19T07:12:24.332+0000] {extract.py:68} INFO -   PostgreSQL | diem_hoc_phan             → 57,292 records
+[2026-04-19T07:12:24.401+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-19T07:12:24.401+0000] {extract.py:68} INFO -   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-19T07:12:24.403+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   PostgreSQL | TỔNG: 118,694 records từ 10 bảng
+[2026-04-19T07:12:24.403+0000] {extract.py:93} INFO -   PostgreSQL | TỔNG: 118,694 records từ 10 bảng
+[2026-04-19T07:12:24.405+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:24.405+0000] {extract.py:167} INFO - ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:24.407+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-04-19T07:12:24.407+0000] {extract.py:168} INFO - NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-04-19T07:12:24.408+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:24.408+0000] {extract.py:169} INFO - ════════════════════════════════════════════════════════════
+[2026-04-19T07:12:24.413+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | Tìm thấy 9 file(s)
+[2026-04-19T07:12:24.413+0000] {extract.py:178} INFO -   CSV | Tìm thấy 9 file(s)
+[2026-04-19T07:12:24.447+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    791 records
+[2026-04-19T07:12:24.447+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2021_22.csv                →    791 records
+[2026-04-19T07:12:24.480+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,624 records
+[2026-04-19T07:12:24.480+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2022_23.csv                →  1,624 records
+[2026-04-19T07:12:24.518+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,483 records
+[2026-04-19T07:12:24.518+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2023_24.csv                →  2,483 records
+[2026-04-19T07:12:24.552+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,341 records
+[2026-04-19T07:12:24.552+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2024_25.csv                →  3,341 records
+[2026-04-19T07:12:24.618+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,559 records
+[2026-04-19T07:12:24.618+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2025_26.csv                →  2,559 records
+[2026-04-19T07:12:24.657+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    789 records
+[2026-04-19T07:12:24.657+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2021_22.csv                →    789 records
+[2026-04-19T07:12:24.693+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,613 records
+[2026-04-19T07:12:24.693+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2022_23.csv                →  1,613 records
+[2026-04-19T07:12:24.715+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,480 records
+[2026-04-19T07:12:24.715+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2023_24.csv                →  2,480 records
+[2026-04-19T07:12:24.898+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,955 records
+[2026-04-19T07:12:24.898+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2024_25.csv                →  2,955 records
+[2026-04-19T07:12:24.908+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | Loại bỏ 9086 bản ghi trùng
+[2026-04-19T07:12:24.908+0000] {extract.py:195} INFO -   CSV | Loại bỏ 9086 bản ghi trùng
+[2026-04-19T07:12:24.910+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] INFO    etl.extract :   CSV | TỔNG: 9,549 records từ 9 file(s)
+[2026-04-19T07:12:24.909+0000] {extract.py:197} INFO -   CSV | TỔNG: 9,549 records từ 9 file(s)
+[2026-04-19T07:12:24.959+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:24.959+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:24.964+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK1-2021-22
+[2026-04-19T07:12:24.963+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK1-2021-22
+[2026-04-19T07:12:24.996+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:24.996+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:24.998+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:24] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK1-2022-23
+[2026-04-19T07:12:24.998+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK1-2022-23
+[2026-04-19T07:12:25.033+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.033+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.035+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK1-2023-24
+[2026-04-19T07:12:25.035+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK1-2023-24
+[2026-04-19T07:12:25.068+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.068+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.071+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK1-2024-25
+[2026-04-19T07:12:25.071+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK1-2024-25
+[2026-04-19T07:12:25.107+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.107+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.109+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK1-2025-26
+[2026-04-19T07:12:25.109+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK1-2025-26
+[2026-04-19T07:12:25.141+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.141+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.143+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK2-2021-22
+[2026-04-19T07:12:25.143+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK2-2021-22
+[2026-04-19T07:12:25.178+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.178+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.182+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK2-2022-23
+[2026-04-19T07:12:25.182+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK2-2022-23
+[2026-04-19T07:12:25.221+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.220+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.225+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK2-2023-24
+[2026-04-19T07:12:25.225+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK2-2023-24
+[2026-04-19T07:12:25.271+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] ERROR   etl.extract :   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.271+0000] {extract.py:249} ERROR -   API | Lỗi đọc JSON: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.274+0000] {logging_mixin.py:188} WARNING - [2026-04-19 07:12:25] WARNING etl.extract :   API | Không có dữ liệu cho HK: HK2-2024-25
+[2026-04-19T07:12:25.273+0000] {extract.py:217} WARNING -   API | Không có dữ liệu cho HK: HK2-2024-25
+[2026-04-19T07:12:25.359+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 35, in task_extract
+    data      = extractor.extract_full()
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/extract.py", line 296, in extract_full
+    result.tai_chinh_data = self.api.extract_all_semesters(semester_list)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/src/etl/extract.py", line 264, in extract_all_semesters
+    combined = pd.DataFrame(records)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/pandas/core/frame.py", line 733, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/pandas/core/internals/construction.py", line 503, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/pandas/core/internals/construction.py", line 114, in arrays_to_mgr
+    index = _extract_index(arrays)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/pandas/core/internals/construction.py", line 680, in _extract_index
+    raise ValueError(
+ValueError: Mixing dicts with non-Series may lead to ambiguous ordering.
+[2026-04-19T07:12:25.408+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=extract_data, execution_date=20260419T071212, start_date=20260419T071217, end_date=20260419T071225
+[2026-04-19T07:12:25.428+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 334 for task extract_data (Mixing dicts with non-Series may lead to ambiguous ordering.; 1419)
+[2026-04-19T07:12:25.461+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-04-19T07:12:25.485+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

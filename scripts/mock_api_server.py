@@ -26,13 +26,42 @@ def load():
         key = "-".join(stem[len("taichinh_"):].split("_"))
         with open(f, "r", encoding="utf-8") as fh:
             recs = json.load(fh)
-        _DB[key] = recs
-        print(f"Loaded: {Path(f).name} → {key} ({len(recs)} records)")
+
+        if isinstance(recs, dict):
+            recs = recs.get("data", [])
+
+        clean_recs = []
+        for r in recs:
+            if isinstance(r, str):
+                try:
+                    r = json.loads(r)  # convert string → dict
+                except:
+                    continue
+            if isinstance(r, dict):
+                clean_recs.append(r)
+
+        _DB[key] = clean_recs
+        print(f"Loaded: {Path(f).name} → {key} ({len(clean_recs)} records)")
     af = DATA_DIR / "taichinh_all.json"
     if af.exists():
-        with open(af, "r", encoding="utf-8") as fh:
-            _DB["_all"] = json.load(fh)
-        print(f"Loaded: taichinh_all.json ({len(_DB['_all'])} records)")
+         with open(af, "r", encoding="utf-8") as fh:
+            all_data = json.load(fh)
+
+            if isinstance(all_data, dict):
+                all_data = all_data.get("data", [])
+
+            clean_all = []
+            for r in all_data:
+                if isinstance(r, str):
+                    try:
+                        r = json.loads(r)
+                    except:
+                        continue
+                if isinstance(r, dict):
+                    clean_all.append(r)
+
+            _DB["_all"] = clean_all
+            print(f"Loaded: taichinh_all.json ({len(_DB['_all'])} records)")
     hks = sorted(k for k in _DB if not k.startswith("_"))
     total = sum(len(v) for k, v in _DB.items() if not k.startswith("_"))
     print(f"Tổng: {len(hks)} học kỳ | {total} records")

@@ -13,28 +13,6 @@ DROP TABLE IF EXISTS dim_sinh_vien        CASCADE;
 DROP TABLE IF EXISTS dim_giang_vien       CASCADE;
 DROP TABLE IF EXISTS dim_hoc_phan         CASCADE;
 DROP TABLE IF EXISTS dim_hoc_ky           CASCADE;
-DROP TABLE IF EXISTS dim_date             CASCADE;
-
--- =============================================
--- 1. DIM_DATE
--- =============================================
-CREATE TABLE dim_date (
-    date_key      INT PRIMARY KEY,
-    full_date     DATE NOT NULL UNIQUE,
-    day_of_week   INT NOT NULL,
-    day_name      VARCHAR(20) NOT NULL,
-    day_of_month  INT NOT NULL,
-    day_of_year   INT NOT NULL,
-    week_of_year  INT NOT NULL,
-    month_num     INT NOT NULL,
-    month_name    VARCHAR(20) NOT NULL,
-    quarter       INT NOT NULL,
-    year          INT NOT NULL,
-    is_weekend    BOOLEAN NOT NULL,
-    academic_year VARCHAR(50),
-    academic_term VARCHAR(20)
-);
-COMMENT ON TABLE dim_date IS 'Chiều thời gian';
 
 -- =============================================
 -- 2. DIM_SINH_VIEN (SCD Type 2)

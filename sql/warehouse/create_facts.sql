@@ -11,8 +11,6 @@ CREATE TABLE IF NOT EXISTS fact_hoc_tap (
     hoc_phan_key     INT NOT NULL REFERENCES dim_hoc_phan(hoc_phan_key),
     giang_vien_key   INT          REFERENCES dim_giang_vien(giang_vien_key),
     hoc_ky_key       INT NOT NULL REFERENCES dim_hoc_ky(hoc_ky_key),
-    date_key         INT          REFERENCES dim_date(date_key),
-
     -- Natural keys
     ma_sinh_vien     VARCHAR(20) NOT NULL,
     ma_hoc_phan      VARCHAR(20) NOT NULL,
@@ -60,7 +58,7 @@ CREATE TABLE IF NOT EXISTS fact_dang_ky (
     hoc_phan_key     INT NOT NULL REFERENCES dim_hoc_phan(hoc_phan_key),
     giang_vien_key   INT          REFERENCES dim_giang_vien(giang_vien_key),
     hoc_ky_key       INT NOT NULL REFERENCES dim_hoc_ky(hoc_ky_key),
-    date_key         INT          REFERENCES dim_date(date_key),
+
 
     -- Natural keys
     ma_sinh_vien     VARCHAR(20) NOT NULL,
