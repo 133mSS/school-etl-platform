@@ -323,7 +323,7 @@ HK_MODIFIER = {
     "HK1-2024-25": +0.30,
     "HK2-2024-25": -0.20,
     "HK1-2025-26": +0.10,
-    # ★ v3.0 — HK3 hè: môi trường học nhỏ hơn, ôn luyện kỹ hơn → modifier tích cực nhẹ
+    
     "HK3-2021-22": +0.50,
     "HK3-2022-23": +0.45,
     "HK3-2023-24": +0.40,
@@ -1151,7 +1151,7 @@ def main():
                                 continue
 
                             sv_grades_hk3 = []
-                            for (r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho) in courses_to_retake:
+                            for (r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho, orig_hk_idx) in courses_to_retake:
                                 key = (ma_sv, r_ma_mon, ma_hk)
                                 if key in dk_set:
                                     continue
@@ -1205,9 +1205,8 @@ def main():
                                             break
 
                             # Điểm rèn luyện HK3 (thấp hơn HK chính, không có HB)
-                            drl_hk3 = int(max(0, min(100, random.gauss(62, 9))))
-                            xl_hk3  = ("Khá" if drl_hk3 >= 65 else
-                                       "Trung bình" if drl_hk3 >= 50 else "Yếu")
+                            drl_hk3 = None
+                            xl_hk3 = ""
 
                             temp_hk_data.setdefault(ma_hk, []).append({
                                 "ma_sinh_vien": ma_sv, "hoc_ky": ma_hk, "khoa_hoc": cohort,
@@ -1306,7 +1305,9 @@ def main():
                         retake_this_hk   = []
                         retake_candidates = failed_list[:2]  # tối đa 2 môn/HK chính
 
-                        for (r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho) in retake_candidates:
+                        for (r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho, orig_hk_idx) in retake_candidates:
+                            if (hk_idx % 2) != (orig_hk_idx % 2):
+                                continue
                             key = (ma_sv, r_ma_mon, ma_hk)
                             if key in dk_set:
                                 continue
@@ -1330,7 +1331,7 @@ def main():
                                 "reg_days": random.randint(1, 10), "trang_thai_dk": "Đã đăng ký",
                                 "not_entered": grade.get("_grade_not_entered", False),
                             })
-                            retake_this_hk.append((r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho))
+                            retake_this_hk.append((r_ma_mon, r_ten_mon, r_tc, r_lt, r_th, r_do_kho, orig_hk_idx))
                             if grade.get("_grade_not_entered"):
                                 total_missing_grades += 1
 
@@ -1386,7 +1387,7 @@ def main():
 
                         for g in sv_grades_raw:
                             if not g.get("dat") and not g["grade_full"].get("hoc_lai") and not g["not_entered"]:
-                                course_info = (g["ma_mon"], g["ten_mon"], g["tc"], g["lt"], g["th"], g["do_kho"])
+                                course_info = (g["ma_mon"], g["ten_mon"], g["tc"], g["lt"], g["th"], g["do_kho"], hk_idx)
                                 sv_failed_courses.setdefault(ma_sv, [])
                                 if course_info not in sv_failed_courses[ma_sv]:
                                     sv_failed_courses[ma_sv].append(course_info)

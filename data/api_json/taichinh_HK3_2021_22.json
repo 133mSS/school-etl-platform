@@ -1,16 +1,148 @@
 {
   "metadata": {
-    "generated_at": "2026-04-19T21:19:42",
+    "generated_at": "2026-04-19T21:57:34",
     "schema_version": "3.0",
     "source_system": "PTIT_PortalTaiChinh",
     "hoc_ky": "HK3-2021-22",
-    "record_count": 26,
+    "record_count": 23,
     "api_endpoint": "/api/tai-chinh/sinh-vien?hoc_ky=HK3-2021-22",
     "includes_hk3": true
   },
   "data": [
     {
-      "ma_sinh_vien": "B21DCKT001",
+      "ma_sinh_vien": "B21DCKT023",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 875716,
+      "con_no": 642284,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-25"
+    },
+    {
+      "ma_sinh_vien": "B21DCKT040",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 4048000,
+      "da_dong": 4048000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-16"
+    },
+    {
+      "ma_sinh_vien": "B21DCKT047",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 2530000,
+      "da_dong": 2530000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-19"
+    },
+    {
+      "ma_sinh_vien": "B21DCKT073",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 824117,
+      "con_no": 693883,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-17"
+    },
+    {
+      "ma_sinh_vien": "B21DCKT074",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 1518000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-26"
+    },
+    {
+      "ma_sinh_vien": "B21DCKT091",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 936211,
+      "con_no": 581789,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-22"
+    },
+    {
+      "ma_sinh_vien": "B21DCKT106",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1012000,
+      "da_dong": 1012000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-26"
+    },
+    {
+      "ma_sinh_vien": "B21DCVT010",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 1518000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-14"
+    },
+    {
+      "ma_sinh_vien": "B21DCVT014",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 1518000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-14"
+    },
+    {
+      "ma_sinh_vien": "B21DCVT046",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 1518000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-18"
+    },
+    {
+      "ma_sinh_vien": "B21DCVT050",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 5060000,
+      "da_dong": 5060000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-22"
+    },
+    {
+      "ma_sinh_vien": "B21DCVT073",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 2024000,
+      "da_dong": 1023145,
+      "con_no": 1000855,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022.07.17"
+    },
+    {
+      "ma_sinh_vien": "B21DCVT089",
       "hoc_ky": "HK3-2021-22",
       "hoc_phi_phai_dong": 4554000,
       "da_dong": 4554000,
@@ -18,112 +150,13 @@
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
       "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-18"
-    },
-    {
-      "ma_sinh_vien": "B21DCKT035",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-22"
-    },
-    {
-      "ma_sinh_vien": "B21DCKT042",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-26"
-    },
-    {
-      "ma_sinh_vien": "B21DCKT073",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2530000,
-      "da_dong": 1402239,
-      "con_no": 1127761,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-14"
-    },
-    {
-      "ma_sinh_vien": "B21DCKT092",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-20"
-    },
-    {
-      "ma_sinh_vien": "B21DCKT106",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 759000,
-      "da_dong": 759000,
-      "con_no": 0,
-      "duoc_mien_giam": true,
-      "ly_do_mien_giam": "Hoàn cảnh đặc biệt khó khăn",
-      "so_tien_mien_giam": 759000,
-      "ngay_dong_cuoi": "2022-07-20"
-    },
-    {
-      "ma_sinh_vien": "B21DCKT121",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-18"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT004",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1012000,
-      "da_dong": 1012000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
       "ngay_dong_cuoi": "2022-07-25"
     },
     {
-      "ma_sinh_vien": "B21DCVT015",
+      "ma_sinh_vien": "B21DCVT096",
       "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-21"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT041",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-18"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT042",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
+      "hoc_phi_phai_dong": 1518000,
+      "da_dong": 1518000,
       "con_no": 0,
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
@@ -131,43 +164,10 @@
       "ngay_dong_cuoi": "2022-07-23"
     },
     {
-      "ma_sinh_vien": "B21DCVT043",
+      "ma_sinh_vien": "B21DCCN033",
       "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-24"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT046",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1012000,
-      "da_dong": 1012000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-19"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT064",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1012000,
-      "da_dong": 572390,
-      "con_no": 439610,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-24"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT070",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
+      "hoc_phi_phai_dong": 4048000,
+      "da_dong": 4048000,
       "con_no": 0,
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
@@ -175,51 +175,29 @@
       "ngay_dong_cuoi": "2022-07-14"
     },
     {
-      "ma_sinh_vien": "B21DCVT082",
+      "ma_sinh_vien": "B21DCCN048",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 1012000,
+      "da_dong": 558191,
+      "con_no": 453809,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-15"
+    },
+    {
+      "ma_sinh_vien": "B21DCCN062",
       "hoc_ky": "HK3-2021-22",
       "hoc_phi_phai_dong": 3542000,
-      "da_dong": 1453709,
-      "con_no": 2088291,
+      "da_dong": 1803291,
+      "con_no": 1738709,
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
       "so_tien_mien_giam": 0,
       "ngay_dong_cuoi": "2022-07-24"
     },
     {
-      "ma_sinh_vien": "B21DCVT099",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-26"
-    },
-    {
-      "ma_sinh_vien": "B21DCVT102",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2024000,
-      "da_dong": 2024000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-19"
-    },
-    {
-      "ma_sinh_vien": "B21DCCN026",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-20"
-    },
-    {
-      "ma_sinh_vien": "B21DCCN032",
+      "ma_sinh_vien": "B21DCCN081",
       "hoc_ky": "HK3-2021-22",
       "hoc_phi_phai_dong": 1012000,
       "da_dong": 1012000,
@@ -227,10 +205,32 @@
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
       "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-26"
+      "ngay_dong_cuoi": "2022-07-20"
     },
     {
-      "ma_sinh_vien": "B21DCCN036",
+      "ma_sinh_vien": "B21DCCN084",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 4048000,
+      "da_dong": 4048000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-17"
+    },
+    {
+      "ma_sinh_vien": "B21DCCN094",
+      "hoc_ky": "HK3-2021-22",
+      "hoc_phi_phai_dong": 2024000,
+      "da_dong": 2024000,
+      "con_no": 0,
+      "duoc_mien_giam": false,
+      "ly_do_mien_giam": "",
+      "so_tien_mien_giam": 0,
+      "ngay_dong_cuoi": "2022-07-24"
+    },
+    {
+      "ma_sinh_vien": "B21DCCN102",
       "hoc_ky": "HK3-2021-22",
       "hoc_phi_phai_dong": 2530000,
       "da_dong": 2530000,
@@ -241,59 +241,26 @@
       "ngay_dong_cuoi": "2022-07-19"
     },
     {
-      "ma_sinh_vien": "B21DCCN062",
+      "ma_sinh_vien": "B21DCCN115",
       "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2530000,
-      "da_dong": 2530000,
+      "hoc_phi_phai_dong": 2024000,
+      "da_dong": 2024000,
       "con_no": 0,
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
       "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-22"
+      "ngay_dong_cuoi": "2022-07-15"
     },
     {
-      "ma_sinh_vien": "B21DCCN101",
+      "ma_sinh_vien": "B19DCCN005",
       "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
+      "hoc_phi_phai_dong": 5760000,
+      "da_dong": 5296495,
+      "con_no": 463505,
       "duoc_mien_giam": false,
       "ly_do_mien_giam": "",
       "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-25"
-    },
-    {
-      "ma_sinh_vien": "B21DCCN105",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-21"
-    },
-    {
-      "ma_sinh_vien": "B21DCCN109",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 1518000,
-      "da_dong": 1518000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-16"
-    },
-    {
-      "ma_sinh_vien": "B21DCCN126",
-      "hoc_ky": "HK3-2021-22",
-      "hoc_phi_phai_dong": 2530000,
-      "da_dong": 2530000,
-      "con_no": 0,
-      "duoc_mien_giam": false,
-      "ly_do_mien_giam": "",
-      "so_tien_mien_giam": 0,
-      "ngay_dong_cuoi": "2022-07-16"
+      "ngay_dong_cuoi": "07/25/2022"
     }
   ]
 }
