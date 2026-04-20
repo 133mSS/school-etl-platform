@@ -1,0 +1,73 @@
+[2026-04-20T08:39:04.549+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-20T08:38:52.446959+00:00 [queued]>
+[2026-04-20T08:39:04.557+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-20T08:38:52.446959+00:00 [queued]>
+[2026-04-20T08:39:04.558+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-20T08:39:04.569+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-04-20 08:38:52.446959+00:00
+[2026-04-20T08:39:04.573+0000] {standard_task_runner.py:60} INFO - Started process 1118 to run task
+[2026-04-20T08:39:04.575+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'manual__2026-04-20T08:38:52.446959+00:00', '--job-id', '387', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmp0tk1doom']
+[2026-04-20T08:39:04.578+0000] {standard_task_runner.py:88} INFO - Job 387: Subtask validate_data
+[2026-04-20T08:39:04.630+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-20T08:38:52.446959+00:00 [running]> on host c15505f4cce3
+[2026-04-20T08:39:04.714+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-20T08:38:52.446959+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-20T08:38:52.446959+00:00'
+[2026-04-20T08:39:09.551+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    validation.ge :   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-04-20T08:39:09.551+0000] {ge_validation.py:162} INFO -   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-04-20T08:39:09.642+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    validation.ge :   GE | Bắt đầu validation | run_id=2026-04-20_08-39
+[2026-04-20T08:39:09.642+0000] {ge_validation.py:180} INFO -   GE | Bắt đầu validation | run_id=2026-04-20_08-39
+[2026-04-20T08:39:09.811+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-20T08:39:09.811+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-20T08:39:09.880+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon1_diem.parquet (54,460 rows)
+[2026-04-20T08:39:09.880+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon1_diem.parquet (54,460 rows)
+[2026-04-20T08:39:09.913+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-20T08:39:09.913+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-20T08:39:09.948+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon2_ctsv.parquet (9,443 rows)
+[2026-04-20T08:39:09.948+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon2_ctsv.parquet (9,443 rows)
+[2026-04-20T08:39:09.986+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon3_tai_chinh.parquet (9,146 rows)
+[2026-04-20T08:39:09.986+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-20_08-39/nguon3_tai_chinh.parquet (9,146 rows)
+[2026-04-20T08:39:09.988+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    validation.ge :   GE | Downloaded raw: sv=1695, diem=54460, tong_hop=1695, ctsv=9443, tc=9146
+[2026-04-20T08:39:09.988+0000] {ge_validation.py:189} INFO -   GE | Downloaded raw: sv=1695, diem=54460, tong_hop=1695, ctsv=9443, tc=9146
+[2026-04-20T08:39:09.994+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:09] INFO    validation.ge :   GE | [Tầng 1] Validate raw data...
+[2026-04-20T08:39:09.994+0000] {ge_validation.py:195} INFO -   GE | [Tầng 1] Validate raw data...
+[2026-04-20T08:39:10.029+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-20T08:39:10.028+0000] {ge_validation.py:43} INFO -   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-20T08:39:10.036+0000] {data_asset.py:541} INFO - 	11 expectation(s) included in expectation_suite.
+[2026-04-20T08:39:10.057+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | [grades_suite] diem_hoc_phan_raw: 11/11 (OK)
+[2026-04-20T08:39:10.057+0000] {ge_validation.py:93} INFO -   GE | [grades_suite] diem_hoc_phan_raw: 11/11 (OK)
+[2026-04-20T08:39:10.064+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-20T08:39:10.064+0000] {ge_validation.py:43} INFO -   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-20T08:39:10.068+0000] {data_asset.py:541} INFO - 	10 expectation(s) included in expectation_suite.
+[2026-04-20T08:39:10.092+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | [ctsv_suite] ctsv_data: 10/10 (OK)
+[2026-04-20T08:39:10.092+0000] {ge_validation.py:93} INFO -   GE | [ctsv_suite] ctsv_data: 10/10 (OK)
+[2026-04-20T08:39:10.099+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-20T08:39:10.099+0000] {ge_validation.py:43} INFO -   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-20T08:39:10.100+0000] {data_asset.py:541} INFO - 	11 expectation(s) included in expectation_suite.
+[2026-04-20T08:39:10.133+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | [tai_chinh_suite] tai_chinh_data: 11/11 (OK)
+[2026-04-20T08:39:10.133+0000] {ge_validation.py:93} INFO -   GE | [tai_chinh_suite] tai_chinh_data: 11/11 (OK)
+[2026-04-20T08:39:10.135+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | [Tầng 2] Validate prepared data...
+[2026-04-20T08:39:10.134+0000] {ge_validation.py:215} INFO -   GE | [Tầng 2] Validate prepared data...
+[2026-04-20T08:39:10.151+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-20T08:39:10.151+0000] {ge_validation.py:43} INFO -   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-20T08:39:10.153+0000] {data_asset.py:541} INFO - 	14 expectation(s) included in expectation_suite.
+[2026-04-20T08:39:10.166+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-04-20T08:39:10.166+0000] {ge_validation.py:93} INFO -   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-04-20T08:39:10.167+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge : ============================================================
+[2026-04-20T08:39:10.167+0000] {ge_validation.py:248} INFO - ============================================================
+[2026-04-20T08:39:10.168+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | VALIDATION OK
+[2026-04-20T08:39:10.168+0000] {ge_validation.py:249} INFO -   GE | VALIDATION OK
+[2026-04-20T08:39:10.169+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :   GE | run_id: 2026-04-20_08-39 | 51/51 passed
+[2026-04-20T08:39:10.169+0000] {ge_validation.py:250} INFO -   GE | run_id: 2026-04-20_08-39 | 51/51 passed
+[2026-04-20T08:39:10.170+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :     grades_raw               : OK   (11/11)
+[2026-04-20T08:39:10.170+0000] {ge_validation.py:261} INFO -     grades_raw               : OK   (11/11)
+[2026-04-20T08:39:10.171+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :     ctsv_raw                 : OK   (10/10)
+[2026-04-20T08:39:10.171+0000] {ge_validation.py:261} INFO -     ctsv_raw                 : OK   (10/10)
+[2026-04-20T08:39:10.172+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :     tai_chinh                : OK   (11/11)
+[2026-04-20T08:39:10.172+0000] {ge_validation.py:261} INFO -     tai_chinh                : OK   (11/11)
+[2026-04-20T08:39:10.173+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :     students_prepared        : OK   (14/14)
+[2026-04-20T08:39:10.173+0000] {ge_validation.py:261} INFO -     students_prepared        : OK   (14/14)
+[2026-04-20T08:39:10.174+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge :     tong_hop_raw             : OK   (5/5)
+[2026-04-20T08:39:10.174+0000] {ge_validation.py:261} INFO -     tong_hop_raw             : OK   (5/5)
+[2026-04-20T08:39:10.175+0000] {logging_mixin.py:188} WARNING - [2026-04-20 08:39:10] INFO    validation.ge : ============================================================
+[2026-04-20T08:39:10.175+0000] {ge_validation.py:267} INFO - ============================================================
+[2026-04-20T08:39:10.230+0000] {logging_mixin.py:188} INFO - Validation OK: 51/51 expectations passed
+[2026-04-20T08:39:10.231+0000] {logging_mixin.py:188} INFO - GE suites: ['grades_raw', 'ctsv_raw', 'tai_chinh', 'students_prepared', 'tong_hop_raw']
+[2026-04-20T08:39:10.232+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-04-20T08:39:10.255+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260420T083852, start_date=20260420T083904, end_date=20260420T083910
+[2026-04-20T08:39:10.323+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-20T08:39:10.351+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

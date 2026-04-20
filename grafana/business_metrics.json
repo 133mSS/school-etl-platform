@@ -315,8 +315,8 @@
         },
         {
             "id": 7,
-            "title": "⚠️ 1.1 — PHÁT HIỆN SỚM (GPA ≥ 2.0 nhưng DRL thấp / Nợ HP)",
-            "description": "Bài toán 1.1: Phát hiện SV có GPA tích lũy còn ổn (≥ 2.0) nhưng có dấu hiệu rủi ro từ DRL thấp hoặc nợ học phí. FIX: Dùng COALESCE(diem_rl_trung_binh, 100) để xử lý SV chưa có dữ liệu RL — tránh bỏ sót SV có nợ HP nhưng thiếu dữ liệu DRL. Nguồn: GPA (PostgreSQL) + DRL (CSV) + Nợ HP (API).",
+            "title": "⚠️ 1.1 — PHÁT HIỆN SỚM (GPA 2.0–3.2 + DRL thấp / Nợ HP)",
+            "description": "SV đang học GPA vẫn ổn (2.0–3.2) NHƯNG có dấu hiệu cảnh báo phụ: DRL thấp (<65) hoặc nợ học phí. Đây là nhóm cần hỗ trợ sớm TRƯỚC khi GPA sụt. Điểm RR: DRL<35=3đ, DRL<50=2đ, DRL<65=1đ; HP>5M=2đ, HP>0=1đ. Max=5đ. FIX v2: Thêm gpa_he_4 <= 3.2 (loại SV Giỏi/XS khỏi nhóm này — họ cần theo dõi khác). FIX v2: Mức \"Nguy hiểm\" mới cho RR>=4.",
             "type": "table",
             "gridPos": {
                 "x": 0,
@@ -339,7 +339,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "GPA Tích lũy"
+                            "options": "GPA TL"
                         },
                         "properties": [
                             {
@@ -457,7 +457,7 @@
                                         },
                                         {
                                             "color": "orange",
-                                            "value": 2
+                                            "value": 3
                                         },
                                         {
                                             "color": "red",
@@ -477,7 +477,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Mức rủi ro"
+                            "options": "Mức RR"
                         },
                         "properties": [
                             {
@@ -486,11 +486,15 @@
                                     {
                                         "type": "value",
                                         "options": {
+                                            "Nguy hiểm": {
+                                                "text": "🔴 Nguy hiểm",
+                                                "color": "dark-red"
+                                            },
                                             "Cao": {
                                                 "text": "🟠 Cao",
                                                 "color": "orange"
                                             },
-                                            "TB": {
+                                            "Trung bình": {
                                                 "text": "🟡 Trung bình",
                                                 "color": "yellow"
                                             },
@@ -514,7 +518,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "WITH risk AS (SELECT sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc, agg.gpa_he_4, agg.diem_rl_trung_binh, agg.tong_no_hoc_phi, (CASE WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 35 THEN 3 WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 50 THEN 2 WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 1 ELSE 0 END) + (CASE WHEN agg.tong_no_hoc_phi > 5000000 THEN 2 WHEN agg.tong_no_hoc_phi > 0 THEN 1 ELSE 0 END) AS rr FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 >= 1.8 AND agg.gpa_he_4 > 0 AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR agg.tong_no_hoc_phi > 0)) SELECT ma_sinh_vien AS \"Mã SV\", ho_ten AS \"Họ Tên\", ten_nganh AS \"Ngành\", khoa_hoc AS \"Khóa\", gpa_he_4 AS \"GPA Tích lũy\", diem_rl_trung_binh AS \"DRL TB\", CASE WHEN tong_no_hoc_phi > 0 THEN 'Có' ELSE 'Không' END AS \"Nợ HP\", rr AS \"Điểm RR\", CASE WHEN rr >= 3 THEN 'Cao' WHEN rr >= 2 THEN 'Trung Bình' ELSE 'Thấp' END AS \"Mức rủi ro\" FROM risk ORDER BY rr DESC, gpa_he_4 ASC LIMIT 100",
+                    "rawSql": "WITH risk AS (SELECT sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc,        agg.gpa_he_4, agg.diem_rl_trung_binh, agg.tong_no_hoc_phi,        agg.so_mon_khong_dat,   (    CASE WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 35 THEN 3          WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 50 THEN 2          WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 1 ELSE 0 END   ) + (    CASE WHEN agg.tong_no_hoc_phi > 5000000 THEN 2          WHEN agg.tong_no_hoc_phi > 0 THEN 1 ELSE 0 END   ) AS rr FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE   AND sv.trang_thai_hoc_tap = 'Đang học'   AND agg.gpa_he_4 >= 2.0   AND agg.gpa_he_4 <= 3.2   AND agg.gpa_he_4 > 0   AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR agg.tong_no_hoc_phi > 0)) SELECT ma_sinh_vien AS \"Mã SV\", ho_ten AS \"Họ Tên\",        ten_nganh AS \"Ngành\", khoa_hoc AS \"Khóa\",        gpa_he_4 AS \"GPA TL\",        diem_rl_trung_binh AS \"DRL TB\",        CASE WHEN tong_no_hoc_phi > 0 THEN 'Có' ELSE 'Không' END AS \"Nợ HP\",        so_mon_khong_dat AS \"Môn rớt\",        rr AS \"Điểm RR\",        CASE WHEN rr >= 4 THEN 'Nguy hiểm'             WHEN rr >= 3 THEN 'Cao'             WHEN rr >= 2 THEN 'Trung bình'             ELSE 'Thấp' END AS \"Mức RR\" FROM risk ORDER BY rr DESC, gpa_he_4 ASC LIMIT 100",
                     "refId": "A",
                     "format": "table"
                 }
@@ -910,8 +914,8 @@
         },
         {
             "id": 15,
-            "title": "1.2 — CHI TIẾT SV CẢNH BÁO HỌC VỤ (GPA Tích lũy)",
-            "description": "Bài toán 1.2: SV 'Đang học' có GPA tích lũy < 2.0. FIX: COALESCE(diem_rl_trung_binh, 100) để SV thiếu dữ liệu RL không bị xếp sai mức cảnh báo. Tình trạng kỷ luật gần nhất từ CSV phòng CTSV.",
+            "title": "1.2 — CHI TIẾT SV CẢNH BÁO HỌC VỤ (GPA Tích lũy < 2.0)",
+            "description": "SV đang học có GPA tích lũy < 2.0 — nhóm này KHÁC HOÀN TOÀN với 1.1. Đây là cảnh báo học vụ CHÍNH THỨC theo quy chế, cần can thiệp khẩn. FIX: Đổi \"TC Tích lũy\" (TC đăng ký) → \"TC Đạt\" (TC đã qua, đúng nghĩa). FIX: Thêm cột \"Môn rớt\" và \"Môn học lại\" để cố vấn nắm được tình hình đầy đủ.",
             "type": "table",
             "gridPos": {
                 "x": 0,
@@ -1074,12 +1078,84 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Môn rớt"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 5
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Môn học lại"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 3
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
                     }
                 ]
             },
             "targets": [
                 {
-                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\", sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\", agg.gpa_he_4 AS \"GPA Tích lũy\", agg.tong_tin_chi_dang_ky AS \"TC Tích lũy\", agg.diem_rl_trung_binh AS \"DRL TB\", CASE WHEN kl.hinh_thuc_kl IS NOT NULL THEN 'Có' ELSE 'Không' END AS \"Kỷ luật\", CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND kl.hinh_thuc_kl IS NOT NULL THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'Cảnh báo lần 2' WHEN agg.gpa_he_4 < 1.5 OR kl.hinh_thuc_kl IS NOT NULL THEN 'Cảnh báo lần 1' ELSE 'Theo dõi' END AS \"Mức cảnh báo\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key LEFT JOIN LATERAL (SELECT c.hinh_thuc_kl FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.hinh_thuc_kl IS NOT NULL AND c.hinh_thuc_kl != '' ORDER BY c.hoc_ky_key DESC LIMIT 1) kl ON TRUE WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 ORDER BY agg.gpa_he_4 ASC LIMIT 100",
+                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\",        sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\",        agg.gpa_he_4 AS \"GPA TL\",        agg.tin_chi_dat AS \"TC Đạt\",        agg.so_mon_khong_dat AS \"Môn rớt\",        agg.so_mon_hoc_lai AS \"Môn học lại\",        agg.diem_rl_trung_binh AS \"DRL TB\",        CASE WHEN kl.hinh_thuc_kl IS NOT NULL THEN 'Có' ELSE 'Không' END AS \"Kỷ luật\",        CASE          WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học'          WHEN agg.gpa_he_4 < 1.5 AND kl.hinh_thuc_kl IS NOT NULL THEN 'Buộc thôi học'          WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'Cảnh báo lần 2'          WHEN agg.gpa_he_4 < 1.5 OR kl.hinh_thuc_kl IS NOT NULL THEN 'Cảnh báo lần 1'          ELSE 'Theo dõi'        END AS \"Mức cảnh báo\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key=sv.sinh_vien_key LEFT JOIN LATERAL (  SELECT c.hinh_thuc_kl FROM fact_ctsv c   WHERE c.sinh_vien_key=agg.sinh_vien_key     AND c.hinh_thuc_kl IS NOT NULL AND c.hinh_thuc_kl != ''   ORDER BY c.hoc_ky_key DESC LIMIT 1) kl ON TRUE WHERE sv.la_ban_hien_tai=TRUE   AND sv.trang_thai_hoc_tap='Đang học'   AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 ORDER BY agg.gpa_he_4 ASC LIMIT 100",
                     "refId": "A",
                     "format": "table"
                 }
@@ -1330,6 +1406,214 @@
             "targets": [
                 {
                     "rawSql": "SELECT gv.ho_ten as \"Giảng viên\", hp.ten_mon as \"Môn học\", COUNT(*) as \"Số SV\", ROUND(AVG(f.diem_he_4)::numeric, 2) as \"ĐTB (hệ 4)\", ROUND(100.0 * SUM(CASE WHEN f.dat_mon = TRUE THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 1) as \"Tỷ lệ Đạt (%)\", ROUND(STDDEV(f.diem_he_4)::numeric, 2) as \"Độ lệch chuẩn\" FROM fact_hoc_tap f JOIN dim_giang_vien gv ON f.giang_vien_key = gv.giang_vien_key JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key JOIN dim_hoc_ky hk ON f.hoc_ky_key = hk.hoc_ky_key WHERE hk.ma_hoc_ky = '$hoc_ky' AND f.diem_he_4 IS NOT NULL GROUP BY gv.ho_ten, hp.ten_mon HAVING COUNT(*) >= 10 ORDER BY hp.ten_mon ASC, \"Tỷ lệ Đạt (%)\" DESC",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 21,
+            "title": "📋 3.1 — CHI TIẾT SV Bị Hạ Bậc Bằng Tốt nghiệp",
+            "description": "Danh sách SV có xếp loại bằng chính thức THẤP HƠN xếp loại gốc do rớt >5% TC CT lần đầu. Hiển thị: TC rớt, % so với CT, bằng gốc → bằng chính thức. Bảng này quan trọng cho Phòng Đào tạo khi xét danh hiệu cuối khóa.",
+            "type": "table",
+            "gridPos": {
+                "x": 0,
+                "y": 83,
+                "w": 24,
+                "h": 9
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "TC rớt ĐĐ",
+                        "desc": true
+                    }
+                ]
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Bằng Gốc"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "Xuất sắc": {
+                                                "text": "⭐ Xuất sắc",
+                                                "color": "green"
+                                            },
+                                            "Giỏi": {
+                                                "text": "🥇 Giỏi",
+                                                "color": "blue"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Bằng Chính thức"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "Giỏi": {
+                                                "text": "🥇 Giỏi",
+                                                "color": "blue"
+                                            },
+                                            "Khá": {
+                                                "text": "🥈 Khá",
+                                                "color": "yellow"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "% TC Rớt"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 5
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 10
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 15
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\",        sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\",        agg.gpa_he_4 AS \"GPA TL\",        agg.tc_rot_lan_dau AS \"TC rớt ĐĐ\",        ROUND(agg.ty_le_tc_rot, 1) AS \"% TC Rớt\",        agg.xep_loai_bang_goc AS \"Bằng Gốc\",        agg.xep_loai_bang_chinh_thuc AS \"Bằng Chính thức\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key=sv.sinh_vien_key WHERE sv.la_ban_hien_tai=TRUE   AND agg.bi_ha_bac_bang=TRUE ORDER BY agg.ty_le_tc_rot DESC, agg.gpa_he_4 DESC LIMIT 50",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 22,
+            "title": "🎓 Tiến độ & Dự báo Tốt nghiệp theo Khóa",
+            "description": "Thống kê tỷ lệ SV đạt điều kiện tốt nghiệp (GPA ≥ 2.0 + TC đạt ≥ 80% chương trình). Hỗ trợ BGH dự báo số SV ra trường đúng hạn. Nguồn: dim_sinh_vien + agg_student_summary.",
+            "type": "table",
+            "gridPos": {
+                "x": 0,
+                "y": 83,
+                "w": 24,
+                "h": 7
+            },
+            "options": {
+                "showHeader": true
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Tỷ lệ Đủ ĐK (%)"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 30
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 60
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 80
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT sv.khoa_hoc AS \"Khóa\", sv.ten_nganh AS \"Ngành\", COUNT(*) AS \"Tổng SV\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Tốt nghiệp' THEN 1 ELSE 0 END) AS \"Đã TN\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Đang học'          AND agg.gpa_he_4 >= 2.0          AND agg.tin_chi_dat >= 100 THEN 1 ELSE 0 END) AS \"Đủ ĐK (chưa TN)\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Thôi học' THEN 1 ELSE 0 END) AS \"Thôi học\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Bảo lưu' THEN 1 ELSE 0 END) AS \"Bảo lưu\", ROUND(100.0 * (  SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Tốt nghiệp' THEN 1 ELSE 0 END) +   SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 >= 2.0            AND agg.tin_chi_dat >= 100 THEN 1 ELSE 0 END)) / NULLIF(COUNT(*), 0), 1) AS \"Tỷ lệ Đủ ĐK (%)\" FROM dim_sinh_vien sv LEFT JOIN agg_student_summary agg ON sv.sinh_vien_key = agg.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE GROUP BY sv.khoa_hoc, sv.ten_nganh ORDER BY sv.khoa_hoc, sv.ten_nganh",
                     "refId": "A",
                     "format": "table"
                 }

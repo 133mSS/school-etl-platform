@@ -1,0 +1,43 @@
+[2026-04-20T07:50:14.494+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: weekly_summary_pipeline.aggregate_weekly scheduled__2026-04-13T06:00:00+00:00 [queued]>
+[2026-04-20T07:50:14.503+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: weekly_summary_pipeline.aggregate_weekly scheduled__2026-04-13T06:00:00+00:00 [queued]>
+[2026-04-20T07:50:14.504+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-04-20T07:50:14.517+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): aggregate_weekly> on 2026-04-13 06:00:00+00:00
+[2026-04-20T07:50:14.523+0000] {standard_task_runner.py:60} INFO - Started process 201 to run task
+[2026-04-20T07:50:14.528+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'weekly_summary_pipeline', 'aggregate_weekly', 'scheduled__2026-04-13T06:00:00+00:00', '--job-id', '379', '--raw', '--subdir', 'DAGS_FOLDER/weekly_summary_pipeline.py', '--cfg-path', '/tmp/tmpz_aw08ni']
+[2026-04-20T07:50:14.532+0000] {standard_task_runner.py:88} INFO - Job 379: Subtask aggregate_weekly
+[2026-04-20T07:50:14.608+0000] {task_command.py:423} INFO - Running <TaskInstance: weekly_summary_pipeline.aggregate_weekly scheduled__2026-04-13T06:00:00+00:00 [running]> on host eb2cbdc99987
+[2026-04-20T07:50:14.753+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='weekly_summary_pipeline' AIRFLOW_CTX_TASK_ID='aggregate_weekly' AIRFLOW_CTX_EXECUTION_DATE='2026-04-13T06:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-04-13T06:00:00+00:00'
+[2026-04-20T07:50:22.206+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation : == WeeklyAggregator: BẮT ĐẦU ==
+[2026-04-20T07:50:22.206+0000] {aggregation.py:294} INFO - == WeeklyAggregator: BẮT ĐẦU ==
+[2026-04-20T07:50:22.208+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   sync_student_status | Bắt đầu đồng bộ trạng thái SV...
+[2026-04-20T07:50:22.208+0000] {aggregation.py:195} INFO -   sync_student_status | Bắt đầu đồng bộ trạng thái SV...
+[2026-04-20T07:50:22.228+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   sync_student_status | Đọc 1695 SV từ Source
+[2026-04-20T07:50:22.228+0000] {aggregation.py:212} INFO -   sync_student_status | Đọc 1695 SV từ Source
+[2026-04-20T07:50:22.367+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   sync_student_status | Tìm thấy 1695 bản ghi active trong Warehouse
+[2026-04-20T07:50:22.367+0000] {aggregation.py:222} INFO -   sync_student_status | Tìm thấy 1695 bản ghi active trong Warehouse
+[2026-04-20T07:50:22.372+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   sync_student_status | Hoàn tất: 0 SV được cập nhật trạng thái
+[2026-04-20T07:50:22.372+0000] {aggregation.py:284} INFO -   sync_student_status | Hoàn tất: 0 SV được cập nhật trạng thái
+[2026-04-20T07:50:22.789+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   agg_student_summary → 1,695 records
+[2026-04-20T07:50:22.789+0000] {aggregation.py:189} INFO -   agg_student_summary → 1,695 records
+[2026-04-20T07:50:22.790+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   sv_status_synced    : Không có thay đổi trạng thái trong tuần
+[2026-04-20T07:50:22.790+0000] {aggregation.py:312} INFO -   sv_status_synced    : Không có thay đổi trạng thái trong tuần
+[2026-04-20T07:50:22.792+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation :   agg_student_summary : 1,695 records
+[2026-04-20T07:50:22.792+0000] {aggregation.py:316} INFO -   agg_student_summary : 1,695 records
+[2026-04-20T07:50:22.794+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    etl.aggregation : == WeeklyAggregator: HOÀN TẤT ==
+[2026-04-20T07:50:22.794+0000] {aggregation.py:317} INFO - == WeeklyAggregator: HOÀN TẤT ==
+[2026-04-20T07:50:22.822+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    validation.ge :   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-04-20T07:50:22.822+0000] {ge_validation.py:162} INFO -   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-04-20T07:50:22.824+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    validation.ge :   GE | Validate warehouse — agg_student_summary
+[2026-04-20T07:50:22.824+0000] {ge_validation.py:286} INFO -   GE | Validate warehouse — agg_student_summary
+[2026-04-20T07:50:22.844+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    validation.ge :   GE | agg_student_summary: 1695 records
+[2026-04-20T07:50:22.844+0000] {ge_validation.py:299} INFO -   GE | agg_student_summary: 1695 records
+[2026-04-20T07:50:22.860+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    validation.ge :   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-20T07:50:22.860+0000] {ge_validation.py:43} INFO -   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-20T07:50:22.868+0000] {data_asset.py:541} INFO - 	7 expectation(s) included in expectation_suite.
+[2026-04-20T07:50:22.881+0000] {logging_mixin.py:188} WARNING - [2026-04-20 07:50:22] INFO    validation.ge :   GE | [warehouse_suite] agg_student_summary: 7/7 (OK)
+[2026-04-20T07:50:22.881+0000] {ge_validation.py:93} INFO -   GE | [warehouse_suite] agg_student_summary: 7/7 (OK)
+[2026-04-20T07:50:22.884+0000] {weekly_summary_pipeline.py:38} INFO - Warehouse OK: 7/7 passed
+[2026-04-20T07:50:22.887+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-04-20T07:50:22.908+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=weekly_summary_pipeline, task_id=aggregate_weekly, execution_date=20260413T060000, start_date=20260420T075014, end_date=20260420T075022
+[2026-04-20T07:50:22.963+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-20T07:50:23.031+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
