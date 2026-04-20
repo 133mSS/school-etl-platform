@@ -26,20 +26,19 @@ class DataAggregator:
                 diem_rl_trung_binh, xep_loai_rl_gan_nhat, tong_no_hoc_phi,
                 co_no_hoc_phi, duoc_mien_giam, muc_do_rui_ro, canh_bao_hoc_vu,
                 hoc_ky_key_gan_nhat,
-                -- ★ MỚI: Các cột chất lượng bằng tốt nghiệp
                 tc_rot_lan_dau, ty_le_tc_rot,
                 xep_loai_bang_goc, xep_loai_bang_chinh_thuc, bi_ha_bac_bang
             )
             WITH best_grade AS (
-                -- Lấy điểm tốt nhất per (sinh_vien, hoc_phan)
-                -- Dùng MAX(diem_he_4) để đồng nhất với TongHopKetQua nguồn
                 SELECT
-                    f.sinh_vien_key, f.ma_sinh_vien, f.hoc_phan_key,
-                    MAX(f.diem_he_4)                                        AS best_diem_he_4,
-                    MAX(f.diem_tong_ket)                                    AS best_diem_he_10,
+                    f.sinh_vien_key,
+                    f.ma_sinh_vien,
+                    f.hoc_phan_key,
+                    MAX(f.diem_he_4)                                            AS best_diem_he_4,
+                    MAX(f.diem_tong_ket)                                        AS best_diem_he_10,
                     MAX(CASE WHEN COALESCE(f.dat_mon, FALSE) THEN 1 ELSE 0 END) AS dat_mon,
-                    BOOL_OR(COALESCE(f.hoc_lai, FALSE))                    AS hoc_lai,
-                    MAX(COALESCE(f.so_tin_chi, 0))                         AS so_tin_chi
+                    BOOL_OR(COALESCE(f.hoc_lai, FALSE))                         AS hoc_lai,
+                    MAX(COALESCE(f.so_tin_chi, 0))                              AS so_tin_chi
                 FROM fact_hoc_tap f
                 GROUP BY f.sinh_vien_key, f.ma_sinh_vien, f.hoc_phan_key
             ),
@@ -50,50 +49,59 @@ class DataAggregator:
                     ROUND(
                         CASE
                             WHEN SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
-                                     THEN bg.so_tin_chi ELSE 0 END) > 0
+                                    THEN bg.so_tin_chi ELSE 0 END) > 0
                             THEN SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
-                                     THEN bg.best_diem_he_4 * bg.so_tin_chi ELSE 0 END)
-                               / SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
-                                     THEN bg.so_tin_chi ELSE 0 END)
+                                    THEN bg.best_diem_he_4 * bg.so_tin_chi ELSE 0 END)
+                            / SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
+                                    THEN bg.so_tin_chi ELSE 0 END)
                             ELSE NULL
                         END, 2
                     ) AS gpa_he_4,
                     ROUND(
                         CASE
                             WHEN SUM(CASE WHEN bg.best_diem_he_10 IS NOT NULL
-                                     THEN bg.so_tin_chi ELSE 0 END) > 0
+                                    THEN bg.so_tin_chi ELSE 0 END) > 0
                             THEN SUM(CASE WHEN bg.best_diem_he_10 IS NOT NULL
-                                     THEN bg.best_diem_he_10 * bg.so_tin_chi ELSE 0 END)
-                               / SUM(CASE WHEN bg.best_diem_he_10 IS NOT NULL
-                                     THEN bg.so_tin_chi ELSE 0 END)
+                                    THEN bg.best_diem_he_10 * bg.so_tin_chi ELSE 0 END)
+                            / SUM(CASE WHEN bg.best_diem_he_10 IS NOT NULL
+                                    THEN bg.so_tin_chi ELSE 0 END)
                             ELSE NULL
                         END, 2
                     ) AS gpa_he_10,
-                    SUM(bg.so_tin_chi)                                      AS tong_tin_chi_dang_ky,
+                    SUM(bg.so_tin_chi)                                          AS tong_tin_chi_dang_ky,
                     SUM(CASE WHEN bg.dat_mon = 1 AND bg.best_diem_he_4 IS NOT NULL
-                             THEN bg.so_tin_chi ELSE 0 END)                 AS tin_chi_dat,
+                            THEN bg.so_tin_chi ELSE 0 END)                     AS tin_chi_dat,
                     SUM(CASE WHEN bg.dat_mon = 0 AND bg.best_diem_he_4 IS NOT NULL
-                             THEN bg.so_tin_chi ELSE 0 END)                 AS tin_chi_khong_dat,
-                    COUNT(*)                                                AS tong_mon_dang_ky,
+                            THEN bg.so_tin_chi ELSE 0 END)                     AS tin_chi_khong_dat,
+                    COUNT(*)                                                    AS tong_mon_dang_ky,
                     SUM(CASE WHEN bg.dat_mon = 1 AND bg.best_diem_he_4 IS NOT NULL
-                             THEN 1 ELSE 0 END)                             AS so_mon_dat,
+                            THEN 1 ELSE 0 END)                                 AS so_mon_dat,
                     SUM(CASE WHEN bg.dat_mon = 0 AND bg.best_diem_he_4 IS NOT NULL
-                             THEN 1 ELSE 0 END)                             AS so_mon_khong_dat,
-                    SUM(CASE WHEN bg.hoc_lai THEN 1 ELSE 0 END)            AS so_mon_hoc_lai,
+                            THEN 1 ELSE 0 END)                                 AS so_mon_khong_dat,
                     ROUND(
                         CASE
                             WHEN SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
-                                     THEN 1 ELSE 0 END) > 0
+                                        THEN bg.so_tin_chi ELSE 0 END) > 0
                             THEN 100.0
-                               * SUM(CASE WHEN bg.dat_mon = 1 AND bg.best_diem_he_4 IS NOT NULL
-                                     THEN 1 ELSE 0 END)
-                               / SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
-                                     THEN 1 ELSE 0 END)
+                                * SUM(CASE WHEN bg.dat_mon = 1 AND bg.best_diem_he_4 IS NOT NULL
+                                        THEN bg.so_tin_chi ELSE 0 END)
+                                / SUM(CASE WHEN bg.best_diem_he_4 IS NOT NULL
+                                        THEN bg.so_tin_chi ELSE 0 END)
                             ELSE NULL
                         END, 2
                     ) AS ty_le_dat
                 FROM best_grade bg
                 GROUP BY bg.sinh_vien_key, bg.ma_sinh_vien
+            ),
+            -- ✅ FIX Bug #2: Đếm môn học lại đúng nghiệp vụ
+            hoc_lai_count AS (
+                SELECT
+                    f.sinh_vien_key,
+                    COUNT(DISTINCT f.hoc_phan_key) AS so_mon_hoc_lai
+                FROM fact_hoc_tap f
+                WHERE f.hoc_lai = TRUE
+                AND f.diem_tong_ket IS NOT NULL
+                GROUP BY f.sinh_vien_key
             ),
             rl_avg AS (
                 SELECT
@@ -113,7 +121,7 @@ class DataAggregator:
             tc_sum AS (
                 SELECT
                     sinh_vien_key,
-                    SUM(COALESCE(con_no, 0))          AS tong_no_hoc_phi,
+                    SUM(COALESCE(con_no, 0))              AS tong_no_hoc_phi,
                     BOOL_OR(COALESCE(duoc_mien_giam, FALSE)) AS duoc_mien_giam
                 FROM fact_tai_chinh
                 GROUP BY sinh_vien_key
@@ -123,39 +131,32 @@ class DataAggregator:
                 FROM fact_hoc_tap
                 GROUP BY sinh_vien_key
             ),
-
-            -- ══════════════════════════════════════════════════════════════
-            -- ★ MỚI: TC rớt lần đầu (hoc_lai=FALSE AND dat_mon=FALSE)
-            --   Chỉ tính lần đăng ký ĐẦU TIÊN — không cộng thêm lần thi lại
-            -- ══════════════════════════════════════════════════════════════
             first_fail AS (
                 SELECT
                     f.sinh_vien_key,
-                    -- Chỉ lấy các môn rớt LẦN ĐẦU (hoc_lai=FALSE)
-                    -- Nếu sau đó học lại rớt nữa thì không cộng thêm
                     SUM(COALESCE(hp.so_tin_chi, 0)) AS tc_rot_lan_dau
                 FROM fact_hoc_tap f
                 JOIN dim_hoc_phan hp ON f.hoc_phan_key = hp.hoc_phan_key
-                WHERE f.hoc_lai = FALSE          -- lần thi/đăng ký đầu tiên
-                  AND f.dat_mon = FALSE          -- rớt
-                  AND f.diem_tong_ket IS NOT NULL -- đã có điểm (không tính missing)
+                WHERE f.hoc_lai = FALSE
+                AND f.dat_mon = FALSE
+                AND f.diem_tong_ket IS NOT NULL
                 GROUP BY f.sinh_vien_key
             ),
-
-            -- ══════════════════════════════════════════════════════════════
-            -- ★ MỚI: Tổng TC chương trình per ngành
-            --   Chiến lược: dùng MAX tổng TC của SV đã tốt nghiệp ngành đó
-            --   (SV tốt nghiệp đã hoàn thành đủ chương trình → đây là mức chuẩn)
-            --   Fallback: nếu chưa có SV tốt nghiệp, dùng MAX của tất cả SV ngành đó
-            -- ══════════════════════════════════════════════════════════════
+            -- ✅ FIX Bug #5: Fallback ổn định
             nganh_tong_tc AS (
                 SELECT
                     sv.ma_nganh,
                     COALESCE(
-                        -- Ưu tiên: lấy từ SV đã tốt nghiệp (đã học đủ chương trình)
                         MAX(CASE WHEN sv.trang_thai_hoc_tap = 'Tốt nghiệp'
-                             THEN gpa.tong_tin_chi_dang_ky END),
-                        -- Fallback: lấy max của tất cả SV đang học (B21 đã học nhiều nhất)
+                                THEN gpa.tong_tin_chi_dang_ky END),
+                        MAX(gpa.tong_tin_chi_dang_ky)
+                            FILTER (WHERE sv.khoa_hoc = (
+                                SELECT MIN(k.khoa_hoc)
+                                FROM dim_sinh_vien k
+                                WHERE k.ma_nganh = sv.ma_nganh
+                                AND k.la_ban_hien_tai = TRUE
+                                AND k.trang_thai_hoc_tap != 'Tốt nghiệp'
+                            )),
                         MAX(gpa.tong_tin_chi_dang_ky)
                     ) AS tong_tc_ct
                 FROM dim_sinh_vien sv
@@ -167,8 +168,8 @@ class DataAggregator:
             SELECT
                 sv.sinh_vien_key,
                 sv.ma_sinh_vien,
-                COALESCE(gpa.gpa_he_4,  0.00)   AS gpa_he_4,
-                COALESCE(gpa.gpa_he_10, 0.00)   AS gpa_he_10,
+                COALESCE(gpa.gpa_he_4,  0.00) AS gpa_he_4,
+                COALESCE(gpa.gpa_he_10, 0.00) AS gpa_he_10,
 
                 CASE
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Xuất sắc'
@@ -176,82 +177,79 @@ class DataAggregator:
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.5 THEN 'Khá'
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung bình'
                     ELSE 'Yếu'
-                END                             AS xep_loai_hoc_luc,
+                END AS xep_loai_hoc_luc,
 
                 COALESCE(gpa.tong_tin_chi_dang_ky, 0) AS tong_tin_chi_dang_ky,
-                COALESCE(gpa.tin_chi_dat,          0) AS tin_chi_dat,
-                COALESCE(gpa.tin_chi_khong_dat,    0) AS tin_chi_khong_dat,
+                COALESCE(gpa.tin_chi_dat,           0) AS tin_chi_dat,
+                COALESCE(gpa.tin_chi_khong_dat,     0) AS tin_chi_khong_dat,
                 gpa.ty_le_dat,
                 COALESCE(gpa.tong_mon_dang_ky,  0) AS tong_mon_dang_ky,
                 COALESCE(gpa.so_mon_dat,        0) AS so_mon_dat,
                 COALESCE(gpa.so_mon_khong_dat,  0) AS so_mon_khong_dat,
-                COALESCE(gpa.so_mon_hoc_lai,    0) AS so_mon_hoc_lai,
+
+                -- ✅ FIX: Dùng hoc_lai_count với JOIN đầy đủ
+                COALESCE(hlc.so_mon_hoc_lai, 0) AS so_mon_hoc_lai,
 
                 rlavg.diem_rl_trung_binh,
-                rll.xep_loai_rl                 AS xep_loai_rl_gan_nhat,
+                rll.xep_loai_rl AS xep_loai_rl_gan_nhat,
 
-                COALESCE(tc.tong_no_hoc_phi, 0) AS tong_no_hoc_phi,
+                COALESCE(tc.tong_no_hoc_phi, 0)       AS tong_no_hoc_phi,
                 (COALESCE(tc.tong_no_hoc_phi, 0) > 0) AS co_no_hoc_phi,
-                COALESCE(tc.duoc_mien_giam, FALSE)    AS duoc_mien_giam,
+                COALESCE(tc.duoc_mien_giam, FALSE)     AS duoc_mien_giam,
 
+                -- ✅ FIX CHÍNH: Logic muc_do_rui_ro thực tế hơn
+                -- Không yêu cầu tất cả điều kiện phải đồng thời đúng
                 CASE
-                    WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0
-                     AND COALESCE(rlavg.diem_rl_trung_binh, 100) < 50
-                     AND COALESCE(tc.tong_no_hoc_phi, 0) > 0    THEN 'Rất cao'
+                    WHEN COALESCE(gpa.gpa_he_4, 0) < 1.0
+                    THEN 'Rất cao'
+
                     WHEN COALESCE(gpa.gpa_he_4, 0) < 1.5
-                     AND (COALESCE(rlavg.diem_rl_trung_binh, 100) < 50
-                          OR COALESCE(tc.tong_no_hoc_phi, 0) > 0) THEN 'Cao'
-                    WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0        THEN 'Trung bình'
+                    THEN 'Cao'
+
+                    WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0
+                    AND COALESCE(tc.tong_no_hoc_phi, 0) > 0
+                    THEN 'Cao'
+
+                    WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0
+                    THEN 'Trung bình'
+
                     ELSE 'Thấp'
-                END                             AS muc_do_rui_ro,
+                END AS muc_do_rui_ro,
 
                 (COALESCE(gpa.gpa_he_4, 0) < 2.0) AS canh_bao_hoc_vu,
                 lhk.hoc_ky_key_gan_nhat,
 
-                -- ══════════════════════════════════════════════════════════
-                -- ★ MỚI: Tính toán xếp loại bằng tốt nghiệp có điều chỉnh
-                -- ══════════════════════════════════════════════════════════
+                COALESCE(ff.tc_rot_lan_dau, 0) AS tc_rot_lan_dau,
 
-                -- TC rớt lần đầu (0 nếu chưa rớt bao giờ)
-                COALESCE(ff.tc_rot_lan_dau, 0)          AS tc_rot_lan_dau,
-
-                -- Tỷ lệ % TC rớt lần đầu / tổng TC chương trình ngành
                 CASE
                     WHEN COALESCE(ntc.tong_tc_ct, 0) > 0
                     THEN ROUND(
-                        100.0 * COALESCE(ff.tc_rot_lan_dau, 0)
-                        / ntc.tong_tc_ct, 2
+                        100.0 * COALESCE(ff.tc_rot_lan_dau, 0) / ntc.tong_tc_ct, 2
                     )
                     ELSE 0.00
-                END                                     AS ty_le_tc_rot,
+                END AS ty_le_tc_rot,
 
-                -- Xếp loại bằng GỐC (theo GPA, chưa điều chỉnh)
                 CASE
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Xuất sắc'
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.2 THEN 'Giỏi'
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.5 THEN 'Khá'
                     WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung bình'
-                    ELSE NULL  -- SV chưa tốt nghiệp / không xét
-                END                                     AS xep_loai_bang_goc,
+                    ELSE NULL
+                END AS xep_loai_bang_goc,
 
-                -- Xếp loại bằng CHÍNH THỨC (sau khi áp dụng luật hạ bậc)
-                -- Quy tắc: nếu tc_rot_lan_dau > 5% tong_tc_ct thì hạ 1 bậc:
-                --   Xuất sắc → Giỏi, Giỏi → Khá, Khá giữ nguyên
                 CASE
-                    WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0 THEN NULL  -- không xét
+                    WHEN COALESCE(gpa.gpa_he_4, 0) < 2.0 THEN NULL
                     WHEN COALESCE(ff.tc_rot_lan_dau, 0) * 100.0
-                         / NULLIF(ntc.tong_tc_ct, 0) > 5.0
+                        / NULLIF(ntc.tong_tc_ct, 0) > 5.0
                     THEN
-                        -- Có rớt > 5% → hạ bậc
                         CASE
-                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Giỏi'      -- Xuất sắc → Giỏi
-                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.2 THEN 'Khá'       -- Giỏi → Khá
-                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.5 THEN 'Khá'       -- Khá giữ nguyên
-                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung bình'-- TB giữ nguyên
+                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Giỏi'
+                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.2 THEN 'Khá'
+                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.5 THEN 'Khá'
+                            WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung bình'
                             ELSE NULL
                         END
                     ELSE
-                        -- Không bị hạ → giữ nguyên xếp loại gốc
                         CASE
                             WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.6 THEN 'Xuất sắc'
                             WHEN COALESCE(gpa.gpa_he_4, 0) >= 3.2 THEN 'Giỏi'
@@ -259,18 +257,18 @@ class DataAggregator:
                             WHEN COALESCE(gpa.gpa_he_4, 0) >= 2.0 THEN 'Trung bình'
                             ELSE NULL
                         END
-                END                                     AS xep_loai_bang_chinh_thuc,
+                END AS xep_loai_bang_chinh_thuc,
 
-                -- Cờ: có bị hạ bậc bằng không?
                 (
                     COALESCE(gpa.gpa_he_4, 0) >= 2.0
                     AND COALESCE(ff.tc_rot_lan_dau, 0) * 100.0
                         / NULLIF(ntc.tong_tc_ct, 0) > 5.0
-                    AND COALESCE(gpa.gpa_he_4, 0) >= 3.2  -- chỉ hạ nếu XS hoặc Giỏi
-                )                                       AS bi_ha_bac_bang
+                    AND COALESCE(gpa.gpa_he_4, 0) >= 3.2
+                ) AS bi_ha_bac_bang
 
             FROM dim_sinh_vien sv
-            LEFT JOIN gpa_tich_luy  gpa  ON sv.sinh_vien_key = gpa.sinh_vien_key
+            LEFT JOIN gpa_tich_luy  gpa   ON sv.sinh_vien_key = gpa.sinh_vien_key
+            LEFT JOIN hoc_lai_count hlc   ON sv.sinh_vien_key = hlc.sinh_vien_key
             LEFT JOIN rl_avg        rlavg ON sv.sinh_vien_key = rlavg.sinh_vien_key
             LEFT JOIN rl_latest     rll   ON sv.sinh_vien_key = rll.sinh_vien_key
             LEFT JOIN tc_sum        tc    ON sv.sinh_vien_key = tc.sinh_vien_key

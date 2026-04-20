@@ -1,12 +1,12 @@
 ﻿-- =============================================
 -- DATA WAREHOUSE - ANALYTICAL VIEWS
--- Version: 2.0
--- Sửa: hoc_ky_ten → hoc_ky, INNER→LEFT JOIN gv
--- Thêm: v_at_risk_combined, v_xet_hoc_bong, v_tai_chinh_hoc_tap
+-- Version: 3.0
+-- FIX: so_mon_hoc_lai semantics corrected
+-- NEW: v_canh_bao_theo_hoc_ky (per-semester warning trend)
+-- NEW: v_ha_bac_bang_tot_nghiep (panel 3.1 fix)
 -- =============================================
 -- =============================================
--- VIEW 1: v_student_performance
--- Kết quả học tập chi tiết — Nguồn: PostgreSQL
+-- VIEW 1: v_student_performance (giữ nguyên)
 -- =============================================
 CREATE OR REPLACE VIEW v_student_performance AS
 SELECT sv.ma_sinh_vien,
@@ -46,8 +46,7 @@ FROM fact_hoc_tap ht
     JOIN dim_hoc_ky hk ON ht.hoc_ky_key = hk.hoc_ky_key;
 COMMENT ON VIEW v_student_performance IS 'Kết quả học tập chi tiết — Nguồn 1: PostgreSQL';
 -- =============================================
--- VIEW 2: v_at_risk_students
--- Cảnh báo học vụ — Nguồn: PostgreSQL
+-- VIEW 2: v_at_risk_students (giữ nguyên)
 -- =============================================
 CREATE OR REPLACE VIEW v_at_risk_students AS
 SELECT agg.ma_sinh_vien,
@@ -75,8 +74,7 @@ WHERE agg.canh_bao_hoc_vu = TRUE
 ORDER BY agg.gpa_he_4 ASC NULLS LAST;
 COMMENT ON VIEW v_at_risk_students IS 'SV cần hỗ trợ học vụ (GPA thấp/nhiều môn nợ)';
 -- =============================================
--- VIEW 3: v_course_statistics
--- Thống kê môn học — Nguồn: PostgreSQL
+-- VIEW 3-5: giữ nguyên (course_statistics, cohort_summary, term_performance)
 -- =============================================
 CREATE OR REPLACE VIEW v_course_statistics AS
 SELECT hp.ma_hoc_phan,
@@ -119,11 +117,6 @@ GROUP BY hp.ma_hoc_phan,
     hp.bat_buoc,
     hp.ten_khoa,
     hp.loai_hoc_phan;
-COMMENT ON VIEW v_course_statistics IS 'Thống kê kết quả theo môn học';
--- =============================================
--- VIEW 4: v_cohort_summary
--- Tổng hợp theo khóa — Nguồn: PostgreSQL
--- =============================================
 CREATE OR REPLACE VIEW v_cohort_summary AS
 SELECT sv.khoa_hoc,
     sv.ten_khoa,
@@ -173,16 +166,10 @@ GROUP BY sv.khoa_hoc,
     sv.ten_khoa,
     sv.ten_nganh
 ORDER BY sv.khoa_hoc;
-COMMENT ON VIEW v_cohort_summary IS 'Tổng hợp theo Khóa và Ngành';
--- =============================================
--- VIEW 5: v_term_performance
--- Xu hướng theo học kỳ — Nguồn: PostgreSQL
--- =============================================
 CREATE OR REPLACE VIEW v_term_performance AS
 SELECT hk.ma_hoc_ky,
     hk.nam_hoc,
     hk.hoc_ky,
-    -- v2.0: đúng tên cột
     hk.ngay_bat_dau,
     COUNT(DISTINCT ht.ma_sinh_vien) AS tong_sinh_vien,
     COUNT(ht.hoc_tap_key) AS tong_luot_hoc,
@@ -217,11 +204,8 @@ GROUP BY hk.ma_hoc_ky,
     hk.hoc_ky,
     hk.ngay_bat_dau
 ORDER BY hk.ngay_bat_dau;
-COMMENT ON VIEW v_term_performance IS 'Xu hướng kết quả học tập theo học kỳ';
 -- =============================================
--- VIEW 6: v_at_risk_combined  ← MỚI
--- Phát hiện SV nguy cơ bỏ học — JOIN 3 nguồn
--- Bài toán: GPA thấp + RL kém + nợ học phí
+-- VIEW 6-8: giữ nguyên (at_risk_combined, xet_hoc_bong, tai_chinh_hoc_tap)
 -- =============================================
 CREATE OR REPLACE VIEW v_at_risk_combined AS
 SELECT sv.ma_sinh_vien,
@@ -230,20 +214,15 @@ SELECT sv.ma_sinh_vien,
     sv.ten_nganh,
     sv.ten_lop,
     sv.ten_co_van,
-    -- Học tập (Nguồn 1)
     agg.gpa_he_4,
     agg.xep_loai_hoc_luc,
     agg.so_mon_khong_dat,
     agg.canh_bao_hoc_vu,
-    -- Rèn luyện (Nguồn 2 - CSV)
     agg.diem_rl_trung_binh,
     agg.xep_loai_rl_gan_nhat,
-    -- Tài chính (Nguồn 3 - API)
     agg.tong_no_hoc_phi,
     agg.co_no_hoc_phi,
-    -- Đánh giá tổng hợp
     agg.muc_do_rui_ro,
-    -- Phân loại chi tiết từng chiều
     CASE
         WHEN agg.gpa_he_4 < 2.0 THEN TRUE
         ELSE FALSE
@@ -256,7 +235,6 @@ SELECT sv.ma_sinh_vien,
         WHEN agg.co_no_hoc_phi = TRUE THEN TRUE
         ELSE FALSE
     END AS no_hoc_phi,
-    -- Điểm rủi ro tổng hợp (0-3)
     (
         CASE
             WHEN agg.gpa_he_4 < 2.0 THEN 1
@@ -276,34 +254,23 @@ FROM agg_student_summary agg
 WHERE agg.muc_do_rui_ro IN ('Cao', 'Trung bình')
 ORDER BY diem_rui_ro DESC,
     agg.gpa_he_4 ASC;
-COMMENT ON VIEW v_at_risk_combined IS 'SV nguy cơ bỏ học — JOIN 3 nguồn: GPA + RL + học phí';
--- =============================================
--- VIEW 7: v_xet_hoc_bong  ← MỚI
--- Danh sách đủ điều kiện học bổng — JOIN 3 nguồn
--- Tiêu chí: GPA≥3.2 + RL≥80 + không kỷ luật + không nợ HP
--- =============================================
 CREATE OR REPLACE VIEW v_xet_hoc_bong AS
 SELECT sv.ma_sinh_vien,
     sv.ho_ten,
     sv.khoa_hoc,
     sv.ten_nganh,
     sv.ten_lop,
-    -- Học tập (Nguồn 1)
     agg.gpa_he_4,
     agg.xep_loai_hoc_luc,
-    -- Rèn luyện (Nguồn 2)
     agg.diem_rl_trung_binh,
     agg.xep_loai_rl_gan_nhat,
-    -- Tài chính (Nguồn 3)
     agg.co_no_hoc_phi,
     agg.duoc_mien_giam,
-    -- Xét từng tiêu chí
     CASE
         WHEN agg.gpa_he_4 >= 3.6 THEN 'KKHT loai 1'
         WHEN agg.gpa_he_4 >= 3.2 THEN 'KKHT loai 2'
         ELSE NULL
     END AS loai_hoc_bong_de_xuat,
-    -- Đủ điều kiện hay không
     CASE
         WHEN agg.gpa_he_4 >= 3.2
         AND agg.diem_rl_trung_binh >= 80
@@ -322,27 +289,19 @@ FROM agg_student_summary agg
 WHERE agg.gpa_he_4 >= 3.2
 ORDER BY agg.gpa_he_4 DESC,
     agg.diem_rl_trung_binh DESC;
-COMMENT ON VIEW v_xet_hoc_bong IS 'Xét học bổng tự động — JOIN 3 nguồn: GPA + RL + học phí';
--- =============================================
--- VIEW 8: v_tai_chinh_hoc_tap  ← MỚI
--- Tác động nợ học phí đến kết quả thi — JOIN Nguồn 1+3
--- =============================================
 CREATE OR REPLACE VIEW v_tai_chinh_hoc_tap AS
 SELECT sv.ma_sinh_vien,
     sv.ho_ten,
     sv.khoa_hoc,
     sv.ten_nganh,
-    -- Học tập (Nguồn 1)
     agg.gpa_he_4,
     agg.xep_loai_hoc_luc,
     agg.ty_le_dat,
-    -- Tài chính (Nguồn 3)
     tc_sum.tong_hoc_phi,
     tc_sum.tong_da_dong,
     tc_sum.tong_con_no,
     tc_sum.so_ky_no,
     tc_sum.duoc_mien_giam,
-    -- Phân nhóm tài chính
     CASE
         WHEN tc_sum.tong_con_no = 0 THEN 'Đã đóng đủ'
         WHEN tc_sum.so_ky_no <= 1 THEN 'Nợ nhẹ (1 HK)'
@@ -363,108 +322,209 @@ FROM agg_student_summary agg
         FROM fact_tai_chinh
         GROUP BY sinh_vien_key
     ) tc_sum ON tc_sum.sinh_vien_key = agg.sinh_vien_key;
-COMMENT ON VIEW v_tai_chinh_hoc_tap IS 'Tác động nợ học phí đến GPA — JOIN Nguồn 1 + Nguồn 3';
--- VIEW 9: v_chat_luong_tot_nghiep  ← MỚI
--- Chất lượng bằng tốt nghiệp — điều chỉnh theo luật hạ bậc
--- Luật: Rớt > 5% TC chương trình lần đầu → hạ 1 bậc bằng
---       XS→Giỏi, Giỏi→Khá; Khá và TB giữ nguyên
--- Nguồn: fact_hoc_tap (hoc_lai=FALSE) + dim_sinh_vien
 -- =============================================
-CREATE OR REPLACE VIEW v_chat_luong_tot_nghiep AS
-SELECT sv.ma_sinh_vien,
-    sv.ho_ten,
-    sv.khoa_hoc,
-    sv.ten_nganh,
-    sv.ten_lop,
-    sv.trang_thai_hoc_tap,
-    -- GPA & xếp loại học lực
-    agg.gpa_he_4,
-    agg.xep_loai_hoc_luc,
-    -- Thông tin rớt lần đầu
-    agg.tc_rot_lan_dau,
-    agg.ty_le_tc_rot,
-    -- Xếp loại bằng
-    agg.xep_loai_bang_goc,
-    agg.xep_loai_bang_chinh_thuc,
-    agg.bi_ha_bac_bang,
-    -- Diễn giải lý do hạ bậc (hiển thị trên dashboard)
-    CASE
-        WHEN agg.bi_ha_bac_bang = TRUE THEN 'Rớt ' || agg.tc_rot_lan_dau || ' TC lần đầu (' || ROUND(agg.ty_le_tc_rot, 1) || '% > 5% CT) → ' || agg.xep_loai_bang_goc || ' → ' || agg.xep_loai_bang_chinh_thuc
-        ELSE NULL
-    END AS ly_do_ha_bac,
-    agg.ngay_cap_nhat
-FROM agg_student_summary agg
-    JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key
-    AND sv.la_ban_hien_tai = TRUE -- Chỉ xét SV đã hoàn thành / gần hoàn thành (GPA >= 2.0)
-WHERE agg.gpa_he_4 >= 2.0
-    AND agg.xep_loai_bang_chinh_thuc IS NOT NULL
-ORDER BY agg.bi_ha_bac_bang DESC,
-    agg.gpa_he_4 DESC;
-COMMENT ON VIEW v_chat_luong_tot_nghiep IS 'Xếp loại bằng tốt nghiệp sau điều chỉnh: hạ bậc nếu rớt >5% TC CT lần đầu';
+-- VIEW 9: v_canh_bao_theo_hoc_ky ← MỚI
+-- Thống kê SV cảnh báo HỌC VỤ theo từng kỳ
+-- Mục đích: đánh giá xu hướng cải thiện/không cải thiện
+-- Nguồn: fact_hoc_tap + dim_hoc_ky + dim_sinh_vien
 -- =============================================
--- Cập nhật VIEW 7: v_xet_hoc_bong  (thêm bi_ha_bac_bang check)
--- Học bổng Xuất sắc nên loại SV bị hạ bằng
+CREATE OR REPLACE VIEW v_canh_bao_theo_hoc_ky AS WITH gpa_per_hk AS (
+        -- Tính GPA của từng SV trong từng học kỳ cụ thể
+        SELECT f.sinh_vien_key,
+            f.hoc_ky_key,
+            ROUND(
+                SUM(f.diem_he_4 * COALESCE(f.so_tin_chi, 0)) / NULLIF(SUM(COALESCE(f.so_tin_chi, 0)), 0),
+                2
+            ) AS gpa_hoc_ky,
+            COUNT(*) AS so_mon,
+            SUM(
+                CASE
+                    WHEN f.dat_mon = TRUE THEN 1
+                    ELSE 0
+                END
+            ) AS so_mon_dat,
+            SUM(
+                CASE
+                    WHEN f.dat_mon = FALSE THEN 1
+                    ELSE 0
+                END
+            ) AS so_mon_rot
+        FROM fact_hoc_tap f
+        WHERE f.diem_he_4 IS NOT NULL
+            AND f.so_tin_chi > 0
+        GROUP BY f.sinh_vien_key,
+            f.hoc_ky_key
+    ),
+    canh_bao_per_hk AS (
+        SELECT g.hoc_ky_key,
+            COUNT(DISTINCT g.sinh_vien_key) AS tong_sv_co_diem,
+            COUNT(
+                DISTINCT CASE
+                    WHEN g.gpa_hoc_ky < 2.0 THEN g.sinh_vien_key
+                END
+            ) AS sv_canh_bao_hk,
+            COUNT(
+                DISTINCT CASE
+                    WHEN g.gpa_hoc_ky < 1.5 THEN g.sinh_vien_key
+                END
+            ) AS sv_nguy_hiem_hk,
+            COUNT(
+                DISTINCT CASE
+                    WHEN g.gpa_hoc_ky < 1.0 THEN g.sinh_vien_key
+                END
+            ) AS sv_boc_thoi_hoc_hk,
+            ROUND(AVG(g.gpa_hoc_ky), 2) AS gpa_trung_binh_hk,
+            ROUND(
+                100.0 * COUNT(
+                    DISTINCT CASE
+                        WHEN g.gpa_hoc_ky < 2.0 THEN g.sinh_vien_key
+                    END
+                ) / NULLIF(COUNT(DISTINCT g.sinh_vien_key), 0),
+                1
+            ) AS pct_canh_bao
+        FROM gpa_per_hk g
+            JOIN dim_sinh_vien sv ON g.sinh_vien_key = sv.sinh_vien_key
+            AND sv.la_ban_hien_tai = TRUE
+            AND sv.trang_thai_hoc_tap IN ('Đang học', 'Tốt nghiệp', 'Thôi học', 'Bảo lưu')
+        GROUP BY g.hoc_ky_key
+    )
+SELECT hk.ma_hoc_ky,
+    hk.nam_hoc,
+    hk.hoc_ky,
+    hk.ngay_bat_dau,
+    c.tong_sv_co_diem,
+    c.sv_canh_bao_hk,
+    c.sv_nguy_hiem_hk,
+    c.sv_boc_thoi_hoc_hk,
+    c.gpa_trung_binh_hk,
+    c.pct_canh_bao,
+    -- So sánh với kỳ trước để phát hiện xu hướng
+    LAG(c.sv_canh_bao_hk) OVER (
+        ORDER BY hk.ngay_bat_dau
+    ) AS sv_canh_bao_ky_truoc,
+    LAG(c.pct_canh_bao) OVER (
+        ORDER BY hk.ngay_bat_dau
+    ) AS pct_canh_bao_ky_truoc,
+    c.sv_canh_bao_hk - LAG(c.sv_canh_bao_hk) OVER (
+        ORDER BY hk.ngay_bat_dau
+    ) AS thay_doi_so_sv,
+    CASE
+        WHEN c.sv_canh_bao_hk < LAG(c.sv_canh_bao_hk) OVER (
+            ORDER BY hk.ngay_bat_dau
+        ) THEN 'Cải thiện'
+        WHEN c.sv_canh_bao_hk > LAG(c.sv_canh_bao_hk) OVER (
+            ORDER BY hk.ngay_bat_dau
+        ) THEN 'Xấu hơn'
+        WHEN c.sv_canh_bao_hk = LAG(c.sv_canh_bao_hk) OVER (
+            ORDER BY hk.ngay_bat_dau
+        ) THEN 'Không đổi'
+        ELSE 'N/A (kỳ đầu)'
+    END AS xu_huong
+FROM canh_bao_per_hk c
+    JOIN dim_hoc_ky hk ON c.hoc_ky_key = hk.hoc_ky_key
+WHERE hk.ma_hoc_ky NOT LIKE '%HK3%' -- Chỉ tính HK chính quy, không tính HK hè
+ORDER BY hk.ngay_bat_dau;
+COMMENT ON VIEW v_canh_bao_theo_hoc_ky IS 'Xu hướng cảnh báo học vụ theo từng học kỳ — dùng cho panel "Cảnh báo theo kỳ"';
 -- =============================================
-CREATE OR REPLACE VIEW v_xet_hoc_bong AS
-SELECT sv.ma_sinh_vien,
-    sv.ho_ten,
-    sv.khoa_hoc,
-    sv.ten_nganh,
-    sv.ten_lop,
-    -- Học tập (Nguồn 1)
-    agg.gpa_he_4,
-    agg.xep_loai_hoc_luc,
-    -- Rèn luyện (Nguồn 2)
-    agg.diem_rl_trung_binh,
-    agg.xep_loai_rl_gan_nhat,
-    -- Tài chính (Nguồn 3)
-    agg.co_no_hoc_phi,
-    agg.duoc_mien_giam,
-    -- Chất lượng bằng (MỚI)
-    agg.xep_loai_bang_chinh_thuc,
-    agg.bi_ha_bac_bang,
+-- VIEW 10: v_ha_bac_bang_tot_nghiep ← MỚI (fix panel 3.1 No data)
+-- SV có xếp loại bằng bị hạ do rớt >5% TC chương trình lần đầu
+-- Nguồn: fact_hoc_tap (hoc_lai=FALSE, dat_mon=FALSE) + dim_sinh_vien
+-- =============================================
+CREATE OR REPLACE VIEW v_ha_bac_bang_tot_nghiep AS WITH tong_tc_nganh AS (
+        -- Tổng số TC của từng chương trình đào tạo
+        SELECT ma_nganh,
+            CASE
+                ma_nganh
+                WHEN 'CNTT' THEN 151
+                WHEN 'DTVT' THEN 153
+                WHEN 'KETOAN' THEN 130
+            END AS tong_tc_ct
+        FROM (
+                VALUES ('CNTT'),
+                    ('DTVT'),
+                    ('KETOAN')
+            ) t(ma_nganh)
+    ),
+    tc_rot_lan_dau AS (
+        -- TC rớt lần đầu: chỉ đếm đăng ký KHÔNG phải học lại mà rớt
+        -- hoc_lai=FALSE → đây là lần học đầu tiên
+        -- dat_mon=FALSE → rớt
+        SELECT f.sinh_vien_key,
+            SUM(COALESCE(f.so_tin_chi, 0)) AS tc_rot_lan_dau
+        FROM fact_hoc_tap f
+        WHERE f.hoc_lai = FALSE
+            AND f.dat_mon = FALSE
+            AND f.diem_tong_ket IS NOT NULL
+        GROUP BY f.sinh_vien_key
+    ),
+    xep_loai_goc AS (
+        -- Xếp loại bằng gốc dựa trên GPA tích lũy
+        SELECT sv.sinh_vien_key,
+            sv.ma_sinh_vien,
+            sv.ho_ten,
+            sv.ten_nganh,
+            sv.ma_nganh,
+            sv.khoa_hoc,
+            agg.gpa_he_4,
+            CASE
+                WHEN agg.gpa_he_4 >= 3.6 THEN 'Xuất sắc'
+                WHEN agg.gpa_he_4 >= 3.2 THEN 'Giỏi'
+                WHEN agg.gpa_he_4 >= 2.5 THEN 'Khá'
+                WHEN agg.gpa_he_4 >= 2.0 THEN 'Trung bình'
+                ELSE NULL
+            END AS xep_loai_bang_goc,
+            agg.tin_chi_dat
+        FROM agg_student_summary agg
+            JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key
+            AND sv.la_ban_hien_tai = TRUE
+            AND sv.trang_thai_hoc_tap = 'Tốt nghiệp'
+        WHERE agg.gpa_he_4 >= 2.0
+    )
+SELECT xg.ma_sinh_vien,
+    xg.ho_ten,
+    xg.ten_nganh,
+    xg.khoa_hoc,
+    xg.gpa_he_4,
+    xg.xep_loai_bang_goc,
+    COALESCE(rd.tc_rot_lan_dau, 0) AS tc_rot_lan_dau,
+    tc.tong_tc_ct,
+    ROUND(
+        100.0 * COALESCE(rd.tc_rot_lan_dau, 0) / NULLIF(tc.tong_tc_ct, 0),
+        1
+    ) AS pct_tc_rot,
+    -- Xếp loại bằng chính thức sau khi hạ bậc theo quy chế
+    -- Quy tắc: rớt >25%TC → xếp loại tối đa là Trung bình
+    --          rớt >5%TC  → hạ 1 bậc so với xếp loại gốc
     CASE
-        -- ★ FIX: Học bổng Xuất sắc yêu cầu bằng XS chính thức
-        --   (không bị hạ bậc do rớt nhiều lần đầu)
-        WHEN agg.gpa_he_4 >= 3.6
-        AND agg.xep_loai_bang_chinh_thuc = 'Xuất sắc' THEN 'KKHT loai 1'
-        WHEN agg.gpa_he_4 >= 3.2 THEN 'KKHT loai 2'
-        ELSE NULL
-    END AS loai_hoc_bong_de_xuat,
+        WHEN 100.0 * COALESCE(rd.tc_rot_lan_dau, 0) / NULLIF(tc.tong_tc_ct, 0) > 25 THEN 'Trung bình'
+        WHEN 100.0 * COALESCE(rd.tc_rot_lan_dau, 0) / NULLIF(tc.tong_tc_ct, 0) > 5 THEN CASE
+            xg.xep_loai_bang_goc
+            WHEN 'Xuất sắc' THEN 'Giỏi'
+            WHEN 'Giỏi' THEN 'Khá'
+            WHEN 'Khá' THEN 'Trung bình'
+            ELSE xg.xep_loai_bang_goc
+        END
+        ELSE xg.xep_loai_bang_goc
+    END AS xep_loai_bang_chinh_thuc,
+    -- Có bị hạ không?
     CASE
-        WHEN agg.gpa_he_4 >= 3.2
-        AND agg.diem_rl_trung_binh >= 80
-        AND agg.co_no_hoc_phi = FALSE
-        AND NOT EXISTS (
-            SELECT 1
-            FROM fact_ctsv fc
-            WHERE fc.sinh_vien_key = agg.sinh_vien_key
-                AND fc.bi_ky_luat = TRUE
-        ) THEN TRUE
+        WHEN 100.0 * COALESCE(rd.tc_rot_lan_dau, 0) / NULLIF(tc.tong_tc_ct, 0) > 5 THEN TRUE
         ELSE FALSE
-    END AS du_dieu_kien
-FROM agg_student_summary agg
-    JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key
-    AND sv.la_ban_hien_tai = TRUE
-WHERE agg.gpa_he_4 >= 3.2
-ORDER BY agg.gpa_he_4 DESC,
-    agg.diem_rl_trung_binh DESC;
-COMMENT ON VIEW v_xet_hoc_bong IS 'Xét học bổng tự động — JOIN 3 nguồn + điều chỉnh bằng tốt nghiệp';
+    END AS bi_ha_bac
+FROM xep_loai_goc xg
+    LEFT JOIN tc_rot_lan_dau rd ON xg.sinh_vien_key = rd.sinh_vien_key
+    JOIN tong_tc_nganh tc ON xg.ma_nganh = tc.ma_nganh
+WHERE 100.0 * COALESCE(rd.tc_rot_lan_dau, 0) / NULLIF(tc.tong_tc_ct, 0) > 5
+ORDER BY pct_tc_rot DESC;
+COMMENT ON VIEW v_ha_bac_bang_tot_nghiep IS 'SV tốt nghiệp bị hạ bậc bằng do rớt >5% TC CT lần đầu — fix panel 3.1';
 DO $$ BEGIN RAISE NOTICE '==========================================';
-RAISE NOTICE '✅ Views updated:';
-RAISE NOTICE '   v_chat_luong_tot_nghiep (MỚI)';
-RAISE NOTICE '   v_xet_hoc_bong (cập nhật: xep_loai_bang_chinh_thuc)';
-RAISE NOTICE '==========================================';
-END $$;
-DO $$ BEGIN RAISE NOTICE '==========================================';
-RAISE NOTICE '✅ create_views.sql v2.0 DONE';
-RAISE NOTICE '   Views cũ (sửa lỗi):';
-RAISE NOTICE '   v_student_performance, v_at_risk_students';
-RAISE NOTICE '   v_course_statistics, v_cohort_summary';
-RAISE NOTICE '   v_term_performance';
-RAISE NOTICE '   Views mới (3 nguồn):';
-RAISE NOTICE '   v_at_risk_combined    — GPA+RL+HP';
-RAISE NOTICE '   v_xet_hoc_bong        — GPA+RL+HP';
-RAISE NOTICE '   v_tai_chinh_hoc_tap   — GPA+HP';
+RAISE NOTICE 'create_views.sql v3.0 DONE';
+RAISE NOTICE 'Views 1-8: giữ nguyên từ v2.0';
+RAISE NOTICE 'View mới 9: v_canh_bao_theo_hoc_ky';
+RAISE NOTICE '   - Thống kê cảnh báo THEO TỪNG KỲ';
+RAISE NOTICE '   - Có xu_huong: Cải thiện/Xấu hơn/Không đổi';
+RAISE NOTICE 'View mới 10: v_ha_bac_bang_tot_nghiep';
+RAISE NOTICE '   - Fix panel 3.1 No data';
+RAISE NOTICE '   - Dùng hoc_lai=FALSE để tính TC rớt lần đầu';
 RAISE NOTICE '==========================================';
 END $$;

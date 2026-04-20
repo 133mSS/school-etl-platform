@@ -1,0 +1,214 @@
+[2026-04-20T09:40:37.438+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data manual__2026-04-20T09:40:35.910892+00:00 [queued]>
+[2026-04-20T09:40:37.446+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_data manual__2026-04-20T09:40:35.910892+00:00 [queued]>
+[2026-04-20T09:40:37.447+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-20T09:40:37.462+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_data> on 2026-04-20 09:40:35.910892+00:00
+[2026-04-20T09:40:37.467+0000] {standard_task_runner.py:60} INFO - Started process 599 to run task
+[2026-04-20T09:40:37.470+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_data', 'manual__2026-04-20T09:40:35.910892+00:00', '--job-id', '392', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmp2pzmfqli']
+[2026-04-20T09:40:37.473+0000] {standard_task_runner.py:88} INFO - Job 392: Subtask extract_data
+[2026-04-20T09:40:37.533+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_data manual__2026-04-20T09:40:35.910892+00:00 [running]> on host 759b8b5e27b5
+[2026-04-20T09:40:37.684+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-20T09:40:35.910892+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-20T09:40:35.910892+00:00'
+[2026-04-20T09:40:39.429+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-04-20T09:40:39.429+0000] {extract.py:346} INFO - ==BẮT ĐẦU FULL EXTRACT==
+[2026-04-20T09:40:39.431+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract : ======================================================================
+[2026-04-20T09:40:39.431+0000] {extract.py:347} INFO - ======================================================================
+[2026-04-20T09:40:39.441+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:39.441+0000] {extract.py:84} INFO - ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:39.442+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-20T09:40:39.442+0000] {extract.py:85} INFO - NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-20T09:40:39.444+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:39.443+0000] {extract.py:86} INFO - ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:39.505+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-04-20T09:40:39.505+0000] {extract.py:68} INFO -   PostgreSQL | khoa                      →      4 records
+[2026-04-20T09:40:39.529+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-04-20T09:40:39.529+0000] {extract.py:68} INFO -   PostgreSQL | nganh                     →      3 records
+[2026-04-20T09:40:39.554+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-04-20T09:40:39.554+0000] {extract.py:68} INFO -   PostgreSQL | giang_vien                →     45 records
+[2026-04-20T09:40:39.584+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-20T09:40:39.584+0000] {extract.py:68} INFO -   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-20T09:40:39.649+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-20T09:40:39.649+0000] {extract.py:68} INFO -   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-20T09:40:39.674+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-20T09:40:39.674+0000] {extract.py:68} INFO -   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-20T09:40:39.688+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-04-20T09:40:39.688+0000] {extract.py:68} INFO -   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-04-20T09:40:39.896+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:39] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 55,125 records
+[2026-04-20T09:40:39.896+0000] {extract.py:68} INFO -   PostgreSQL | dang_ky_hoc_phan          → 55,125 records
+[2026-04-20T09:40:40.717+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 54,640 records
+[2026-04-20T09:40:40.717+0000] {extract.py:68} INFO -   PostgreSQL | diem_hoc_phan             → 54,640 records
+[2026-04-20T09:40:40.775+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-20T09:40:40.775+0000] {extract.py:68} INFO -   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-20T09:40:40.777+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   PostgreSQL | TỔNG: 113,389 records từ 10 bảng
+[2026-04-20T09:40:40.777+0000] {extract.py:93} INFO -   PostgreSQL | TỔNG: 113,389 records từ 10 bảng
+[2026-04-20T09:40:40.779+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:40.779+0000] {extract.py:167} INFO - ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:40.780+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-04-20T09:40:40.780+0000] {extract.py:168} INFO - NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-04-20T09:40:40.782+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:40.782+0000] {extract.py:169} INFO - ════════════════════════════════════════════════════════════
+[2026-04-20T09:40:40.787+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | Tìm thấy 13 file(s)
+[2026-04-20T09:40:40.787+0000] {extract.py:178} INFO -   CSV | Tìm thấy 13 file(s)
+[2026-04-20T09:40:40.805+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    789 records
+[2026-04-20T09:40:40.805+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2021_22.csv                →    789 records
+[2026-04-20T09:40:40.812+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,581 records
+[2026-04-20T09:40:40.812+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2022_23.csv                →  1,581 records
+[2026-04-20T09:40:40.821+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,411 records
+[2026-04-20T09:40:40.821+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2023_24.csv                →  2,411 records
+[2026-04-20T09:40:40.829+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,235 records
+[2026-04-20T09:40:40.829+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2024_25.csv                →  3,235 records
+[2026-04-20T09:40:40.837+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,444 records
+[2026-04-20T09:40:40.837+0000] {extract.py:144} INFO -   CSV | ctsv_HK1_2025_26.csv                →  2,444 records
+[2026-04-20T09:40:40.844+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    785 records
+[2026-04-20T09:40:40.844+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2021_22.csv                →    785 records
+[2026-04-20T09:40:40.851+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,571 records
+[2026-04-20T09:40:40.851+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2022_23.csv                →  1,571 records
+[2026-04-20T09:40:40.856+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,397 records
+[2026-04-20T09:40:40.856+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2023_24.csv                →  2,397 records
+[2026-04-20T09:40:40.863+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,883 records
+[2026-04-20T09:40:40.862+0000] {extract.py:144} INFO -   CSV | ctsv_HK2_2024_25.csv                →  2,883 records
+[2026-04-20T09:40:40.869+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK3_2021_22.csv                →     42 records
+[2026-04-20T09:40:40.869+0000] {extract.py:144} INFO -   CSV | ctsv_HK3_2021_22.csv                →     42 records
+[2026-04-20T09:40:40.875+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK3_2022_23.csv                →     49 records
+[2026-04-20T09:40:40.875+0000] {extract.py:144} INFO -   CSV | ctsv_HK3_2022_23.csv                →     49 records
+[2026-04-20T09:40:40.881+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK3_2023_24.csv                →    146 records
+[2026-04-20T09:40:40.880+0000] {extract.py:144} INFO -   CSV | ctsv_HK3_2023_24.csv                →    146 records
+[2026-04-20T09:40:40.886+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | ctsv_HK3_2024_25.csv                →     69 records
+[2026-04-20T09:40:40.886+0000] {extract.py:144} INFO -   CSV | ctsv_HK3_2024_25.csv                →     69 records
+[2026-04-20T09:40:40.897+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | Loại bỏ 8927 bản ghi trùng
+[2026-04-20T09:40:40.897+0000] {extract.py:195} INFO -   CSV | Loại bỏ 8927 bản ghi trùng
+[2026-04-20T09:40:40.899+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:40] INFO    etl.extract :   CSV | TỔNG: 9,475 records từ 13 file(s)
+[2026-04-20T09:40:40.899+0000] {extract.py:197} INFO -   CSV | TỔNG: 9,475 records từ 13 file(s)
+[2026-04-20T09:40:41.071+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.071+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.074+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK1-2021-22: Loại bỏ 2 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.074+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK1-2021-22: Loại bỏ 2 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.076+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK1-2021-22 →    390 records
+[2026-04-20T09:40:41.075+0000] {extract.py:259} INFO -   API | (HTTP) HK HK1-2021-22 →    390 records
+[2026-04-20T09:40:41.107+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.107+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.110+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK1-2022-23: Loại bỏ 6 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.110+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK1-2022-23: Loại bỏ 6 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.112+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK1-2022-23 →    776 records
+[2026-04-20T09:40:41.112+0000] {extract.py:259} INFO -   API | (HTTP) HK HK1-2022-23 →    776 records
+[2026-04-20T09:40:41.150+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.149+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.153+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK1-2023-24: Loại bỏ 10 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.153+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK1-2023-24: Loại bỏ 10 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.154+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK1-2023-24 →  1,182 records
+[2026-04-20T09:40:41.154+0000] {extract.py:259} INFO -   API | (HTTP) HK HK1-2023-24 →  1,182 records
+[2026-04-20T09:40:41.195+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.195+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.199+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK1-2024-25: Loại bỏ 14 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.199+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK1-2024-25: Loại bỏ 14 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.201+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK1-2024-25 →  1,596 records
+[2026-04-20T09:40:41.201+0000] {extract.py:259} INFO -   API | (HTTP) HK HK1-2024-25 →  1,596 records
+[2026-04-20T09:40:41.234+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.234+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.238+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK1-2025-26: Loại bỏ 12 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.238+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK1-2025-26: Loại bỏ 12 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.238+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK1-2025-26 →  1,216 records
+[2026-04-20T09:40:41.238+0000] {extract.py:259} INFO -   API | (HTTP) HK HK1-2025-26 →  1,216 records
+[2026-04-20T09:40:41.252+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.252+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.255+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK2-2021-22: Loại bỏ 1 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.255+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK2-2021-22: Loại bỏ 1 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.256+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK2-2021-22 →    390 records
+[2026-04-20T09:40:41.256+0000] {extract.py:259} INFO -   API | (HTTP) HK HK2-2021-22 →    390 records
+[2026-04-20T09:40:41.280+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.280+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.283+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK2-2022-23: Loại bỏ 8 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.283+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK2-2022-23: Loại bỏ 8 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.285+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK2-2022-23 →    776 records
+[2026-04-20T09:40:41.284+0000] {extract.py:259} INFO -   API | (HTTP) HK HK2-2022-23 →    776 records
+[2026-04-20T09:40:41.326+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.326+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.330+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK2-2023-24: Loại bỏ 8 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.330+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK2-2023-24: Loại bỏ 8 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.331+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK2-2023-24 →  1,183 records
+[2026-04-20T09:40:41.331+0000] {extract.py:259} INFO -   API | (HTTP) HK HK2-2023-24 →  1,183 records
+[2026-04-20T09:40:41.385+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.385+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.388+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] WARNING etl.extract :   API | (HTTP) HK HK2-2024-25: Loại bỏ 21 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.388+0000] {extract.py:254} WARNING -   API | (HTTP) HK HK2-2024-25: Loại bỏ 21 duplicate records (ma_sinh_vien, hoc_ky)
+[2026-04-20T09:40:41.389+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK2-2024-25 →  1,475 records
+[2026-04-20T09:40:41.389+0000] {extract.py:259} INFO -   API | (HTTP) HK HK2-2024-25 →  1,475 records
+[2026-04-20T09:40:41.400+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.400+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.402+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK3-2021-22 →     23 records
+[2026-04-20T09:40:41.402+0000] {extract.py:259} INFO -   API | (HTTP) HK HK3-2021-22 →     23 records
+[2026-04-20T09:40:41.412+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.412+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.414+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK3-2022-23 →     37 records
+[2026-04-20T09:40:41.414+0000] {extract.py:259} INFO -   API | (HTTP) HK HK3-2022-23 →     37 records
+[2026-04-20T09:40:41.424+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.424+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.426+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK3-2023-24 →     61 records
+[2026-04-20T09:40:41.426+0000] {extract.py:259} INFO -   API | (HTTP) HK HK3-2023-24 →     61 records
+[2026-04-20T09:40:41.434+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.434+0000] {extract.py:232} INFO -   API | metadata: generated_at=None, schema_version=None
+[2026-04-20T09:40:41.437+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | (HTTP) HK HK3-2024-25 →     41 records
+[2026-04-20T09:40:41.437+0000] {extract.py:259} INFO -   API | (HTTP) HK HK3-2024-25 →     41 records
+[2026-04-20T09:40:41.440+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    etl.extract :   API | TỔNG: 9,146 records từ 13 HK
+[2026-04-20T09:40:41.440+0000] {extract.py:335} INFO -   API | TỔNG: 9,146 records từ 13 HK
+[2026-04-20T09:40:41.986+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:41] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_sinh_vien.parquet (47.4 KB | 1,695 rows)
+[2026-04-20T09:40:41.986+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_sinh_vien.parquet (47.4 KB | 1,695 rows)
+[2026-04-20T09:40:42.159+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_dang_ky.parquet (462.4 KB | 55,125 rows)
+[2026-04-20T09:40:42.159+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_dang_ky.parquet (462.4 KB | 55,125 rows)
+[2026-04-20T09:40:42.237+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_diem.parquet (1135.6 KB | 54,640 rows)
+[2026-04-20T09:40:42.237+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_diem.parquet (1135.6 KB | 54,640 rows)
+[2026-04-20T09:40:42.257+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_hoc_phan.parquet (10.3 KB | 121 rows)
+[2026-04-20T09:40:42.257+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_hoc_phan.parquet (10.3 KB | 121 rows)
+[2026-04-20T09:40:42.275+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_hoc_ky.parquet (4.2 KB | 13 rows)
+[2026-04-20T09:40:42.275+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_hoc_ky.parquet (4.2 KB | 13 rows)
+[2026-04-20T09:40:42.287+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_giang_vien.parquet (8.3 KB | 45 rows)
+[2026-04-20T09:40:42.287+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_giang_vien.parquet (8.3 KB | 45 rows)
+[2026-04-20T09:40:42.296+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_khoa.parquet (2.6 KB | 4 rows)
+[2026-04-20T09:40:42.296+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_khoa.parquet (2.6 KB | 4 rows)
+[2026-04-20T09:40:42.305+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_nganh.parquet (3.2 KB | 3 rows)
+[2026-04-20T09:40:42.304+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_nganh.parquet (3.2 KB | 3 rows)
+[2026-04-20T09:40:42.322+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_lop_hanh_chinh.parquet (4.8 KB | 48 rows)
+[2026-04-20T09:40:42.322+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_lop_hanh_chinh.parquet (4.8 KB | 48 rows)
+[2026-04-20T09:40:42.341+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_tong_hop_ket_qua.parquet (22.0 KB | 1,695 rows)
+[2026-04-20T09:40:42.341+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon1_tong_hop_ket_qua.parquet (22.0 KB | 1,695 rows)
+[2026-04-20T09:40:42.366+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon2_ctsv.parquet (41.8 KB | 9,475 rows)
+[2026-04-20T09:40:42.366+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon2_ctsv.parquet (41.8 KB | 9,475 rows)
+[2026-04-20T09:40:42.381+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon3_tai_chinh.parquet (85.6 KB | 9,146 rows)
+[2026-04-20T09:40:42.381+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-20_09-40/nguon3_tai_chinh.parquet (85.6 KB | 9,146 rows)
+[2026-04-20T09:40:42.383+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    utils.minio :   MinIO upload xong: 12/12 files | run_id=2026-04-20_09-40
+[2026-04-20T09:40:42.383+0000] {minio_client.py:188} INFO -   MinIO upload xong: 12/12 files | run_id=2026-04-20_09-40
+[2026-04-20T09:40:42.384+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :   MinIO staging: 12/12 files OK → run_id=2026-04-20_09-40
+[2026-04-20T09:40:42.384+0000] {extract.py:402} INFO -   MinIO staging: 12/12 files OK → run_id=2026-04-20_09-40
+[2026-04-20T09:40:42.387+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract : ======================================================================
+[2026-04-20T09:40:42.387+0000] {extract.py:365} INFO - ======================================================================
+[2026-04-20T09:40:42.388+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :  FULL EXTRACT HOÀN TẤT
+[2026-04-20T09:40:42.388+0000] {extract.py:366} INFO -  FULL EXTRACT HOÀN TẤT
+[2026-04-20T09:40:42.389+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    khoa                     :        4
+[2026-04-20T09:40:42.389+0000] {extract.py:368} INFO -    khoa                     :        4
+[2026-04-20T09:40:42.390+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    nganh                    :        3
+[2026-04-20T09:40:42.390+0000] {extract.py:368} INFO -    nganh                    :        3
+[2026-04-20T09:40:42.391+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    giang_vien               :       45
+[2026-04-20T09:40:42.391+0000] {extract.py:368} INFO -    giang_vien               :       45
+[2026-04-20T09:40:42.392+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    lop_hanh_chinh           :       48
+[2026-04-20T09:40:42.392+0000] {extract.py:368} INFO -    lop_hanh_chinh           :       48
+[2026-04-20T09:40:42.393+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    sinh_vien                :    1,695
+[2026-04-20T09:40:42.393+0000] {extract.py:368} INFO -    sinh_vien                :    1,695
+[2026-04-20T09:40:42.394+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    hoc_phan                 :      121
+[2026-04-20T09:40:42.394+0000] {extract.py:368} INFO -    hoc_phan                 :      121
+[2026-04-20T09:40:42.394+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    hoc_ky_nam_hoc           :       13
+[2026-04-20T09:40:42.394+0000] {extract.py:368} INFO -    hoc_ky_nam_hoc           :       13
+[2026-04-20T09:40:42.395+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    dang_ky_hoc_phan         :   55,125
+[2026-04-20T09:40:42.395+0000] {extract.py:368} INFO -    dang_ky_hoc_phan         :   55,125
+[2026-04-20T09:40:42.396+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    diem_hoc_phan            :   54,640
+[2026-04-20T09:40:42.396+0000] {extract.py:368} INFO -    diem_hoc_phan            :   54,640
+[2026-04-20T09:40:42.396+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    tong_hop_ket_qua         :    1,695
+[2026-04-20T09:40:42.396+0000] {extract.py:368} INFO -    tong_hop_ket_qua         :    1,695
+[2026-04-20T09:40:42.397+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    ctsv_data                :    9,475
+[2026-04-20T09:40:42.397+0000] {extract.py:368} INFO -    ctsv_data                :    9,475
+[2026-04-20T09:40:42.398+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract :    tai_chinh_data           :    9,146
+[2026-04-20T09:40:42.398+0000] {extract.py:368} INFO -    tai_chinh_data           :    9,146
+[2026-04-20T09:40:42.399+0000] {logging_mixin.py:188} WARNING - [2026-04-20 09:40:42] INFO    etl.extract : ======================================================================
+[2026-04-20T09:40:42.399+0000] {extract.py:369} INFO - ======================================================================
+[2026-04-20T09:40:42.438+0000] {logging_mixin.py:188} INFO - Extract xong: {'khoa': 4, 'nganh': 3, 'giang_vien': 45, 'lop_hanh_chinh': 48, 'sinh_vien': 1695, 'hoc_phan': 121, 'hoc_ky_nam_hoc': 13, 'dang_ky_hoc_phan': 55125, 'diem_hoc_phan': 54640, 'tong_hop_ket_qua': 1695, 'ctsv_data': 9475, 'tai_chinh_data': 9146}
+[2026-04-20T09:40:42.448+0000] {python.py:201} INFO - Done. Returned value was: {'khoa': 4, 'nganh': 3, 'giang_vien': 45, 'lop_hanh_chinh': 48, 'sinh_vien': 1695, 'hoc_phan': 121, 'hoc_ky_nam_hoc': 13, 'dang_ky_hoc_phan': 55125, 'diem_hoc_phan': 54640, 'tong_hop_ket_qua': 1695, 'ctsv_data': 9475, 'tai_chinh_data': 9146}
+[2026-04-20T09:40:42.471+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=extract_data, execution_date=20260420T094035, start_date=20260420T094037, end_date=20260420T094042
+[2026-04-20T09:40:42.497+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-20T09:40:42.530+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check
