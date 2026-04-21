@@ -30,7 +30,19 @@ class DataLoader:
         self._gv_key_cache: Dict[str, int] = {}
         self._hk_key_cache: Dict[str, int] = {}
         self._hp_tc_cache:  Dict[int, int]  = {}
-
+    def _chunked_with_size(self, lst: list, size: int):
+        """
+        Generator chia list thành các batch với kích thước tùy chỉnh.
+        
+        Khác với _chunked() dùng self.batch_size cố định,
+        hàm này cho phép caller chỉ định size linh hoạt.
+        
+        Ví dụ:
+            list(self._chunked_with_size([1,2,3,4,5], 2))
+            → [[1,2], [3,4], [5]]
+        """
+        for i in range(0, len(lst), size):
+            yield lst[i : i + size]
     # ────────────────────────────────────────────────────────────────
     # LOAD ALL
     # ────────────────────────────────────────────────────────────────
@@ -634,6 +646,15 @@ class DataLoader:
             return 0
 
     def _load_fact_ctsv(self, df: pd.DataFrame) -> int:
+        """
+        Load dữ liệu rèn luyện/học bổng/kỷ luật vào fact_ctsv.
+        
+        FIX CardinalityViolation: Thêm deduplication tại 2 tầng:
+        - Tầng 1: Dedup trên DataFrame đầu vào (trước khi build records)
+        - Tầng 2: Dedup trên list records (trước khi chia batch)
+        Mục đích: Đảm bảo không có 2 record cùng (ma_sinh_vien, hoc_ky_key)
+        trong bất kỳ batch nào gửi lên PostgreSQL.
+        """
         if df.empty:
             logger.info("  fact_ctsv      → SKIP (empty)")
             return 0
@@ -647,6 +668,33 @@ class DataLoader:
         if missing:
             logger.warning(f"  fact_ctsv | Thiếu cột: {missing}")
 
+        # ══════════════════════════════════════════════════════════
+        # TẦNG 1: DEDUP TRÊN DATAFRAME ĐẦU VÀO
+        # ══════════════════════════════════════════════════════════
+        # Giải thích: CSV gốc có ~1.2% bản ghi trùng do inject_errors.py.
+        # Dù transform.py đã dedup, việc dedup lại ở đây là "lưới an toàn"
+        # (defense in depth) để đảm bảo dữ liệu sạch trước khi vào DB.
+        #
+        # keep='last': giữ bản ghi cuối cùng — thường là bản ghi mới nhất,
+        # đúng với nguyên tắc "dữ liệu mới nhất thắng" trong ETL.
+        rows_before_dedup = len(df)
+        df = df.drop_duplicates(
+            subset=["ma_sinh_vien", "hoc_ky"],  # Business key của fact_ctsv
+            keep="last"
+        )
+        rows_after_dedup = len(df)
+        df_dupes_removed = rows_before_dedup - rows_after_dedup
+
+        if df_dupes_removed > 0:
+            logger.warning(
+                f"  fact_ctsv | [DEDUP Tầng 1 - DataFrame] "
+                f"Loại bỏ {df_dupes_removed} bản ghi trùng "
+                f"({rows_before_dedup} → {rows_after_dedup})"
+            )
+
+        # ══════════════════════════════════════════════════════════
+        # BUILD RECORDS LIST (Logic gốc giữ nguyên)
+        # ══════════════════════════════════════════════════════════
         records = []
         skipped = 0
 
@@ -665,7 +713,6 @@ class DataLoader:
             if not all([sv_key, hk_key]):
                 continue
 
-            # Validate diem_ren_luyen
             raw_diem_rl = row.get("diem_ren_luyen")
             diem_rl_val = self._to_int(raw_diem_rl)
 
@@ -681,11 +728,11 @@ class DataLoader:
                         )
                     continue
 
-            raw_xep_loai   = row.get("xep_loai_rl")
-            raw_loai_hb    = row.get("loai_hoc_bong")
-            raw_hinh_thuc  = row.get("hinh_thuc_ky_luat")
-            raw_ly_do      = row.get("ly_do_ky_luat")
-            raw_muc_tien   = row.get("muc_tien_hb")
+            raw_xep_loai  = row.get("xep_loai_rl")
+            raw_loai_hb   = row.get("loai_hoc_bong")
+            raw_hinh_thuc = row.get("hinh_thuc_ky_luat")
+            raw_ly_do     = row.get("ly_do_ky_luat")
+            raw_muc_tien  = row.get("muc_tien_hb")
 
             xep_loai_rl_val = str(raw_xep_loai)  if raw_xep_loai  and not pd.isna(raw_xep_loai)  else None
             loai_hb_val     = str(raw_loai_hb)   if raw_loai_hb   and not pd.isna(raw_loai_hb)   else None
@@ -713,9 +760,66 @@ class DataLoader:
             logger.info("  fact_ctsv      → SKIP (no valid records)")
             return 0
 
+        # ══════════════════════════════════════════════════════════
+        # TẦNG 2: DEDUP TRÊN RECORDS LIST
+        # ══════════════════════════════════════════════════════════
+        # Giải thích: Dù Tầng 1 đã dedup trên (ma_sinh_vien, hoc_ky),
+        # sau khi lookup surrogate key, 2 record khác nhau về ma_sinh_vien
+        # có thể ánh xạ về cùng sv_key (trường hợp SCD2: nhiều ma_sinh_vien
+        # cùng sv_key — hiếm gặp nhưng cần phòng ngừa).
+        # Tầng 2 dedup theo đúng khóa của DB: (ma_sinh_vien, hoc_ky_key).
+        records_before = len(records)
+        seen_keys = {}
+        deduped_records = []
+
+        for rec in records:
+            # Khóa duy nhất trong DB: uq_fact_ctsv_sv_hk
+            composite_key = (rec["ma_sinh_vien"], rec["hoc_ky_key"])
+            # keep='last': ghi đè nếu đã thấy key này trước đó
+            seen_keys[composite_key] = rec
+
+        # Chuyển dict values về list — thứ tự giữ nguyên (Python 3.7+)
+        deduped_records = list(seen_keys.values())
+        records_after = len(deduped_records)
+        list_dupes_removed = records_before - records_after
+
+        if list_dupes_removed > 0:
+            logger.warning(
+                f"  fact_ctsv | [DEDUP Tầng 2 - Records List] "
+                f"Loại bỏ thêm {list_dupes_removed} bản ghi trùng surrogate key "
+                f"({records_before} → {records_after})"
+            )
+
+        # ══════════════════════════════════════════════════════════
+        # BATCH UPSERT VỚI BATCH SIZE LỚN HƠN ĐỂ HIỆU QUẢ HƠN
+        # ══════════════════════════════════════════════════════════
+        # Giải thích tại sao dùng batch_size=5000 thay vì 500:
+        # - 500 records/batch → 111,639 / 500 ≈ 223 round-trips DB
+        # - 5000 records/batch → 111,639 / 5000 ≈ 23 round-trips DB
+        # Giảm 10x số lần kết nối → tăng tốc đáng kể.
+        # Tuy nhiên, bảo toàn self.batch_size nếu admin muốn tùy chỉnh.
+        effective_batch_size = max(self.batch_size, 5000)
+
         try:
             total = 0
-            for batch in self._chunked(records):
+            total_batches = (len(deduped_records) + effective_batch_size - 1) // effective_batch_size
+
+            for batch_num, batch in enumerate(self._chunked_with_size(deduped_records, effective_batch_size), 1):
+                # Kiểm tra lần cuối: không có duplicate trong batch này
+                # (đây là bước kiểm tra paranoid, sau 2 tầng dedup trên thực ra không cần)
+                batch_keys = [(r["ma_sinh_vien"], r["hoc_ky_key"]) for r in batch]
+                if len(batch_keys) != len(set(batch_keys)):
+                    # Nếu vẫn còn duplicate trong batch (không nên xảy ra)
+                    # → dedup batch nhỏ này trước khi gửi
+                    logger.error(
+                        f"  fact_ctsv | Batch {batch_num}: vẫn còn duplicate! "
+                        f"Đây là bug nghiêm trọng, kiểm tra lại logic transform."
+                    )
+                    seen = {}
+                    for r in batch:
+                        seen[(r["ma_sinh_vien"], r["hoc_ky_key"])] = r
+                    batch = list(seen.values())
+
                 stmt = pg_insert(FactCtsv).values(batch)
                 stmt = stmt.on_conflict_do_update(
                     index_elements=["ma_sinh_vien", "hoc_ky_key"],
@@ -734,20 +838,72 @@ class DataLoader:
                     conn.execute(stmt)
                 total += len(batch)
 
+                if batch_num % 5 == 0 or batch_num == total_batches:
+                    logger.info(
+                        f"  fact_ctsv | Tiến độ: {batch_num}/{total_batches} batches "
+                        f"({total:,}/{len(deduped_records):,} records)"
+                    )
+
             if skipped > 0:
                 logger.warning(f"  fact_ctsv | Skipped {skipped} rows (dữ liệu không hợp lệ)")
-            logger.info(f"  fact_ctsv      → {total:>6,} records (upserted)")
+
+            logger.info(
+                f"  fact_ctsv      → {total:,} records (upserted) | "
+                f"Đã loại: {df_dupes_removed + list_dupes_removed} duplicates"
+            )
             return total
 
         except Exception as e:
-            logger.error(f"  fact_ctsv | Lỗi: {e}")
-            return 0
-
+            logger.error(f"  fact_ctsv | Lỗi nghiêm trọng: {e}")
+            raise  # Re-raise để Airflow đánh dấu task FAILED (không nuốt lỗi)
     def _load_fact_tai_chinh(self, df: pd.DataFrame) -> int:
+        """
+        Load dữ liệu tài chính vào fact_tai_chinh.
+        
+        FIX InvalidDatetimeFormat: Xử lý NaT ở 2 tầng:
+        - Tầng 1: _to_date() nhận diện pd.NaT → trả về None
+        - Tầng 2: Làm sạch toàn bộ cột datetime trước iterrows()
+        """
         if df.empty:
             logger.info("  fact_tai_chinh → SKIP (empty)")
             return 0
 
+        # ── DEDUP phòng ngừa ─────────────────────────────────────────────
+        rows_before = len(df)
+        df = df.drop_duplicates(
+            subset=["ma_sinh_vien", "hoc_ky"],
+            keep="last"
+        )
+        if len(df) < rows_before:
+            logger.warning(
+                f"  fact_tai_chinh | [DEDUP] Loại bỏ {rows_before - len(df)} "
+                f"bản ghi trùng ({rows_before} → {len(df)})"
+            )
+
+        # ── FIX: Làm sạch cột datetime — chuyển NaT → None ──────────────
+        # Giải thích tại sao cần bước này dù _to_date() đã được vá:
+        # Pandas DataFrame dùng kiểu nội bộ datetime64[ns] cho cột ngày.
+        # Khi iterrows() đọc từng ô, pd.NaT đôi khi bị trả về dưới dạng
+        # numpy.datetime64('NaT') thay vì pd.NaT — behavior không nhất quán.
+        # Việc convert cột về object dtype trước đảm bảo None được truyền
+        # đúng cách vào _to_date() và sau đó vào psycopg2.
+        datetime_cols = ["ngay_dong_cuoi"]
+        for col in datetime_cols:
+            if col in df.columns:
+                # Bước 1: Đảm bảo cột là kiểu datetime để pd.isnull() hoạt động
+                df[col] = pd.to_datetime(df[col], errors="coerce")
+                # Bước 2: Chuyển NaT → None, giữ nguyên giá trị hợp lệ
+                # where(condition, other): giữ giá trị gốc nếu condition=True,
+                # thay bằng `other` nếu condition=False
+                df[col] = df[col].astype(object).where(df[col].notnull(), None)
+
+        logger.info(
+            f"  fact_tai_chinh | Đã làm sạch {len(datetime_cols)} cột datetime "
+            f"(NaT → None)"
+        )
+        # ────────────────────────────────────────────────────────────────
+
+        # ── Build records ────────────────────────────────────────────────
         records = []
         for _, row in df.iterrows():
             ma_sv = row.get("ma_sinh_vien")
@@ -775,6 +931,7 @@ class DataLoader:
                 "duoc_mien_giam"   : bool(row.get("duoc_mien_giam", False)),
                 "ly_do_mien_giam"  : row.get("ly_do_mien_giam"),
                 "so_tien_mien_giam": self._to_int(row.get("so_tien_mien_giam")) or 0,
+                # _to_date() giờ đã xử lý được NaT sau khi vá Fix 1
                 "ngay_dong_cuoi"   : self._to_date(row.get("ngay_dong_cuoi")),
                 "nguon_du_lieu"    : "api_portal",
             })
@@ -783,6 +940,13 @@ class DataLoader:
             logger.info("  fact_tai_chinh → SKIP (no valid records)")
             return 0
 
+        # ── DEDUP Tầng 2 trên records list ───────────────────────────────
+        seen = {}
+        for rec in records:
+            seen[(rec["ma_sinh_vien"], rec["hoc_ky_key"])] = rec
+        records = list(seen.values())
+
+        # ── Batch Upsert ─────────────────────────────────────────────────
         try:
             total = 0
             for batch in self._chunked(records):
@@ -808,8 +972,7 @@ class DataLoader:
 
         except Exception as e:
             logger.error(f"  fact_tai_chinh | Lỗi: {e}")
-            return 0
-
+            raise
     def _delete_fact_by_hk(self, hk_key: int, ma_hoc_ky: str):
         # FIX: Thêm fact_dang_ky vào danh sách xóa khi load incremental
         tables_and_cols = [
@@ -873,4 +1036,39 @@ class DataLoader:
         try:
             return int(val)
         except (ValueError, TypeError):
+            return None
+    @staticmethod
+    def _to_date(val) -> Optional[date]:
+        """
+        Chuyển đổi giá trị đầu vào thành kiểu date của Python.
+        
+        Xử lý các trường hợp đặc biệt:
+        - None, float NaN  → trả về None (NULL trong SQL)
+        - pd.NaT           → trả về None  ← FIX MỚI
+        - date object      → giữ nguyên
+        - pd.Timestamp     → lấy .date()
+        - string           → parse rồi lấy .date()
+        """
+        # Trường hợp None
+        if val is None:
+            return None
+
+        # Trường hợp float NaN (ví dụ: float('nan'))
+        if isinstance(val, float) and np.isnan(val):
+            return None
+
+     
+        if pd.isnull(val):
+            return None
+        # ────────────────────────────────────────────────────────────────
+
+        if isinstance(val, date):
+            return val
+
+        if isinstance(val, pd.Timestamp):
+            return val.date()
+
+        try:
+            return pd.to_datetime(val).date()
+        except Exception:
             return None

@@ -59,7 +59,6 @@ class PostgreSQLExtractor:
         self.engine = source_engine
 
     def _read_table(self, table_name, query=None, params=None):
-    	
         try:
             if query:
                 df = pd.read_sql(text(query), self.engine, params=params)
@@ -101,10 +100,9 @@ class PostgreSQLExtractor:
                        "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc"]:
             result[table] = self._read_table(table)
 
-        
         result["dang_ky_hoc_phan"] = pd.read_sql(
             text("SELECT * FROM dang_ky_hoc_phan WHERE ma_hoc_ky = :hk"),
-            self.engine,  # ← đúng
+            self.engine,
             params={"hk": ma_hoc_ky}
         )
         result["diem_hoc_phan"] = self._read_table(
@@ -124,6 +122,27 @@ class CSVExtractor:
 
     def __init__(self, csv_dir: str = None):
         self.csv_dir = csv_dir or CSV_DATA_DIR
+        # ★ FIX: Thêm fallback paths để tìm CSV
+        self._fallback_dirs = [
+            self.csv_dir,
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__)))), "data", "csv"),
+            "/opt/airflow/data/csv",
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__)))), "generated_data", "csv"),
+        ]
+
+    def _resolve_csv_dir(self) -> str:
+        """★ FIX: Tự động tìm thư mục CSV có file thực sự."""
+        for d in self._fallback_dirs:
+            if d and os.path.exists(d):
+                files = glob.glob(os.path.join(d, "ctsv_*.csv"))
+                if files:
+                    logger.info(f"  CSV | Tìm thấy {len(files)} file trong: {d}")
+                    return d
+        logger.warning(f"  CSV | Không tìm thấy file CSV trong bất kỳ thư mục nào!")
+        logger.warning(f"  CSV | Đã thử: {self._fallback_dirs}")
+        return self.csv_dir
 
     def extract_courses_from_csv(self, filepath: str) -> pd.DataFrame:
         return self._read_single_file(filepath)
@@ -151,12 +170,13 @@ class CSVExtractor:
             return pd.DataFrame()
 
     def extract_by_semester(self, ma_hoc_ky: str) -> pd.DataFrame:
+        csv_dir = self._resolve_csv_dir()
         candidates = [
             f"ctsv_{ma_hoc_ky}.csv",
             f"ctsv_{ma_hoc_ky.replace('-', '_')}.csv",
         ]
         for fname in candidates:
-            fpath = os.path.join(self.csv_dir, fname)
+            fpath = os.path.join(csv_dir, fname)
             if os.path.exists(fpath):
                 return self._read_single_file(fpath)
 
@@ -168,11 +188,16 @@ class CSVExtractor:
         logger.info("NGUỒN 2 — CSV (Phòng CTSV) | Extract")
         logger.info("═" * 60)
 
-        csv_files = sorted(glob.glob(os.path.join(self.csv_dir, "ctsv_*.csv")))
+        # ★ FIX: Dùng _resolve_csv_dir() để tự động tìm đúng thư mục
+        csv_dir = self._resolve_csv_dir()
+        logger.info(f"  CSV | Đang đọc từ: {csv_dir}")
+
+        csv_files = sorted(glob.glob(os.path.join(csv_dir, "ctsv_*.csv")))
         csv_files = [f for f in csv_files if "all" not in os.path.basename(f).lower()]
 
         if not csv_files:
-            logger.warning(f"  CSV | Không tìm thấy file trong: {self.csv_dir}")
+            logger.warning(f"  CSV | ⚠️  Không tìm thấy file CSV nào trong: {csv_dir}")
+            logger.warning(f"  CSV | Hãy chạy generate_sample_data.py trước!")
             return pd.DataFrame()
 
         logger.info(f"  CSV | Tìm thấy {len(csv_files)} file(s)")
@@ -201,6 +226,27 @@ class APIExtractor:
     def __init__(self, base_url: str = None, json_dir: str = None):
         self.base_url = (base_url or API_BASE_URL).rstrip("/")
         self.json_dir = json_dir or API_JSON_DIR
+        # ★ FIX: Thêm fallback paths để tìm JSON
+        self._fallback_dirs = [
+            self.json_dir,
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__)))), "data", "api_json"),
+            "/opt/airflow/data/api_json",
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__)))), "generated_data", "api_json"),
+        ]
+
+    def _resolve_json_dir(self) -> str:
+        """★ FIX: Tự động tìm thư mục JSON có file thực sự."""
+        for d in self._fallback_dirs:
+            if d and os.path.exists(d):
+                files = glob.glob(os.path.join(d, "taichinh_*.json"))
+                if files:
+                    logger.info(f"  API | Tìm thấy {len(files)} JSON file trong: {d}")
+                    return d
+        logger.warning(f"  API | Không tìm thấy JSON file trong bất kỳ thư mục nào!")
+        logger.warning(f"  API | Đã thử: {self._fallback_dirs}")
+        return self.json_dir
 
     def extract_enrollments_from_api(self, ma_hoc_ky: str) -> pd.DataFrame:
         return self.extract_by_semester(ma_hoc_ky)
@@ -224,8 +270,7 @@ class APIExtractor:
             resp = requests.get(url, params={"hoc_ky": ma_hoc_ky}, timeout=API_TIMEOUT)
             resp.raise_for_status()
             data = resp.json()
-            
-            # Unwrap envelope nếu API trả về metadata wrapper (v2.2)
+
             if isinstance(data, dict) and "data" in data:
                 records = data["data"]
                 metadata = data.get("metadata", {})
@@ -235,47 +280,45 @@ class APIExtractor:
                 )
             else:
                 records = data
-            
+
             df = pd.DataFrame(records)
-            
+
             if df.empty:
                 return df
-            
-            # ★ DEDUP: Loại bỏ duplicate (ma_sinh_vien, hoc_ky)
-            # Nguyên nhân: API có thể trả duplicate do pagination bug hoặc
-            # data source đã có duplicate. ETL pipeline phải xử lý gracefully.
+
             before = len(df)
             df = df.drop_duplicates(
-                subset=["ma_sinh_vien", "hoc_ky"], 
-                keep="last"  # Giữ record mới nhất (cuối cùng)
+                subset=["ma_sinh_vien", "hoc_ky"],
+                keep="last"
             )
             dupes = before - len(df)
             if dupes > 0:
                 logger.warning(
                     f"  API | (HTTP) HK {ma_hoc_ky}: "
-                    f"Loại bỏ {dupes} duplicate records (ma_sinh_vien, hoc_ky)"
+                    f"Loại bỏ {dupes} duplicate records"
                 )
-            
+
             logger.info(f"  API | (HTTP) HK {ma_hoc_ky} → {len(df):>6,} records")
             return df
-            
+
         except Exception as e:
             logger.debug(f"  API | HTTP không khả dụng: {e}")
             return pd.DataFrame()
 
     def _try_json_file(self, ma_hoc_ky: str) -> pd.DataFrame:
+        # ★ FIX: Tìm file trong các fallback dirs
+        json_dir = self._resolve_json_dir()
         candidates = [
             f"taichinh_{ma_hoc_ky.replace('-', '_')}.json",
             f"taichinh_{ma_hoc_ky}.json",
         ]
         for fname in candidates:
-            fpath = os.path.join(self.json_dir, fname)
+            fpath = os.path.join(json_dir, fname)
             if os.path.exists(fpath):
                 try:
                     with open(fpath, "r", encoding="utf-8") as f:
                         payload = json_lib.load(f)
-                    
-                    # ★ FIX v2.2: Unwrap envelope metadata
+
                     if isinstance(payload, dict) and "data" in payload:
                         records = payload["data"]
                         metadata = payload.get("metadata", {})
@@ -284,17 +327,15 @@ class APIExtractor:
                             f"generated_at={metadata.get('generated_at', 'N/A')}"
                         )
                     else:
-                        records = payload  # Backward compat với file cũ
-                    
-                    # ★ Lọc bỏ records không phải dict (string, None...)
+                        records = payload
+
                     records = [r for r in records if isinstance(r, dict)]
-                    
+
                     df = pd.DataFrame(records)
-                    
+
                     if df.empty:
                         return df
-                    
-                    # ★ DEDUP
+
                     before = len(df)
                     df = df.drop_duplicates(
                         subset=["ma_sinh_vien", "hoc_ky"],
@@ -306,15 +347,49 @@ class APIExtractor:
                             f"  API | (JSON) {fname}: "
                             f"Loại bỏ {dupes} duplicate records"
                         )
-                    
+
                     logger.info(f"  API | (JSON) {fname} → {len(df):>6,} records")
                     return df
-                    
+
                 except Exception as e:
                     logger.error(f"  API | Lỗi đọc JSON '{fname}': {e}")
         return pd.DataFrame()
 
     def extract_all_semesters(self, semester_list: List[str]) -> pd.DataFrame:
+        logger.info("═" * 60)
+        logger.info("NGUỒN 3 — API/JSON (Portal Tài chính) | Extract")
+        logger.info("═" * 60)
+
+        # ★ FIX: Thử đọc taichinh_all.json trước nếu có, nhanh hơn
+        json_dir = self._resolve_json_dir()
+        all_file = os.path.join(json_dir, "taichinh_all.json")
+        if os.path.exists(all_file):
+            try:
+                with open(all_file, "r", encoding="utf-8") as f:
+                    payload = json_lib.load(f)
+
+                if isinstance(payload, dict) and "data" in payload:
+                    records = payload["data"]
+                else:
+                    records = payload
+
+                records = [r for r in records if isinstance(r, dict)]
+                combined = pd.DataFrame(records)
+
+                if not combined.empty and "ma_sinh_vien" in combined.columns:
+                    before = len(combined)
+                    combined = combined.drop_duplicates(
+                        subset=["ma_sinh_vien", "hoc_ky"], keep="last"
+                    )
+                    logger.info(
+                        f"  API | (taichinh_all.json) → {len(combined):,} records "
+                        f"(dedup: {before - len(combined)})"
+                    )
+                    return combined
+            except Exception as e:
+                logger.warning(f"  API | Không đọc được taichinh_all.json: {e}")
+
+        # Fallback: đọc từng HK
         all_dfs = []
         for hk in semester_list:
             df = self.extract_by_semester(hk)
@@ -322,13 +397,8 @@ class APIExtractor:
                 all_dfs.append(df)
 
         if not all_dfs:
-            all_file = os.path.join(self.json_dir, "taichinh_all.json")
-            if os.path.exists(all_file):
-                with open(all_file, "r", encoding="utf-8") as f:
-                    records = json_lib.load(f)
-                combined = pd.DataFrame(records)
-                logger.info(f"  API | (taichinh_all.json) → {len(combined):>6,} records")
-                return combined
+            logger.warning("  API | ⚠️  Không có dữ liệu tài chính nào!")
+            logger.warning("  API | Hãy chạy generate_sample_data.py hoặc kiểm tra mock API server!")
             return pd.DataFrame()
 
         combined = pd.concat(all_dfs, ignore_index=True)
@@ -360,12 +430,23 @@ class DataExtractor:
         if semester_list:
             result.tai_chinh_data = self.api.extract_all_semesters(semester_list)
 
+        # ★ FIX: Log rõ ràng nếu dữ liệu CSV/API rỗng để dễ debug
+        if result.ctsv_data.empty:
+            logger.error("  ❌ CTSV DATA RỖNG! Kiểm tra:")
+            logger.error(f"     CSV_DATA_DIR = {self.csv.csv_dir}")
+            logger.error(f"     Thư mục tồn tại: {os.path.exists(self.csv.csv_dir)}")
+        if result.tai_chinh_data.empty:
+            logger.error("  ❌ TÀI CHÍNH DATA RỖNG! Kiểm tra:")
+            logger.error(f"     API_JSON_DIR = {self.api.json_dir}")
+            logger.error(f"     API_BASE_URL = {self.api.base_url}")
+
         self._save_to_staging(result)
 
         logger.info("=" * 70)
         logger.info(" FULL EXTRACT HOÀN TẤT")
         for name, count in result.summary().items():
-            logger.info(f"   {name:<25s}: {count:>8,}")
+            status = "✅" if count > 0 else "❌"
+            logger.info(f"   {status} {name:<25s}: {count:>8,}")
         logger.info("=" * 70)
 
         return result

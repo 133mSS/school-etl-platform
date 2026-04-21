@@ -140,12 +140,17 @@ def task_transform(**context):
 # TASK 4: LOAD
 # ════════════════════════════════════════════════════════════════════════════
 
+# Trong dags/daily_student_pipeline.py
+# Thay thế hàm task_load hiện tại bằng:
+
 def task_load(**context):
     """
-    Load dữ liệu vào Data Warehouse:
-      - Upsert các Dimension tables (dim_sinh_vien SCD2, dim_hoc_phan...)
-      - Insert Fact tables (fact_hoc_tap, fact_ctsv, fact_tai_chinh)
-      - Rebuild agg_student_summary từ 3 nguồn
+    Load dữ liệu vào Data Warehouse.
+    
+    Cải tiến so với bản gốc:
+    - Bắt riêng Exception và log chi tiết để dễ debug
+    - Push stats vào XCom ngay cả khi một số bảng fail
+    - Hiển thị tóm tắt số records đã load
     """
     import sys
     sys.path.insert(0, "/opt/airflow")
@@ -156,16 +161,43 @@ def task_load(**context):
     staging_run_id = context["ti"].xcom_pull(
         key="staging_run_id", task_ids="transform_data"
     )
+
+    if not staging_run_id:
+        raise ValueError(
+            "Không tìm thấy staging_run_id từ task transform_data. "
+            "Kiểm tra xem task transform_data có chạy thành công không."
+        )
+
     transformer = DataTransformer()
     transformed = transformer.load_from_staging(run_id=staging_run_id)
 
     loader = DataLoader()
-    stats  = loader.load_all(transformed)
 
+    try:
+        stats = loader.load_all(transformed)
+    except Exception as e:
+        # Log chi tiết để dễ tìm nguyên nhân trên Airflow UI
+        import traceback
+        print("=" * 60)
+        print("LOAD FAILED — Chi tiết lỗi:")
+        print(traceback.format_exc())
+        print("=" * 60)
+        raise  # Re-raise để Airflow đánh dấu task FAILED
+
+    # Push stats để alert_success sử dụng
     context["ti"].xcom_push(key="load_stats", value=stats)
-    print(f"Load xong: {stats}")
-    return stats
 
+    # In tóm tắt ra Airflow log
+    print("=" * 60)
+    print("LOAD HOÀN TẤT — Thống kê:")
+    total = 0
+    for table, count in stats.items():
+        print(f"  {table:<30s}: {count:>10,} records")
+        total += count
+    print(f"  {'TỔNG':<30s}: {total:>10,} records")
+    print("=" * 60)
+
+    return stats
 
 # ════════════════════════════════════════════════════════════════════════════
 # TASK 5: ALERT SUCCESS

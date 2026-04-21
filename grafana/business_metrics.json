@@ -316,7 +316,7 @@
         {
             "id": 7,
             "title": "⚠️ 1.1 — PHÁT HIỆN SỚM (GPA 2.0–3.2 + DRL thấp / Nợ HP)",
-            "description": "SV đang học GPA vẫn ổn (2.0–3.2) NHƯNG có dấu hiệu cảnh báo phụ: DRL thấp (<65) hoặc nợ học phí. Đây là nhóm cần hỗ trợ sớm TRƯỚC khi GPA sụt. Điểm RR: DRL<35=3đ, DRL<50=2đ, DRL<65=1đ; HP>5M=2đ, HP>0=1đ. Max=5đ. FIX v2: Thêm gpa_he_4 <= 3.2 (loại SV Giỏi/XS khỏi nhóm này — họ cần theo dõi khác). FIX v2: Mức \"Nguy hiểm\" mới cho RR>=4.",
+            "description": "SV đang học có GPA 2.0-3.2 (cần theo dõi sớm). Điểm RR tính từ: GPA thấp (+1/+2) + DRL thấp nếu có (+1/+2/+3) + Nợ HP nếu có (+1/+2). Panel hiển thị NGAY CẢ KHI chưa có dữ liệu DRL/Tài chính. FIX: Bỏ điều kiện WHERE bắt buộc DRL<65 OR Nợ>0 (gây No data khi thiếu nguồn 2/3).",
             "type": "table",
             "gridPos": {
                 "x": 0,
@@ -518,7 +518,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "WITH risk AS (SELECT sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc,        agg.gpa_he_4, agg.diem_rl_trung_binh, agg.tong_no_hoc_phi,        agg.so_mon_khong_dat,   (    CASE WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 35 THEN 3          WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 50 THEN 2          WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 1 ELSE 0 END   ) + (    CASE WHEN agg.tong_no_hoc_phi > 5000000 THEN 2          WHEN agg.tong_no_hoc_phi > 0 THEN 1 ELSE 0 END   ) AS rr FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE   AND sv.trang_thai_hoc_tap = 'Đang học'   AND agg.gpa_he_4 >= 2.0   AND agg.gpa_he_4 <= 3.2   AND agg.gpa_he_4 > 0   AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR agg.tong_no_hoc_phi > 0)) SELECT ma_sinh_vien AS \"Mã SV\", ho_ten AS \"Họ Tên\",        ten_nganh AS \"Ngành\", khoa_hoc AS \"Khóa\",        gpa_he_4 AS \"GPA TL\",        diem_rl_trung_binh AS \"DRL TB\",        CASE WHEN tong_no_hoc_phi > 0 THEN 'Có' ELSE 'Không' END AS \"Nợ HP\",        so_mon_khong_dat AS \"Môn rớt\",        rr AS \"Điểm RR\",        CASE WHEN rr >= 4 THEN 'Nguy hiểm'             WHEN rr >= 3 THEN 'Cao'             WHEN rr >= 2 THEN 'Trung bình'             ELSE 'Thấp' END AS \"Mức RR\" FROM risk ORDER BY rr DESC, gpa_he_4 ASC LIMIT 100",
+                    "rawSql": "WITH risk AS (\n  SELECT \n    sv.ma_sinh_vien, sv.ho_ten, sv.ten_nganh, sv.khoa_hoc,\n    agg.gpa_he_4, \n    agg.diem_rl_trung_binh, \n    agg.tong_no_hoc_phi,\n    agg.so_mon_khong_dat,\n    (\n      CASE \n        WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 35 THEN 3\n        WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 50 THEN 2\n        WHEN COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 1 \n        ELSE 0 \n      END\n    ) + (\n      CASE \n        WHEN agg.tong_no_hoc_phi > 5000000 THEN 2\n        WHEN agg.tong_no_hoc_phi > 0 THEN 1 \n        ELSE 0 \n      END\n    ) + (\n      CASE\n        WHEN agg.gpa_he_4 < 2.2 THEN 2\n        WHEN agg.gpa_he_4 < 2.5 THEN 1\n        ELSE 0\n      END\n    ) AS rr\n  FROM agg_student_summary agg\n  JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key\n  WHERE sv.la_ban_hien_tai = TRUE\n    AND sv.trang_thai_hoc_tap = 'Đang học'\n    AND agg.gpa_he_4 >= 2.0\n    AND agg.gpa_he_4 <= 3.2\n    AND agg.gpa_he_4 > 0\n)\nSELECT \n  ma_sinh_vien AS \"Mã SV\", \n  ho_ten AS \"Họ Tên\",\n  ten_nganh AS \"Ngành\", \n  khoa_hoc AS \"Khóa\",\n  gpa_he_4 AS \"GPA TL\",\n  diem_rl_trung_binh AS \"DRL TB\",\n  CASE WHEN tong_no_hoc_phi > 0 THEN 'Có' ELSE 'Không' END AS \"Nợ HP\",\n  so_mon_khong_dat AS \"Môn rớt\",\n  rr AS \"Điểm RR\",\n  CASE \n    WHEN rr >= 4 THEN 'Nguy hiểm'\n    WHEN rr >= 3 THEN 'Cao'\n    WHEN rr >= 2 THEN 'Trung bình'\n    ELSE 'Thấp' \n  END AS \"Mức RR\"\nFROM risk\nORDER BY rr DESC, gpa_he_4 ASC\nLIMIT 100",
                     "refId": "A",
                     "format": "table"
                 }
@@ -784,7 +784,7 @@
         {
             "id": 13,
             "title": "🔴 SV Nguy cơ Rất cao (GPA<2 + DRL<50 + Nợ HP)",
-            "description": "Bài toán 1.1: SV hội đủ CẢ 3 dấu hiệu bỏ học. FIX: Dùng COALESCE(diem_rl_trung_binh, 100) để nhất quán với logic trong aggregation.py — khi không có dữ liệu RL mặc định coi là an toàn (100). Nguồn: PostgreSQL + CSV + API.",
+            "description": "SV đang học có GPA < 2.0 kèm DRL thấp hoặc nợ HP. FIX: Fallback khi thiếu nguồn 2/3 — GPA < 1.5 được tính là nguy cơ cao.",
             "type": "stat",
             "gridPos": {
                 "x": 0,
@@ -832,7 +832,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT COUNT(*) as total FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 AND COALESCE(agg.diem_rl_trung_binh, 100) < 50 AND agg.tong_no_hoc_phi > 0",
+                    "rawSql": "SELECT COUNT(*) as total \nFROM agg_student_summary agg\nJOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key\nWHERE sv.la_ban_hien_tai = TRUE\n  AND sv.trang_thai_hoc_tap = 'Đang học'\n  AND agg.gpa_he_4 > 0\n  AND agg.gpa_he_4 < 2.0\n  AND (\n    -- Nếu có dữ liệu DRL: DRL < 50\n    (agg.diem_rl_trung_binh IS NOT NULL AND agg.diem_rl_trung_binh < 50)\n    OR\n    -- Nếu có dữ liệu tài chính: nợ học phí\n    (agg.tong_no_hoc_phi > 0)\n    OR\n    -- Nếu không có DRL/Tài chính: GPA < 1.5 đủ coi là nguy cơ cao\n    (agg.diem_rl_trung_binh IS NULL AND agg.tong_no_hoc_phi = 0 AND agg.gpa_he_4 < 1.5)\n  )",
                     "refId": "A",
                     "format": "table"
                 }
