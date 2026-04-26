@@ -528,3 +528,107 @@ RAISE NOTICE '   - Fix panel 3.1 No data';
 RAISE NOTICE '   - Dùng hoc_lai=FALSE để tính TC rớt lần đầu';
 RAISE NOTICE '==========================================';
 END $$;
+
+-- ============================================================
+-- PATCH: Dọn view v_theo_doi_sv_canh_bao
+-- File này ghi đè bản aggregated (sai) bằng bản detail (đúng)
+-- Chạy 1 lần duy nhất sau khi đã chạy create_views.sql v3.0
+-- ============================================================
+
+-- Bước 1: xoá bản cũ (bản aggregated hôm đầu)
+DROP VIEW IF EXISTS v_theo_doi_sv_canh_bao CASCADE;
+
+-- Bước 2: tạo bản DETAIL (1 dòng/SV/kỳ CB) — đây là bản CHÍNH THỨC
+CREATE VIEW v_theo_doi_sv_canh_bao AS
+WITH gpa_per_hk AS (
+    -- GPA của từng SV trong từng kỳ — cùng công thức với v_canh_bao_theo_hoc_ky
+    SELECT
+        f.sinh_vien_key,
+        f.hoc_ky_key,
+        ROUND(
+            SUM(f.diem_he_4 * COALESCE(f.so_tin_chi, 0))
+            / NULLIF(SUM(COALESCE(f.so_tin_chi, 0)), 0),
+            2
+        ) AS gpa_hk,
+        SUM(COALESCE(f.so_tin_chi, 0))                          AS tc_hk,
+        SUM(CASE WHEN f.dat_mon = FALSE THEN 1 ELSE 0 END)      AS so_mon_rot
+    FROM fact_hoc_tap f
+    WHERE f.diem_he_4 IS NOT NULL AND f.so_tin_chi > 0
+    GROUP BY f.sinh_vien_key, f.hoc_ky_key
+),
+hk_chain AS (
+    -- Chuỗi HK chronological. next_HK là kỳ CHÍNH QUY ngay sau (không phải "kỳ có điểm kế tiếp")
+    SELECT
+        hoc_ky_key,
+        ma_hoc_ky,
+        ngay_bat_dau,
+        LEAD(hoc_ky_key) OVER (ORDER BY ngay_bat_dau) AS next_hoc_ky_key,
+        LEAD(ma_hoc_ky)  OVER (ORDER BY ngay_bat_dau) AS next_ma_hoc_ky
+    FROM dim_hoc_ky
+    WHERE ma_hoc_ky NOT LIKE '%HK3%'
+),
+sv_canh_bao AS (
+    -- Mỗi SV × mỗi kỳ họ bị CB (GPA_HK < 2.0)
+    SELECT
+        g.sinh_vien_key,
+        g.hoc_ky_key                AS hoc_ky_key_N,
+        g.gpa_hk                    AS gpa_hk_N,
+        g.tc_hk                     AS tc_hk_N,
+        g.so_mon_rot                AS mon_rot_N,
+        hc.ma_hoc_ky                AS ma_hoc_ky_N,
+        hc.ngay_bat_dau             AS ngay_bat_dau_N,
+        hc.next_hoc_ky_key          AS hoc_ky_key_N1,
+        hc.next_ma_hoc_ky           AS ma_hoc_ky_N1
+    FROM gpa_per_hk g
+    JOIN hk_chain hc ON hc.hoc_ky_key = g.hoc_ky_key
+    WHERE g.gpa_hk < 2.0
+)
+SELECT
+    s.sinh_vien_key,
+    sv.ma_sinh_vien,
+    (sv.ho || ' ' || sv.ten)        AS ho_ten,
+    sv.ma_nganh,
+    sv.ten_nganh,
+    sv.khoa_hoc,
+    sv.trang_thai_hoc_tap,
+    -- Kỳ N
+    s.ma_hoc_ky_N                   AS ky_canh_bao,
+    s.ngay_bat_dau_N                AS ngay_ky_canh_bao,
+    s.gpa_hk_N                      AS gpa_ky_canh_bao,
+    s.tc_hk_N                       AS tc_ky_canh_bao,
+    s.mon_rot_N                     AS mon_rot_ky_canh_bao,
+    -- Kỳ N+1
+    s.ma_hoc_ky_N1                  AS ky_sau,
+    g_next.gpa_hk                   AS gpa_ky_sau,
+    -- Nhãn kết quả cá nhân
+    CASE
+        WHEN s.hoc_ky_key_N1 IS NULL                                        THEN 'N/A (chưa có kỳ sau)'
+        WHEN g_next.gpa_hk IS NULL AND sv.trang_thai_hoc_tap = 'Thôi học'   THEN 'Đã thôi học'
+        WHEN g_next.gpa_hk IS NULL AND sv.trang_thai_hoc_tap = 'Bảo lưu'    THEN 'Bảo lưu'
+        WHEN g_next.gpa_hk IS NULL AND sv.trang_thai_hoc_tap = 'Tốt nghiệp' THEN 'Đã tốt nghiệp'
+        WHEN g_next.gpa_hk IS NULL                                          THEN 'Không có điểm kỳ sau'
+        WHEN g_next.gpa_hk >= 2.0                                           THEN 'Thoát cảnh báo'
+        WHEN g_next.gpa_hk >  s.gpa_hk_N                                    THEN 'Có tiến bộ (vẫn CB)'
+        WHEN g_next.gpa_hk <  s.gpa_hk_N                                    THEN 'Tệ đi'
+        ELSE                                                                     'Không đổi'
+    END                             AS ket_qua_ca_nhan,
+    ROUND((g_next.gpa_hk - s.gpa_hk_N)::numeric, 2) AS delta_gpa
+FROM sv_canh_bao s
+JOIN dim_sinh_vien sv
+    ON sv.sinh_vien_key = s.sinh_vien_key
+    AND sv.la_ban_hien_tai = TRUE
+LEFT JOIN gpa_per_hk g_next
+    ON g_next.sinh_vien_key = s.sinh_vien_key
+    AND g_next.hoc_ky_key   = s.hoc_ky_key_N1;
+
+COMMENT ON VIEW v_theo_doi_sv_canh_bao IS
+'Cohort tracking DETAIL: 1 dòng/SV/kỳ CB. Dùng cho panel 101-107 (section "Theo dõi cohort"). GPA_HK<2.0 = định nghĩa CB.';
+
+DO $$ BEGIN
+    RAISE NOTICE '==========================================';
+    RAISE NOTICE ' PATCH DONE: v_theo_doi_sv_canh_bao';
+    RAISE NOTICE '   - Đã xoá bản aggregated (sai)';
+    RAISE NOTICE '   - Đã tạo bản DETAIL (chuẩn)';
+    RAISE NOTICE '   - Test: SELECT * FROM v_theo_doi_sv_canh_bao LIMIT 5;';
+    RAISE NOTICE '==========================================';
+END $$;

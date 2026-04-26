@@ -690,7 +690,7 @@
         },
         {
             "id": 11,
-            "title": "SV Cảnh báo Học vụ (Tổng)",
+            "title": "SV Cảnh báo GPA tích lũy (Tổng)",
             "type": "stat",
             "gridPos": {
                 "x": 6,
@@ -845,7 +845,7 @@
         {
             "id": 14,
             "title": "1.2 — Phân loại Cảnh báo Học vụ (theo GPA Tích lũy)",
-            "description": "Bài toán 1.2: GPA tích lũy < 1.0 → Buộc thôi học | < 1.2 + DRL<50 → Buộc thôi học | < 1.2 → CB lần 2 | < 1.5 → CB lần 1. FIX: COALESCE(diem_rl_trung_binh, 100) tránh SV thiếu DRL bị phân loại sai. FIX: HAVING loại bỏ nhóm NULL khỏi biểu đồ.",
+            "description": "Bài toán 1.2: GPA tích lũy < 0.9 → Buộc thôi học | < 1.2 + DRL<50 → Buộc thôi học | < 1.5 + KL → CB lần 2 | < 1.5 OR KL → CB lần 1. FIX: COALESCE(diem_rl_trung_binh, 100) tránh SV thiếu DRL bị phân loại sai. FIX: HAVING loại bỏ nhóm NULL khỏi biểu đồ.",
             "type": "barchart",
             "gridPos": {
                 "x": 6,
@@ -902,7 +902,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE) THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END as \"Mức cảnh báo\", COUNT(*) as \"Số SV\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 < 1.5 AND agg.gpa_he_4 > 0 GROUP BY 1 HAVING (CASE WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE) THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END) IS NOT NULL ORDER BY MIN(agg.gpa_he_4) ASC",
+                    "rawSql": "SELECT CASE WHEN agg.gpa_he_4 < 0.9 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE) THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE)) THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END as \"Mức cảnh báo\", COUNT(*) as \"Số SV\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key = sv.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE AND sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 < 1.5 AND agg.gpa_he_4 > 0 GROUP BY 1 HAVING (CASE WHEN agg.gpa_he_4 < 0.9 THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.2 AND EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE) THEN 'Buộc thôi học' WHEN agg.gpa_he_4 < 1.5 AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR EXISTS (SELECT 1 FROM fact_ctsv c WHERE c.sinh_vien_key = agg.sinh_vien_key AND c.bi_ky_luat = TRUE)) THEN 'CB lần 2' WHEN agg.gpa_he_4 < 1.5 THEN 'CB lần 1' END) IS NOT NULL ORDER BY MIN(agg.gpa_he_4) ASC",
                     "refId": "A",
                     "format": "table"
                 }
@@ -1155,7 +1155,7 @@
             },
             "targets": [
                 {
-                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\",        sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\",        agg.gpa_he_4 AS \"GPA TL\",        agg.tin_chi_dat AS \"TC Đạt\",        agg.so_mon_khong_dat AS \"Môn rớt\",        agg.so_mon_hoc_lai AS \"Môn học lại\",        agg.diem_rl_trung_binh AS \"DRL TB\",        CASE WHEN kl.hinh_thuc_kl IS NOT NULL THEN 'Có' ELSE 'Không' END AS \"Kỷ luật\",        CASE          WHEN agg.gpa_he_4 < 1.0 THEN 'Buộc thôi học'          WHEN agg.gpa_he_4 < 1.5 AND kl.hinh_thuc_kl IS NOT NULL THEN 'Buộc thôi học'          WHEN agg.gpa_he_4 < 1.2 AND COALESCE(agg.diem_rl_trung_binh, 100) < 65 THEN 'Cảnh báo lần 2'          WHEN agg.gpa_he_4 < 1.5 OR kl.hinh_thuc_kl IS NOT NULL THEN 'Cảnh báo lần 1'          ELSE 'Theo dõi'        END AS \"Mức cảnh báo\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key=sv.sinh_vien_key LEFT JOIN LATERAL (  SELECT c.hinh_thuc_kl FROM fact_ctsv c   WHERE c.sinh_vien_key=agg.sinh_vien_key     AND c.hinh_thuc_kl IS NOT NULL AND c.hinh_thuc_kl != ''   ORDER BY c.hoc_ky_key DESC LIMIT 1) kl ON TRUE WHERE sv.la_ban_hien_tai=TRUE   AND sv.trang_thai_hoc_tap='Đang học'   AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 ORDER BY agg.gpa_he_4 ASC LIMIT 100",
+                    "rawSql": "SELECT sv.ma_sinh_vien AS \"Mã SV\", sv.ho_ten AS \"Họ Tên\",        sv.ten_nganh AS \"Ngành\", sv.khoa_hoc AS \"Khóa\",        agg.gpa_he_4 AS \"GPA TL\",        agg.tin_chi_dat AS \"TC Đạt\",        agg.so_mon_khong_dat AS \"Môn rớt\",        agg.so_mon_hoc_lai AS \"Môn học lại\",        agg.diem_rl_trung_binh AS \"DRL TB\",        CASE WHEN kl.hinh_thuc_kl IS NOT NULL THEN 'Có' ELSE 'Không' END AS \"Kỷ luật\",        CASE          WHEN agg.gpa_he_4 < 0.9 THEN 'Buộc thôi học'          WHEN agg.gpa_he_4 < 1.2 AND kl.hinh_thuc_kl IS NOT NULL THEN 'Buộc thôi học'          WHEN agg.gpa_he_4 < 1.5 AND (COALESCE(agg.diem_rl_trung_binh, 100) < 65 OR kl.hinh_thuc_kl IS NOT NULL) THEN 'Cảnh báo lần 2'          WHEN agg.gpa_he_4 < 1.5 OR kl.hinh_thuc_kl IS NOT NULL THEN 'Cảnh báo lần 1'          ELSE 'Theo dõi'        END AS \"Mức cảnh báo\" FROM agg_student_summary agg JOIN dim_sinh_vien sv ON agg.sinh_vien_key=sv.sinh_vien_key LEFT JOIN LATERAL (  SELECT c.hinh_thuc_kl FROM fact_ctsv c   WHERE c.sinh_vien_key=agg.sinh_vien_key     AND c.hinh_thuc_kl IS NOT NULL AND c.hinh_thuc_kl != ''   ORDER BY c.hoc_ky_key DESC LIMIT 1) kl ON TRUE WHERE sv.la_ban_hien_tai=TRUE   AND sv.trang_thai_hoc_tap='Đang học'   AND agg.gpa_he_4 > 0 AND agg.gpa_he_4 < 2.0 ORDER BY agg.gpa_he_4 ASC LIMIT 100",
                     "refId": "A",
                     "format": "table"
                 }
@@ -1614,6 +1614,709 @@
             "targets": [
                 {
                     "rawSql": "SELECT sv.khoa_hoc AS \"Khóa\", sv.ten_nganh AS \"Ngành\", COUNT(*) AS \"Tổng SV\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Tốt nghiệp' THEN 1 ELSE 0 END) AS \"Đã TN\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Đang học'          AND agg.gpa_he_4 >= 2.0          AND agg.tin_chi_dat >= 100 THEN 1 ELSE 0 END) AS \"Đủ ĐK (chưa TN)\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Thôi học' THEN 1 ELSE 0 END) AS \"Thôi học\", SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Bảo lưu' THEN 1 ELSE 0 END) AS \"Bảo lưu\", ROUND(100.0 * (  SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Tốt nghiệp' THEN 1 ELSE 0 END) +   SUM(CASE WHEN sv.trang_thai_hoc_tap = 'Đang học' AND agg.gpa_he_4 >= 2.0            AND agg.tin_chi_dat >= 100 THEN 1 ELSE 0 END)) / NULLIF(COUNT(*), 0), 1) AS \"Tỷ lệ Đủ ĐK (%)\" FROM dim_sinh_vien sv LEFT JOIN agg_student_summary agg ON sv.sinh_vien_key = agg.sinh_vien_key WHERE sv.la_ban_hien_tai = TRUE GROUP BY sv.khoa_hoc, sv.ten_nganh ORDER BY sv.khoa_hoc, sv.ten_nganh",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 100,
+            "type": "row",
+            "title": "📊 THEO DÕI COHORT CẢNH BÁO HỌC VỤ (Bài toán 1.3 — cá nhân, không phải tổng)",
+            "collapsed": false,
+            "gridPos": {
+                "x": 0,
+                "y": 70,
+                "w": 24,
+                "h": 1
+            }
+        },
+        {
+            "id": 101,
+            "title": "SV Cảnh báo kỳ $hoc_ky",
+            "description": "Tổng số SV có GPA_HK < 2.0 ở kỳ được chọn. Đây là cohort được theo dõi ở các panel bên cạnh.",
+            "type": "stat",
+            "gridPos": {
+                "x": 0,
+                "y": 71,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "orange"
+                    }
+                }
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) AS total FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky'",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 102,
+            "title": "→ Thoát cảnh báo ở kỳ sau",
+            "description": "SV có GPA_HK kỳ sau >= 2.0 — nhóm cải thiện tốt nhất.",
+            "type": "stat",
+            "gridPos": {
+                "x": 6,
+                "y": 71,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "color": {
+                        "mode": "fixed",
+                        "fixedColor": "green"
+                    }
+                }
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) AS total FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' AND ket_qua_ca_nhan = 'Thoát cảnh báo'",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 103,
+            "title": "→ Vẫn cảnh báo (GPA kỳ sau vẫn < 2.0)",
+            "description": "Gồm 'Có tiến bộ (vẫn CB)' + 'Không đổi' + 'Tệ đi'. Cần ưu tiên can thiệp.",
+            "type": "stat",
+            "gridPos": {
+                "x": 12,
+                "y": 71,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 5
+                            },
+                            {
+                                "color": "red",
+                                "value": 15
+                            }
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) AS total FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' AND ket_qua_ca_nhan IN ('Có tiến bộ (vẫn CB)', 'Không đổi', 'Tệ đi')",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 104,
+            "title": "→ Thôi học / Bảo lưu ở kỳ sau",
+            "description": "SV bị cảnh báo kỳ này, không tiếp tục học kỳ sau. Tín hiệu thất bại của việc can thiệp.",
+            "type": "stat",
+            "gridPos": {
+                "x": 18,
+                "y": 71,
+                "w": 6,
+                "h": 4
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            }
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "colorMode": "background",
+                "textMode": "value"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT COUNT(*) AS total FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' AND ket_qua_ca_nhan IN ('Đã thôi học', 'Bảo lưu')",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 105,
+            "title": "Phân bố kết quả cohort SV CB kỳ $hoc_ky",
+            "description": "Cohort SV bị cảnh báo ở kỳ $hoc_ky → họ ở đâu ở kỳ sau? Màu xanh = tốt, cam/đỏ = cần can thiệp, xám = không xác định.",
+            "type": "piechart",
+            "gridPos": {
+                "x": 0,
+                "y": 75,
+                "w": 12,
+                "h": 9
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "mappings": [],
+                    "color": {
+                        "mode": "palette-classic"
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Thoát cảnh báo"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "green"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Có tiến bộ (vẫn CB)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "yellow"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Không đổi"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "orange"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Tệ đi"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "red"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Đã thôi học"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "dark-red"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Bảo lưu"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "purple"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "pieType": "donut",
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "values": [
+                        "value",
+                        "percent"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi"
+                },
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                }
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ket_qua_ca_nhan AS metric, COUNT(*) AS so_sv FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' GROUP BY ket_qua_ca_nhan ORDER BY so_sv DESC",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 106,
+            "title": "Xu hướng cohort qua các kỳ (không phụ thuộc bộ lọc $hoc_ky)",
+            "description": "Mỗi cột = 1 kỳ có SV bị CB. Stack = kết quả của cohort đó ở kỳ sau. Đọc: cột cao = nhiều SV bị CB; phần xanh nhiều = hệ thống hỗ trợ hiệu quả.",
+            "type": "barchart",
+            "gridPos": {
+                "x": 12,
+                "y": 75,
+                "w": 12,
+                "h": 9
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0,
+                    "custom": {
+                        "axisPlacement": "auto"
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Thoát cảnh báo"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "green"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Có tiến bộ (vẫn CB)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "yellow"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Không đổi"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "orange"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Tệ đi"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "red"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Đã thôi học"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "dark-red"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Bảo lưu"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "purple"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "orientation": "vertical",
+                "stacking": "normal",
+                "showValue": "auto",
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                },
+                "xTickLabelRotation": -30
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ky_canh_bao, ket_qua_ca_nhan, COUNT(*) AS so_sv FROM v_theo_doi_sv_canh_bao GROUP BY ky_canh_bao, ket_qua_ca_nhan ORDER BY ky_canh_bao",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "groupingToMatrix",
+                    "options": {
+                        "columnField": "ket_qua_ca_nhan",
+                        "rowField": "ky_canh_bao",
+                        "valueField": "so_sv",
+                        "emptyValue": "zero"
+                    }
+                }
+            ],
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            }
+        },
+        {
+            "id": 107,
+            "title": "Chi tiết từng SV cảnh báo kỳ $hoc_ky và kết quả kỳ sau",
+            "description": "Danh sách đầy đủ. Cột 'Δ GPA' = GPA kỳ sau - GPA kỳ CB (âm = tệ đi, dương = cải thiện, NULL = không có điểm kỳ sau). Dùng cho cố vấn học tập khi cần gọi SV gặp.",
+            "type": "table",
+            "gridPos": {
+                "x": 0,
+                "y": 84,
+                "w": 24,
+                "h": 12
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "Δ GPA",
+                        "desc": false
+                    }
+                ]
+            },
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "GPA kỳ CB"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1.5
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "GPA kỳ sau"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 1.5
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 2.5
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Δ GPA"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": -0.3
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 0
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 0.3
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Kết quả"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "Thoát cảnh báo": {
+                                                "color": "green"
+                                            },
+                                            "Có tiến bộ (vẫn CB)": {
+                                                "color": "yellow"
+                                            },
+                                            "Không đổi": {
+                                                "color": "orange"
+                                            },
+                                            "Tệ đi": {
+                                                "color": "red"
+                                            },
+                                            "Đã thôi học": {
+                                                "color": "dark-red"
+                                            },
+                                            "Bảo lưu": {
+                                                "color": "purple"
+                                            },
+                                            "Không có điểm kỳ sau": {
+                                                "color": "semi-dark-grey"
+                                            },
+                                            "N/A (chưa có kỳ sau)": {
+                                                "color": "grey"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ma_sinh_vien AS \"Mã SV\", ho_ten AS \"Họ Tên\", ten_nganh AS \"Ngành\", khoa_hoc AS \"Khóa\", gpa_ky_canh_bao AS \"GPA kỳ CB\", mon_rot_ky_canh_bao AS \"Môn rớt\", ky_sau AS \"Kỳ sau\", gpa_ky_sau AS \"GPA kỳ sau\", delta_gpa AS \"Δ GPA\", ket_qua_ca_nhan AS \"Kết quả\", trang_thai_hoc_tap AS \"Trạng thái hiện tại\" FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' ORDER BY (CASE ket_qua_ca_nhan WHEN 'Tệ đi' THEN 1 WHEN 'Không đổi' THEN 2 WHEN 'Có tiến bộ (vẫn CB)' THEN 3 WHEN 'Đã thôi học' THEN 4 WHEN 'Bảo lưu' THEN 5 WHEN 'Không có điểm kỳ sau' THEN 6 WHEN 'Thoát cảnh báo' THEN 7 ELSE 9 END), gpa_ky_canh_bao ASC",
                     "refId": "A",
                     "format": "table"
                 }
