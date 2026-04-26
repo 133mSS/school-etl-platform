@@ -1844,6 +1844,43 @@
                 "w": 12,
                 "h": 9
             },
+            "datasource": {
+                "type": "postgres",
+                "uid": "warehouse-db"
+            },
+            "targets": [
+                {
+                    "rawSql": "SELECT ket_qua_ca_nhan AS metric, COUNT(*) AS so_sv FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' GROUP BY ket_qua_ca_nhan ORDER BY so_sv DESC",
+                    "refId": "A",
+                    "format": "table"
+                }
+            ],
+            "options": {
+                "pieType": "donut",
+                "displayLabels": [
+                    "name",
+                    "percent"
+                ],
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "values": [
+                        "value",
+                        "percent"
+                    ],
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single"
+                },
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                }
+            },
             "fieldConfig": {
                 "defaults": {
                     "unit": "none",
@@ -1943,40 +1980,23 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Không có điểm kỳ sau"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "semi-dark-grey"
+                                }
+                            }
+                        ]
                     }
                 ]
-            },
-            "options": {
-                "pieType": "donut",
-                "legend": {
-                    "displayMode": "table",
-                    "placement": "right",
-                    "values": [
-                        "value",
-                        "percent"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi"
-                },
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                }
-            },
-            "targets": [
-                {
-                    "rawSql": "SELECT ket_qua_ca_nhan AS metric, COUNT(*) AS so_sv FROM v_theo_doi_sv_canh_bao WHERE ky_canh_bao = '$hoc_ky' GROUP BY ket_qua_ca_nhan ORDER BY so_sv DESC",
-                    "refId": "A",
-                    "format": "table"
-                }
-            ],
-            "datasource": {
-                "type": "postgres",
-                "uid": "warehouse-db"
             }
         },
         {

@@ -1,74 +1,5 @@
-"""
-generate_sample_data.py — PTIT School ETL Platform
-===================================================
-Version: 3.0 — "HK3 Summer Retake + Bug Fixes + Profile Evolution"
 
-═══════════════════════════════════════════════════════════════════════
-PHÂN TÍCH & SỬA LỖI TỪ v2.2 → v3.0
-═══════════════════════════════════════════════════════════════════════
 
-▌ BUG 1 (NGHIÊM TRỌNG) — HK_MODIFIER bị áp dụng 2 lần:
-│  Trong _gen_diem_mon(), base += hk_modifier là áp dụng lần 1.
-│  Nhưng _gen_diem_raw() không nhận hk_modifier, nó chỉ dùng profile.
-│  Tuy nhiên, hk_idx += min((hk_idx-1)*0.10, 0.7) cộng thêm 1 bonus
-│  độc lập với hk_modifier, nên KHÔNG phải double-apply.
-│  → Bug thực sự: cc = random.uniform(...) + hk_modifier * 0.3  (dòng 583)
-│    VÀ TRONG DK_BUF dùng trang_thai_dk cho TẤT CẢ môn của 1 SV trong
-│    1 HK — điều này OK về logic nhưng cần document rõ.
-│  ✅ FIX: Tách riêng hk_modifier cho cc vs các component khác
-│         để tránh nhân đôi khi các HK có modifier âm lớn.
-
-▌ BUG 2 (TRUNG BÌNH) — buoc_thoi_hoc_gpa_hard = 0.5 quá thấp:
-│  Ngưỡng GPA 0.5 gần như không SV nào đạt được → thôi học = 0.
-│  Theo quy chế PTIT thực tế: GPA tích lũy < 1.0 sau 2 HK → cảnh báo,
-│  tiếp tục < 1.0 sau HK tiếp → thôi học. Hoặc GPA HK < 0.8 liên tiếp.
-│  ✅ FIX: Đổi thành 0.80 (thực tế hơn, sẽ có ~2-3% SV thôi học).
-
-▌ BUG 3 (NHẸ) — Profile học lực KHÔNG thay đổi theo thời gian:
-│  Một SV "yếu" sẽ LUÔN yếu suốt 4-5 năm học → không thực tế.
-│  Trong thực tế: ~8% SV yếu cải thiện lên trung bình mỗi năm,
-│  ~3% SV khá/tốt sa sút xuống trung bình.
-│  ✅ FIX: Thêm hàm _evolve_profile() gọi sau mỗi HK2.
-
-▌ BUG 4 (NHẸ) — Học phí không tăng theo năm:
-│  Tất cả năm đều random trong [440k, 460k, 480k, 500k] đồng/TC.
-│  Thực tế PTIT tăng giá mỗi năm ~5%.
-│  ✅ FIX: Thêm GIA_TC_BY_YEAR với giá tăng dần từ 2021.
-
-▌ BUG 5 (NHẸ) — hk_idx bị offset khi thêm HK3 vào sequence:
-│  Nếu HK3 được chèn vào HK_SEQ_BY_COHORT, enumerate() sẽ cho
-│  hk_idx_0 sai (HK3 tính là 1 HK trong curriculum), dẫn đến
-│  tra cứu sai mon_by_hk[hk_idx].
-│  ✅ FIX: Dùng curriculum_hk_counter riêng, chỉ tăng cho HK1/HK2.
-
-▌ TÍNH NĂNG MỚI — HK3 (Học kỳ Hè / Học lại):
-│  ★ [HK3_SUMMER] Thêm HK3 cho 4 năm học 2021-22 đến 2024-25
-│  ★ [HK3_RETAKE_LOGIC] Chỉ SV có môn rớt mới tham gia HK3
-│  ★ [HK3_RATE] 55% SV rớt môn đăng ký học lại HK3 (tùy chọn)
-│  ★ [HK3_MAX_COURSES] Tối đa 3 môn/SV trong HK3
-│  ★ [HK3_FINANCE] Học phí HK3 theo tín chỉ, không có miễn giảm
-│  ★ [HK3_CSV] CSV rèn luyện cho HK3 (điểm RL thấp hơn, không có HB)
-│  ★ [HK3_DURATION] HK3 kéo dài 7 tuần (tháng 7-8)
-
-═══════════════════════════════════════════════════════════════════════
-GIỮ NGUYÊN TỪ v2.2 (không thay đổi):
-═══════════════════════════════════════════════════════════════════════
-★ [DUPLICATE_RECORDS]     ~1-2% records bị duplicate trong CSV/JSON
-★ [TRANG_THAI_VARIANTS]   Biến thể format trang_thai (uppercase, không dấu)
-★ [DATE_FORMAT_MISMATCH]  ~2.5% JSON dùng format ngày dd/mm/yyyy
-★ [ORPHAN_RECORDS]        ~0.5% CSV/JSON có mã SV ma (không có trong PG)
-★ [ENCODING_ISSUES]       ~0.5% lỗi encoding tiếng Việt trong CSV
-★ [DYNAMIC_RECENT_HKS]    RECENT_HKS tính động từ HK_MASTER
-★ [JSON_METADATA]         File JSON có wrapper metadata
-★ [NATURAL_MISSING]       3-8% điểm HK gần nhất chưa nhập
-★ [COURSE_WITHDRAWAL]     1.5% SV rút môn giữa HK
-★ [PAYMENT_INSTALLMENT]   20-30% SV đóng học phí 2 đợt
-★ [FINANCIAL_ROUNDING]    ±200-800 VND sai số tự nhiên trong con_no
-★ [LATE_REGISTRATION]     3% đăng ký muộn
-★ [GRADE_BOUNDARY]        Điểm tập trung gần ngưỡng đổi bậc
-★ [LATE_GRADE_ENTRY]      GV nhập điểm muộn
-★ [SKEWED_PAYMENT_DATE]   Ngày đóng tiền tập trung đầu tháng
-"""
 
 import os
 import random
@@ -136,6 +67,14 @@ HK3_MAX_COURSES = 3       # Tối đa 3 môn/HK3
 PROFILE_EVOLVE_UP_RATE   = 0.08  # 8% SV yếu/tb cải thiện 1 bậc
 PROFILE_EVOLVE_DOWN_RATE = 0.03  # 3% SV giỏi/khá sa sút 1 bậc
 
+UNEXPECTED_FAIL_RATE = {
+    "xuất sắc":   0.010,
+    "giỏi":       0.030,
+    "khá":        0.060,   # ★ Đây là rate quan trọng nhất
+    "trung bình": 0.080,
+    "yếu":        0.100,
+}
+UNEXPECTED_FAIL_MIN_DIFFICULTY = 1.3
 # ★ v3.0 — Học phí theo năm (VND/tín chỉ, tăng ~5%/năm)
 GIA_TC_BY_YEAR = {
     2021: 440_000,
@@ -601,6 +540,13 @@ def _tao_diem_record(ma_dk, do_kho: float, profile: str, hk_idx: int,
     dtk = round(max(0.0, min(10.0, 0.1*cc + 0.1*bt + 0.2*gk + 0.6*ck)), 2)
     dtk = _snap_to_boundary(dtk)
     dtk = round(max(0.0, min(10.0, dtk)), 2)
+    # ★ v3.1 — Inject unexpected failure cho môn khó (lần đầu)
+    if (not la_hoc_lai
+        and do_kho >= UNEXPECTED_FAIL_MIN_DIFFICULTY
+        and dtk >= 4.0
+        and random.random() < UNEXPECTED_FAIL_RATE.get(profile, 0.01)):
+        dtk = round(random.uniform(2.5, 3.95), 2)
+        dtk = round(max(0.0, min(10.0, dtk)), 2)
     chu, he4 = _diem_sang_chu(dtk)
 
     r = random.random()
