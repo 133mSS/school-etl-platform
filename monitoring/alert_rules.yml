@@ -1,17 +1,18 @@
 # =====================================================================
-# alert_rules.yml — Alerting rules cho ETL Platform PTIT
-# Prometheus sẽ evaluate file này mỗi 15 giây
-# Khi điều kiện "expr" đúng trong "for" thời gian → gửi alert
+# alert_rules.yml — Phiên bản đầy đủ với alert nghiệp vụ ETL
+# =====================================================================
+# Bổ sung so với bản cũ:
+#   - Nhóm 4: ETL Business Metrics (đo trên custom metrics từ Pushgateway)
+#   - Nhóm 5: Data Quality (Great Expectations failures)
 # =====================================================================
 
 groups:
   # ──────────────────────────────────────────────────────────────────
-  # NHÓM 1: ETL Pipeline Health
+  # NHÓM 1: ETL Pipeline Health (giữ nguyên bản cũ)
   # ──────────────────────────────────────────────────────────────────
   - name: etl_pipeline_health
     interval: 15s
     rules:
-      # Airflow Webserver không phản hồi
       - alert: AirflowWebserverDown
         expr: up{job="airflow"} == 0
         for: 2m
@@ -23,7 +24,6 @@ groups:
           description: "Airflow Webserver đã down trong hơn 2 phút. Pipeline ETL không thể chạy."
           runbook: "Kiểm tra: docker-compose logs airflow-webserver"
 
-      # MinIO Storage không phản hồi
       - alert: MinIODown
         expr: up{job="minio"} == 0
         for: 2m
@@ -32,10 +32,9 @@ groups:
           component: minio
         annotations:
           summary: "🔴 MinIO Staging Storage không hoạt động"
-          description: "MinIO đã down trong hơn 2 phút. Pipeline không thể lưu/đọc staging data."
-          runbook: "Kiểm tra: docker-compose logs minio"
+          description: "MinIO đã down. Pipeline không thể lưu/đọc staging data."
+          runbook: "docker-compose logs minio"
 
-      # MinIO disk usage > 80%
       - alert: MinIODiskHigh
         expr: minio_cluster_disk_free_percent < 20
         for: 5m
@@ -44,16 +43,15 @@ groups:
           component: minio
         annotations:
           summary: "⚠️ MinIO Disk gần đầy"
-          description: "MinIO disk còn dưới 20% dung lượng trống. Cần dọn staging data cũ."
-          runbook: "Chạy: python scripts/cleanup_old_runs.py --keep-days 7"
+          description: "MinIO disk còn dưới 20% dung lượng. Cần dọn staging data cũ."
+          runbook: "python scripts/cleanup_old_runs.py --keep-days 7"
 
   # ──────────────────────────────────────────────────────────────────
-  # NHÓM 2: Data Quality
+  # NHÓM 2: Database Health (giữ nguyên bản cũ)
   # ──────────────────────────────────────────────────────────────────
-  - name: data_quality
+  - name: database_health
     interval: 30s
     rules:
-      # PostgreSQL Source không kết nối được
       - alert: PostgreSQLSourceDown
         expr: up{job="postgres_source"} == 0
         for: 1m
@@ -63,8 +61,8 @@ groups:
         annotations:
           summary: "🔴 PostgreSQL Source Database không hoạt động"
           description: "Database nguồn (school_source) đã down. Extract step sẽ thất bại."
+          runbook: "docker-compose restart postgres-source"
 
-      # PostgreSQL Warehouse không kết nối được
       - alert: PostgreSQLWarehouseDown
         expr: up{job="postgres_warehouse"} == 0
         for: 1m
@@ -74,14 +72,24 @@ groups:
         annotations:
           summary: "🔴 PostgreSQL Warehouse Database không hoạt động"
           description: "Data Warehouse (school_warehouse) đã down. Load step sẽ thất bại."
+          runbook: "docker-compose restart postgres-warehouse"
+
+      - alert: PostgreSQLConnectionsHigh
+        expr: pg_stat_database_numbackends{datname="school_warehouse"} > 50
+        for: 3m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "⚠️ Số connection đến warehouse cao bất thường"
+          description: "{{ $value }} connection đang mở đến school_warehouse, có thể có connection leak trong ETL."
 
   # ──────────────────────────────────────────────────────────────────
-  # NHÓM 3: System Resources
+  # NHÓM 3: System Resources (giữ nguyên bản cũ)
   # ──────────────────────────────────────────────────────────────────
   - name: system_resources
     interval: 15s
     rules:
-      # Prometheus target scrape thất bại
       - alert: TargetDown
         expr: up == 0
         for: 5m
@@ -90,3 +98,77 @@ groups:
         annotations:
           summary: "⚠️ Target {{ $labels.job }} không scrape được"
           description: "Prometheus không thể scrape metrics từ {{ $labels.instance }} trong 5 phút."
+
+  # ──────────────────────────────────────────────────────────────────
+  # NHÓM 4: ETL BUSINESS METRICS (BỔ SUNG MỚI)
+  # ──────────────────────────────────────────────────────────────────
+  # Các alert này đo trên custom metrics push từ pipeline qua Pushgateway.
+  # Đây là điểm khác biệt: alert không chỉ về infra mà còn về NGHIỆP VỤ ETL.
+  - name: etl_business_metrics
+    interval: 30s
+    rules:
+      # Pipeline báo failed (push_pipeline_status với success=0)
+      - alert: ETLPipelineFailed
+        expr: etl_pipeline_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: pipeline
+        annotations:
+          summary: "🔴 ETL Pipeline FAILED — run_id={{ $labels.run_id }}"
+          description: "Pipeline daily_student_pipeline đã thất bại. Cần kiểm tra log Airflow ngay."
+          runbook: "docker exec airflow-webserver airflow tasks failed-deps daily_student_pipeline"
+
+      # Số records extract bất thường thấp (data lost?)
+      - alert: ETLRecordsExtractedTooLow
+        expr: etl_records_extracted{source="postgresql"} < 1000
+        for: 2m
+        labels:
+          severity: warning
+          component: pipeline
+        annotations:
+          summary: "⚠️ Số records extract từ PostgreSQL quá thấp"
+          description: "Extract chỉ được {{ $value }} records (kỳ vọng > 1000). Có thể source bị mất data."
+
+      # Pipeline chạy quá lâu
+      - alert: ETLPipelineSlow
+        expr: etl_stage_duration_seconds{stage="transform"} > 600
+        for: 1m
+        labels:
+          severity: warning
+          component: pipeline
+        annotations:
+          summary: "⚠️ Stage transform chạy quá 10 phút"
+          description: "Transform stage mất {{ $value | humanizeDuration }}. Cần xem có data spike hay logic chậm."
+
+  # ──────────────────────────────────────────────────────────────────
+  # NHÓM 5: DATA QUALITY (BỔ SUNG MỚI)
+  # ──────────────────────────────────────────────────────────────────
+  # Alert dựa trên custom metrics từ ge_validation
+  - name: data_quality
+    interval: 30s
+    rules:
+      # GE suite có expectation failed
+      - alert: DataQualityFailed
+        expr: etl_ge_expectations_failed > 0
+        for: 30s
+        labels:
+          severity: critical
+          component: data_quality
+        annotations:
+          summary: "🔴 Data Quality FAIL — suite={{ $labels.suite }}"
+          description: "Suite '{{ $labels.suite }}' có {{ $value }} expectation thất bại. Pipeline đã dừng do data bẩn."
+          runbook: "Mở Data Docs: http://localhost:8888 hoặc xem Airflow log task validate_data"
+
+      # Tỷ lệ pass < 90% (cảnh báo sớm trước khi fail)
+      - alert: DataQualityDegrading
+        expr: |
+          (etl_ge_expectations_passed / etl_ge_expectations_evaluated) < 0.9
+          and etl_ge_expectations_evaluated > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: data_quality
+        annotations:
+          summary: "⚠️ Tỷ lệ data quality < 90% — suite={{ $labels.suite }}"
+          description: "Suite '{{ $labels.suite }}' chỉ pass {{ $value | humanizePercentage }}. Cần review data trước khi nó fail hẳn."

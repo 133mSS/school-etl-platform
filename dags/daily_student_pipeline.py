@@ -79,6 +79,7 @@ def task_validate(**context):
     ok = result["successful_expectations"]
     print(f"Validation OK: {ok}/{ev} expectations passed")
     print(f"GE suites: {list(result.get('suite_results', {}).keys())}")
+    
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -188,7 +189,7 @@ def task_alert_success(**context):
     successful = validation_result.get('successful_expectations', 0)
     evaluated  = validation_result.get('evaluated_expectations', 0)
     failed_ct  = validation_result.get('failed_count', 0)
-    run_id     = validation_result.get('run_id', 'unknown')
+    run_id = context["ti"].xcom_pull(key="run_id", task_ids="init_run_id")
     success    = validation_result.get('success', False)
 
     print("=" * 50)
@@ -207,6 +208,8 @@ def task_alert_success(**context):
             total += count
         print(f"    {'TỔNG':<25s}: {total:>10,}")
     print("=" * 50)
+    from src.utils.metrics import push_pipeline_status
+    push_pipeline_status(success=True, run_id=run_id)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -217,13 +220,16 @@ def task_alert_failure(context):
     """Gọi khi bất kỳ task nào fail."""
     task_instance = context.get("task_instance")
     exception     = context.get("exception")
-
+    run_id = context["ti"].xcom_pull(key="run_id", task_ids="init_run_id")
     print("=" * 60)
     print("PIPELINE FAILED!")
     print(f"Task     : {task_instance.task_id}")
     print(f"Loi      : {exception}")
     print(f"Log URL  : {task_instance.log_url}")
     print("=" * 60)
+    
+    from src.utils.metrics import push_pipeline_status
+    push_pipeline_status(success=False, run_id=run_id or "unknown")
 
 
 from airflow.utils.task_group import TaskGroup

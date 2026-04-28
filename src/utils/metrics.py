@@ -109,11 +109,24 @@ def push_pipeline_duration(stage: str, seconds: float, run_id: str) -> None:
 
 
 def push_pipeline_status(success: bool, run_id: str) -> None:
-    """Push trạng thái pipeline cuối cùng."""
+    """
+    Push trạng thái pipeline cuối cùng.
+ 
+    Metric: etl_pipeline_status
+        - 1 = success
+        - 0 = failed
+    Dùng cho alert ETLPipelineFailed trong alert_rules.yml.
+ 
+    Cách dùng trong DAG:
+        # Trong on_failure_callback:
+        push_pipeline_status(success=False, run_id=run_id)
+        # Trong task_alert_success:
+        push_pipeline_status(success=True, run_id=run_id)
+    """
     registry = CollectorRegistry()
     g = Gauge(
-        "etl_pipeline_success",
-        "1 nếu pipeline thành công, 0 nếu fail",
+        "etl_pipeline_status",
+        "Trạng thái cuối của pipeline (1=success, 0=failed)",
         registry=registry,
     )
     g.set(1 if success else 0)

@@ -82,6 +82,7 @@ services:
       - "9125:9125/udp"
     networks:
       - school-network
+
   # =============================
   # PostgreSQL Airflow Metadata
   # =============================
@@ -149,6 +150,7 @@ services:
       retries: 5
     networks:
       - school-network
+
   # =============================
   # Airflow Init
   # =============================
@@ -218,6 +220,7 @@ services:
     environment:
       MINIO_ROOT_USER: minio_admin
       MINIO_ROOT_PASSWORD: minio_pass
+      MINIO_PROMETHEUS_AUTH_TYPE: "public" 
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -235,16 +238,27 @@ services:
   # Prometheus
   # =============================
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.51.0
     container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      # alert_rules.yml phải mount vào PROMETHEUS (không phải Grafana)
+      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - alertmanager
     networks:
       - school-network
     restart: unless-stopped
@@ -262,7 +276,6 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_INSTALL_PLUGINS: grafana-clock-panel
     volumes:
-      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml
       - grafana_data:/var/lib/grafana
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
@@ -271,7 +284,10 @@ services:
     networks:
       - school-network
     restart: unless-stopped
-# Thêm vào services trong docker-compose.yml
+
+  # =============================
+  # Pushgateway
+  # =============================
   pushgateway:
     image: prom/pushgateway:latest
     container_name: pushgateway
@@ -280,6 +296,7 @@ services:
     networks:
       - school-network
     restart: unless-stopped
+
   # =============================
   # pgAdmin
   # =============================
@@ -297,8 +314,10 @@ services:
     networks:
       - school-network
     restart: unless-stopped
- # MOCK-API
-  # Thêm vào docker-compose.yml
+
+  # =============================
+  # Mock API server
+  # =============================
   mock-api:
     build: .
     command: python scripts/mock_api_server.py --port 5055
@@ -308,6 +327,83 @@ services:
       - "5055:5055"
     networks:
       - school-network
+
+  # =============================
+  # Alertmanager
+  # =============================
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - school-network
+    restart: unless-stopped
+
+  # =============================
+  # Alertmanager → Discord proxy
+  # =============================
+  # Alertmanager không support Discord trực tiếp.
+  # Service này nhận webhook từ AM → chuyển thành Discord embed message.
+  alertmanager-discord:
+    image: benjojo/alertmanager-discord:latest
+    container_name: alertmanager-discord
+    environment:
+      DISCORD_WEBHOOK: ${DISCORD_WEBHOOK_URL}
+    expose:
+      - "9094"
+    networks:
+      - school-network
+    restart: unless-stopped
+    depends_on:
+      - alertmanager
+
+  # =============================
+  # PostgreSQL Exporter — Source
+  # =============================
+  postgres-exporter-source:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: postgres-exporter-source
+    environment:
+      DATA_SOURCE_NAME: "postgresql://school_user:school_pass@postgres-source:5432/school_source?sslmode=disable"
+    expose:
+      - "9187"
+    depends_on:
+      postgres-source:
+        condition: service_healthy
+    networks:
+      - school-network
+    restart: unless-stopped
+
+  # =============================
+  # PostgreSQL Exporter — Warehouse
+  # =============================
+  postgres-exporter-warehouse:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: postgres-exporter-warehouse
+    environment:
+      DATA_SOURCE_NAME: "postgresql://warehouse_user:warehouse_pass@postgres-warehouse:5432/school_warehouse?sslmode=disable"
+    expose:
+      - "9187"
+    depends_on:
+      postgres-warehouse:
+        condition: service_healthy
+    networks:
+      - school-network
+    restart: unless-stopped
+
 volumes:
   postgres_airflow_data:
   postgres_source_data:
@@ -316,6 +412,7 @@ volumes:
   grafana_data:
   prometheus_data:
   pgadmin_data:
+  alertmanager_data:
 
 networks:
   school-network:

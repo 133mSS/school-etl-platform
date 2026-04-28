@@ -1,0 +1,91 @@
+# =====================================================================
+# alertmanager.yml — Cấu hình Alertmanager cho ETL Platform PTIT
+# =====================================================================
+# Nhiệm vụ:
+#   1. Nhận alert từ Prometheus
+#   2. Group các alert cùng loại để tránh spam
+#   3. Route theo severity → kênh nhận tương ứng
+#   4. Inhibit (ẩn) alert "con" khi đã có alert "cha"
+#
+# Gửi đến Discord qua proxy alertmanager-discord (chạy trong cùng network)
+# =====================================================================
+
+global:
+  # Thời gian Alertmanager đợi resolved trước khi xoá alert
+  resolve_timeout: 5m
+
+# ────────────────────────────────────────────────────────────────────
+# ROUTING TREE — quyết định alert nào gửi vào đâu
+# ────────────────────────────────────────────────────────────────────
+route:
+  # Receiver mặc định khi không match route con nào
+  receiver: "discord-default"
+
+  # Group các alert có cùng [alertname, component] vào 1 message
+  # → tránh spam khi 5 service cùng down
+  group_by: [ "alertname", "component" ]
+
+  # Đợi 10s sau alert đầu tiên để gom thêm alert cùng group
+  group_wait: 10s
+
+  # Trong group đã gửi, tối thiểu 30s mới gửi update tiếp
+  group_interval: 30s
+
+  # Alert chưa resolved sẽ được gửi nhắc lại sau 1h
+  repeat_interval: 1h
+
+  # ────────────────────────────────────────────────────────
+  # ROUTES CON — match theo label
+  # ────────────────────────────────────────────────────────
+  routes:
+    # severity=critical → kênh ưu tiên cao, nhắc lại 30 phút/lần
+    - matchers:
+        - severity = "critical"
+      receiver: "discord-critical"
+      group_wait: 5s # Critical thì gửi nhanh hơn
+      repeat_interval: 30m
+      continue: false
+
+    # severity=warning → kênh thường, nhắc lại 2h/lần
+    - matchers:
+        - severity = "warning"
+      receiver: "discord-warning"
+      group_wait: 30s
+      repeat_interval: 2h
+      continue: false
+
+# ────────────────────────────────────────────────────────────────────
+# RECEIVERS — định nghĩa kênh nhận
+# ────────────────────────────────────────────────────────────────────
+receivers:
+  # 1) Default receiver (catch-all)
+  - name: "discord-default"
+    webhook_configs:
+      - url: "http://alertmanager-discord:9094"
+        send_resolved: true
+
+  # 2) Critical channel — service down, data corruption
+  - name: "discord-critical"
+    webhook_configs:
+      - url: "http://alertmanager-discord:9094"
+        send_resolved: true # Gửi cả khi alert được resolve
+        max_alerts: 0 # 0 = không giới hạn
+
+  # 3) Warning channel — disk gần đầy, latency cao
+  - name: "discord-warning"
+    webhook_configs:
+      - url: "http://alertmanager-discord:9094"
+        send_resolved: true
+
+# ────────────────────────────────────────────────────────────────────
+# INHIBIT RULES — tắt alert con khi đã có alert cha
+# ────────────────────────────────────────────────────────────────────
+# Ý nghĩa: Khi cả PostgreSQL và Airflow cùng down (vì host bị restart),
+# chỉ cần thông báo critical chính, không cần spam warning phụ.
+inhibit_rules:
+  - source_matchers:
+      - severity = "critical"
+    target_matchers:
+      - severity = "warning"
+    # Áp dụng khi cùng component
+    equal: [ "component" ]
