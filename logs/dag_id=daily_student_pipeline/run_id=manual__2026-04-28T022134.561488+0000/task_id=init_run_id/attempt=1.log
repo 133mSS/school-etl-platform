@@ -1,0 +1,11 @@
+[2026-04-28T02:21:36.162+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-28T02:21:34.561488+00:00 [queued]>
+[2026-04-28T02:21:36.171+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-28T02:21:34.561488+00:00 [queued]>
+[2026-04-28T02:21:36.172+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-28T02:21:36.183+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): init_run_id> on 2026-04-28 02:21:34.561488+00:00
+[2026-04-28T02:21:36.188+0000] {standard_task_runner.py:60} INFO - Started process 96 to run task
+[2026-04-28T02:21:36.191+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'init_run_id', 'manual__2026-04-28T02:21:34.561488+00:00', '--job-id', '548', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpcxmyzx77']
+[2026-04-28T02:21:36.194+0000] {standard_task_runner.py:88} INFO - Job 548: Subtask init_run_id
+[2026-04-28T02:21:36.309+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-28T02:21:34.561488+00:00 [running]> on host ea099b2c089e
+[2026-04-28T02:21:36.399+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='init_run_id' AIRFLOW_CTX_EXECUTION_DATE='2026-04-28T02:21:34.561488+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-28T02:21:34.561488+00:00'
+[2026-04-28T02:21:37.672+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-04-28T02:21:37.714+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
