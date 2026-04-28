@@ -438,3 +438,15 @@ class DataValidator:
             },
             "skipped": False,
         }
+
+# Thêm vào cuối ge_validation.py
+
+def build_data_docs() -> None:
+    """Build HTML data docs sau mỗi lần validate."""
+    try:
+        import great_expectations as gx
+        context = gx.get_context(context_root_dir=str(GE_DIR))
+        context.build_data_docs()
+        logger.info(f"  GE | DataDocs built: {GE_DIR}/uncommitted/data_docs/local_site/index.html")
+    except Exception as e:
+        logger.warning(f"  GE | DataDocs build failed: {e}")

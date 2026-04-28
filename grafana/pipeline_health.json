@@ -922,6 +922,50 @@
                 "type": "postgres",
                 "uid": "warehouse-db"
             }
+        },
+        {
+            "id": 99,
+            "title": "📊 Records Loaded by Table (Latest Run)",
+            "type": "bargauge",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-ptit"
+            },
+            "targets": [
+                {
+                    "expr": "etl_records_loaded",
+                    "legendFormat": "{{table}}",
+                    "refId": "A"
+                }
+            ],
+            "gridPos": {
+                "x": 0,
+                "y": 20,
+                "w": 12,
+                "h": 8
+            }
+        },
+        {
+            "id": 100,
+            "title": "✅ GE Pass Rate by Suite",
+            "type": "gauge",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-ptit"
+            },
+            "targets": [
+                {
+                    "expr": "100 * etl_ge_expectations_passed / etl_ge_expectations_evaluated",
+                    "legendFormat": "{{suite}}",
+                    "refId": "A"
+                }
+            ],
+            "gridPos": {
+                "x": 12,
+                "y": 20,
+                "w": 12,
+                "h": 8
+            }
         }
     ]
 }

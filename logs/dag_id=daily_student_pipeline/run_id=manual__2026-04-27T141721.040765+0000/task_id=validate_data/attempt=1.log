@@ -1,0 +1,48 @@
+[2026-04-27T14:17:35.653+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:17:21.040765+00:00 [queued]>
+[2026-04-27T14:17:35.662+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:17:21.040765+00:00 [queued]>
+[2026-04-27T14:17:35.663+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-27T14:17:35.679+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-04-27 14:17:21.040765+00:00
+[2026-04-27T14:17:35.684+0000] {standard_task_runner.py:60} INFO - Started process 21814 to run task
+[2026-04-27T14:17:35.687+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'manual__2026-04-27T14:17:21.040765+00:00', '--job-id', '511', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpn_2pxpfd']
+[2026-04-27T14:17:35.689+0000] {standard_task_runner.py:88} INFO - Job 511: Subtask validate_data
+[2026-04-27T14:17:35.764+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:17:21.040765+00:00 [running]> on host 759b8b5e27b5
+[2026-04-27T14:17:35.856+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-27T14:17:21.040765+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-27T14:17:21.040765+00:00'
+[2026-04-27T14:17:38.418+0000] {ge_validation.py:162} INFO -   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-04-27T14:17:38.483+0000] {ge_validation.py:180} INFO -   GE | Bắt đầu validation | run_id=2026-04-27_14-17
+[2026-04-27T14:17:38.599+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-27_14-17/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-27T14:17:38.606+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-04-27_14-17/nguon1_diem.parquet
+[2026-04-27T14:17:38.622+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-27_14-17/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-27T14:17:38.636+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-27_14-17/nguon2_ctsv.parquet (9,962 rows)
+[2026-04-27T14:17:38.652+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-04-27_14-17/nguon3_tai_chinh.parquet (9,670 rows)
+[2026-04-27T14:17:38.653+0000] {ge_validation.py:189} INFO -   GE | Downloaded raw: sv=1695, diem=0, tong_hop=1695, ctsv=9962, tc=9670
+[2026-04-27T14:17:38.654+0000] {ge_validation.py:195} INFO -   GE | [Tầng 1] Validate raw data...
+[2026-04-27T14:17:38.655+0000] {ge_validation.py:50} WARNING -   GE | [grades_suite] DataFrame rong — skip
+[2026-04-27T14:17:38.664+0000] {ge_validation.py:43} INFO -   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-27T14:17:38.670+0000] {data_asset.py:541} INFO - 	10 expectation(s) included in expectation_suite.
+[2026-04-27T14:17:38.698+0000] {ge_validation.py:93} INFO -   GE | [ctsv_suite] ctsv_data: 10/10 (OK)
+[2026-04-27T14:17:38.709+0000] {ge_validation.py:43} INFO -   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-27T14:17:38.710+0000] {data_asset.py:541} INFO - 	11 expectation(s) included in expectation_suite.
+[2026-04-27T14:17:38.727+0000] {ge_validation.py:93} INFO -   GE | [tai_chinh_suite] tai_chinh_data: 11/11 (OK)
+[2026-04-27T14:17:38.729+0000] {ge_validation.py:215} INFO -   GE | [Tầng 2] Validate prepared data...
+[2026-04-27T14:17:38.749+0000] {ge_validation.py:43} INFO -   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-27T14:17:38.751+0000] {data_asset.py:541} INFO - 	14 expectation(s) included in expectation_suite.
+[2026-04-27T14:17:38.760+0000] {ge_validation.py:93} INFO -   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-04-27T14:17:38.761+0000] {ge_validation.py:248} INFO - ============================================================
+[2026-04-27T14:17:38.763+0000] {ge_validation.py:249} INFO -   GE | VALIDATION OK
+[2026-04-27T14:17:38.763+0000] {ge_validation.py:250} INFO -   GE | run_id: 2026-04-27_14-17 | 40/40 passed
+[2026-04-27T14:17:38.764+0000] {ge_validation.py:261} INFO -     grades_raw               : SKIP (0/0)
+[2026-04-27T14:17:38.765+0000] {ge_validation.py:261} INFO -     ctsv_raw                 : OK   (10/10)
+[2026-04-27T14:17:38.766+0000] {ge_validation.py:261} INFO -     tai_chinh                : OK   (11/11)
+[2026-04-27T14:17:38.767+0000] {ge_validation.py:261} INFO -     students_prepared        : OK   (14/14)
+[2026-04-27T14:17:38.767+0000] {ge_validation.py:261} INFO -     tong_hop_raw             : OK   (5/5)
+[2026-04-27T14:17:38.768+0000] {ge_validation.py:267} INFO - ============================================================
+[2026-04-27T14:17:42.773+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -5] No address associated with hostname> (pipeline vẫn tiếp tục)
+[2026-04-27T14:17:46.541+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:17:50.281+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:17:54.019+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:17:54.036+0000] {logging_mixin.py:188} INFO - Validation OK: 40/40 expectations passed
+[2026-04-27T14:17:54.036+0000] {logging_mixin.py:188} INFO - GE suites: ['grades_raw', 'ctsv_raw', 'tai_chinh', 'students_prepared', 'tong_hop_raw']
+[2026-04-27T14:17:54.037+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-04-27T14:17:54.047+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260427T141721, start_date=20260427T141735, end_date=20260427T141754
+[2026-04-27T14:17:54.102+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-27T14:17:54.127+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

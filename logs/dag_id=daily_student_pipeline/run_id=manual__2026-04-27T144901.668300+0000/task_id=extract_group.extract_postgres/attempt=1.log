@@ -1,0 +1,39 @@
+[2026-04-27T14:49:06.245+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:49:01.668300+00:00 [queued]>
+[2026-04-27T14:49:06.255+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:49:01.668300+00:00 [queued]>
+[2026-04-27T14:49:06.256+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-27T14:49:06.270+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_group.extract_postgres> on 2026-04-27 14:49:01.668300+00:00
+[2026-04-27T14:49:06.276+0000] {standard_task_runner.py:60} INFO - Started process 23520 to run task
+[2026-04-27T14:49:06.279+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_group.extract_postgres', 'manual__2026-04-27T14:49:01.668300+00:00', '--job-id', '524', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpr0ymf1ij']
+[2026-04-27T14:49:06.281+0000] {standard_task_runner.py:88} INFO - Job 524: Subtask extract_group.extract_postgres
+[2026-04-27T14:49:06.354+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:49:01.668300+00:00 [running]> on host 759b8b5e27b5
+[2026-04-27T14:49:06.445+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_group.extract_postgres' AIRFLOW_CTX_EXECUTION_DATE='2026-04-27T14:49:01.668300+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-27T14:49:01.668300+00:00'
+[2026-04-27T14:49:07.029+0000] {extract.py:83} INFO - ════════════════════════════════════════════════════════════
+[2026-04-27T14:49:07.031+0000] {extract.py:84} INFO - NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-27T14:49:07.031+0000] {extract.py:85} INFO - ════════════════════════════════════════════════════════════
+[2026-04-27T14:49:07.122+0000] {extract.py:67} INFO -   PostgreSQL | khoa                      →      4 records
+[2026-04-27T14:49:07.148+0000] {extract.py:67} INFO -   PostgreSQL | nganh                     →      3 records
+[2026-04-27T14:49:07.176+0000] {extract.py:67} INFO -   PostgreSQL | giang_vien                →     45 records
+[2026-04-27T14:49:07.220+0000] {extract.py:67} INFO -   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-27T14:49:07.307+0000] {extract.py:67} INFO -   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-27T14:49:07.334+0000] {extract.py:67} INFO -   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-27T14:49:07.346+0000] {extract.py:67} INFO -   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-04-27T14:49:07.734+0000] {extract.py:67} INFO -   PostgreSQL | dang_ky_hoc_phan          → 55,971 records
+[2026-04-27T14:49:08.403+0000] {extract.py:67} INFO -   PostgreSQL | diem_hoc_phan             → 55,535 records
+[2026-04-27T14:49:08.462+0000] {extract.py:67} INFO -   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-27T14:49:08.462+0000] {extract.py:92} INFO -   PostgreSQL | TỔNG: 115,130 records từ 10 bảng
+[2026-04-27T14:49:08.665+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_khoa.parquet (2.6 KB | 4 rows)
+[2026-04-27T14:49:08.673+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_nganh.parquet (3.2 KB | 3 rows)
+[2026-04-27T14:49:08.683+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_giang_vien.parquet (8.3 KB | 45 rows)
+[2026-04-27T14:49:08.692+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_lop_hanh_chinh.parquet (4.8 KB | 48 rows)
+[2026-04-27T14:49:08.711+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_sinh_vien.parquet (47.5 KB | 1,695 rows)
+[2026-04-27T14:49:08.728+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_hoc_phan.parquet (10.3 KB | 121 rows)
+[2026-04-27T14:49:08.739+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_hoc_ky_nam_hoc.parquet (4.2 KB | 13 rows)
+[2026-04-27T14:49:08.810+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_dang_ky_hoc_phan.parquet (480.5 KB | 55,971 rows)
+[2026-04-27T14:49:08.908+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_diem_hoc_phan.parquet (1156.2 KB | 55,535 rows)
+[2026-04-27T14:49:08.921+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-04-27_14-49/nguon1_tong_hop_ket_qua.parquet (22.1 KB | 1,695 rows)
+[2026-04-27T14:49:12.635+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:49:12.636+0000] {logging_mixin.py:188} INFO - [Extract PG] 115,130 records | run_id=2026-04-27_14-49
+[2026-04-27T14:49:12.647+0000] {python.py:201} INFO - Done. Returned value was: 115130
+[2026-04-27T14:49:12.683+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=extract_group.extract_postgres, execution_date=20260427T144901, start_date=20260427T144906, end_date=20260427T144912
+[2026-04-27T14:49:12.719+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-27T14:49:12.747+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

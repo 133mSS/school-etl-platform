@@ -1,0 +1,778 @@
+[2026-04-27 01:30:23] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-04-27 01:30:23] INFO    etl.extract : ======================================================================
+[2026-04-27 01:30:23] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 01:30:23] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-27 01:30:23] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-27 01:30:23] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-04-27 01:30:24] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 55,971 records
+[2026-04-27 01:30:25] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 55,535 records
+[2026-04-27 01:30:25] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-27 01:30:25] INFO    etl.extract :   PostgreSQL | TỔNG: 115,130 records từ 10 bảng
+[2026-04-27 01:30:25] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 01:30:25] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-04-27 01:30:25] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | Tìm thấy 14 file trong: /opt/airflow/data/csv
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | Đang đọc từ: /opt/airflow/data/csv
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | Tìm thấy 13 file(s)
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    791 records
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,591 records
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,412 records
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,229 records
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,436 records
+[2026-04-27 01:30:25] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    792 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,574 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,396 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,871 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK3_2021_22.csv                →    130 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK3_2022_23.csv                →    219 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK3_2023_24.csv                →    447 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | ctsv_HK3_2024_25.csv                →    500 records
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | Loại bỏ 9426 bản ghi trùng
+[2026-04-27 01:30:26] INFO    etl.extract :   CSV | TỔNG: 9,962 records từ 13 file(s)
+[2026-04-27 01:30:26] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 01:30:26] INFO    etl.extract : NGUỒN 3 — API/JSON (Portal Tài chính) | Extract
+[2026-04-27 01:30:26] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 01:30:26] INFO    etl.extract :   API | Tìm thấy 14 JSON file trong: /opt/airflow/data/api_json
+[2026-04-27 01:30:26] INFO    etl.extract :   API | (taichinh_all.json) → 9,670 records (dedup: 69)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_sinh_vien.parquet (47.5 KB | 1,695 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_dang_ky.parquet (480.5 KB | 55,971 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_diem.parquet (1156.2 KB | 55,535 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_hoc_phan.parquet (10.3 KB | 121 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_hoc_ky.parquet (4.2 KB | 13 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_giang_vien.parquet (8.3 KB | 45 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_khoa.parquet (2.6 KB | 4 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_nganh.parquet (3.2 KB | 3 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_lop_hanh_chinh.parquet (4.8 KB | 48 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon1_tong_hop_ket_qua.parquet (22.1 KB | 1,695 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon2_ctsv.parquet (42.5 KB | 9,962 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_01-30/nguon3_tai_chinh.parquet (89.3 KB | 9,670 rows)
+[2026-04-27 01:30:26] INFO    utils.minio :   MinIO upload xong: 12/12 files | run_id=2026-04-27_01-30
+[2026-04-27 01:30:26] INFO    etl.extract :   MinIO staging: 12/12 files OK → run_id=2026-04-27_01-30
+[2026-04-27 01:30:26] INFO    etl.extract : ======================================================================
+[2026-04-27 01:30:26] INFO    etl.extract :  FULL EXTRACT HOÀN TẤT
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ khoa                     :        4
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ nganh                    :        3
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ giang_vien               :       45
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ lop_hanh_chinh           :       48
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ sinh_vien                :    1,695
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ hoc_phan                 :      121
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ hoc_ky_nam_hoc           :       13
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ dang_ky_hoc_phan         :   55,971
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ diem_hoc_phan            :   55,535
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ tong_hop_ket_qua         :    1,695
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ ctsv_data                :    9,962
+[2026-04-27 01:30:26] INFO    etl.extract :    ✅ tai_chinh_data           :    9,670
+[2026-04-27 01:30:26] INFO    etl.extract : ======================================================================
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | DataValidator khoi tao | GE dir: /opt/airflow/great_expectations
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | Bắt đầu validation | run_id=2026-04-27_01-30
+[2026-04-27 01:30:31] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-27 01:30:31] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_diem.parquet (55,535 rows)
+[2026-04-27 01:30:31] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-27 01:30:31] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon2_ctsv.parquet (9,962 rows)
+[2026-04-27 01:30:31] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon3_tai_chinh.parquet (9,670 rows)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | Downloaded raw: sv=1695, diem=55535, tong_hop=1695, ctsv=9962, tc=9670
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | [Tầng 1] Validate raw data...
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | [grades_suite] diem_hoc_phan_raw: 11/11 (OK)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | [ctsv_suite] ctsv_data: 10/10 (OK)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | [tai_chinh_suite] tai_chinh_data: 11/11 (OK)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | [Tầng 2] Validate prepared data...
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-04-27 01:30:31] INFO    validation.ge : ============================================================
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | VALIDATION OK
+[2026-04-27 01:30:31] INFO    validation.ge :   GE | run_id: 2026-04-27_01-30 | 51/51 passed
+[2026-04-27 01:30:31] INFO    validation.ge :     grades_raw               : OK   (11/11)
+[2026-04-27 01:30:31] INFO    validation.ge :     ctsv_raw                 : OK   (10/10)
+[2026-04-27 01:30:31] INFO    validation.ge :     tai_chinh                : OK   (11/11)
+[2026-04-27 01:30:31] INFO    validation.ge :     students_prepared        : OK   (14/14)
+[2026-04-27 01:30:31] INFO    validation.ge :     tong_hop_raw             : OK   (5/5)
+[2026-04-27 01:30:31] INFO    validation.ge : ============================================================
+[2026-04-27 01:30:33] INFO    etl.extract :   Load from MinIO staging: run_id=2026-04-27_01-30
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_khoa.parquet (4 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_nganh.parquet (3 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_giang_vien.parquet (45 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_lop_hanh_chinh.parquet (48 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_hoc_phan.parquet (121 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_hoc_ky.parquet (13 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_dang_ky.parquet (55,971 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_diem.parquet (55,535 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon2_ctsv.parquet (9,962 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_01-30/nguon3_tai_chinh.parquet (9,670 rows)
+[2026-04-27 01:30:33] INFO    etl.extract :  Load from staging OK — run_id=2026-04-27_01-30
+[2026-04-27 01:30:33] INFO    etl.transform : ==BẮT ĐẦU TRANSFORM==
+[2026-04-27 01:30:33] INFO    etl.transform : ======================================================================
+[2026-04-27 01:30:33] INFO    etl.transform : ── Bước 1: Transform Dimension Tables ──
+[2026-04-27 01:30:33] INFO    etl.transform :   dim_thoi_gian               →     13 records
+[2026-04-27 01:30:33] INFO    etl.transform :   dim_giang_vien              →     45 records
+[2026-04-27 01:30:33] INFO    etl.transform :   dim_hoc_phan                →    121 records
+[2026-04-27 01:30:33] INFO    etl.transform :   dim_sinh_vien               →  1,695 records
+[2026-04-27 01:30:33] INFO    etl.transform : ── Bước 2: Transform Fact Tables ──
+[2026-04-27 01:30:33] INFO    etl.transform :   fact_diem                   → 55,535 records
+[2026-04-27 01:30:33] INFO    etl.transform :   fact_dang_ky               → 55,971 records
+[2026-04-27 01:30:33] INFO    etl.transform :   fact_ren_luyen              →  9,962 records
+[2026-04-27 01:30:33] INFO    etl.transform :   fact_tai_chinh              →  9,670 records
+[2026-04-27 01:30:33] INFO    etl.transform : ======================================================================
+[2026-04-27 01:30:33] INFO    etl.transform : TRANSFORM HOÀN TẤT
+[2026-04-27 01:30:33] INFO    etl.transform :    dim_giang_vien           :       45 records
+[2026-04-27 01:30:33] INFO    etl.transform :    dim_sinh_vien            :    1,695 records
+[2026-04-27 01:30:33] INFO    etl.transform :    dim_hoc_phan             :      121 records
+[2026-04-27 01:30:33] INFO    etl.transform :    dim_thoi_gian            :       13 records
+[2026-04-27 01:30:33] INFO    etl.transform :    fact_diem                :   55,535 records
+[2026-04-27 01:30:33] INFO    etl.transform :    fact_dang_ky             :   55,971 records
+[2026-04-27 01:30:33] INFO    etl.transform :    fact_ren_luyen           :    9,962 records
+[2026-04-27 01:30:33] INFO    etl.transform :    fact_tai_chinh           :    9,670 records
+[2026-04-27 01:30:33] INFO    etl.transform : ======================================================================
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/dim_hoc_ky.parquet (5.4 KB | 13 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/dim_giang_vien.parquet (8.9 KB | 45 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/dim_hoc_phan.parquet (11.0 KB | 121 rows)
+[2026-04-27 01:30:33] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/dim_sinh_vien.parquet (71.6 KB | 1,695 rows)
+[2026-04-27 01:30:34] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/fact_diem.parquet (844.9 KB | 55,535 rows)
+[2026-04-27 01:30:34] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/fact_dang_ky.parquet (480.5 KB | 55,971 rows)
+[2026-04-27 01:30:34] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/fact_ren_luyen.parquet (42.0 KB | 9,962 rows)
+[2026-04-27 01:30:34] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_01-30/fact_tai_chinh.parquet (88.7 KB | 9,670 rows)
+[2026-04-27 01:30:34] INFO    etl.transform :   MinIO staging-data: 8/8 files OK → run_id=2026-04-27_01-30
+[2026-04-27 01:30:36] INFO    etl.transform :   Load TransformedData từ MinIO staging: run_id=2026-04-27_01-30
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/dim_hoc_ky.parquet (13 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/dim_giang_vien.parquet (45 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/dim_hoc_phan.parquet (121 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/fact_diem.parquet (55,535 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/fact_dang_ky.parquet (55,971 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/fact_ren_luyen.parquet (9,962 rows)
+[2026-04-27 01:30:36] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_01-30/fact_tai_chinh.parquet (9,670 rows)
+[2026-04-27 01:30:36] INFO    etl.transform : Load from staging-data OK — run_id=2026-04-27_01-30
+[2026-04-27 01:30:36] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-27 01:30:36] INFO    etl.load : ======================================================================
+[2026-04-27 01:30:36] INFO    etl.load : Tạo schema warehouse từ warehouse_models.py...
+[2026-04-27 01:30:36] INFO    etl.load :   Schema warehouse OK
+[2026-04-27 01:30:36] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-04-27 01:30:36] INFO    etl.load :   dim_hoc_ky     →     13 records (new: 0)
+[2026-04-27 01:30:36] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-04-27 01:30:36] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-27 01:30:49] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 928, fact cascade: 78277)
+[2026-04-27 01:30:49] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-27 01:30:49] INFO    etl.load : Building surrogate key caches...
+[2026-04-27 01:30:49] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=13
+[2026-04-27 01:30:49] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-04-27 01:31:03] INFO    etl.load :   fact_hoc_tap   → 55,535 records (upserted)
+[2026-04-27 01:31:16] INFO    etl.load :   fact_dang_ky   → 55,971 records (upserted)
+[2026-04-27 01:31:16] WARNING etl.load :   fact_ctsv | [DEDUP Tầng 1 - DataFrame] Loại bỏ 292 bản ghi trùng (9962 → 9670)
+[2026-04-27 01:31:18] INFO    etl.load :   fact_ctsv | Tiến độ: 2/2 batches (9,665/9,665 records)
+[2026-04-27 01:31:18] INFO    etl.load :   fact_ctsv      → 9,665 records (upserted) | Đã loại: 292 duplicates
+[2026-04-27 01:31:18] INFO    etl.load :   fact_tai_chinh | Đã làm sạch 1 cột datetime (NaT → None)
+[2026-04-27 01:31:19] INFO    etl.load :   fact_tai_chinh →  9,665 records (upserted)
+[2026-04-27 01:31:19] INFO    etl.load : ── Bước 4: Build Aggregation ──
+[2026-04-27 01:31:19] INFO    etl.aggregation : == BẮT ĐẦU AGGREGATION ==
+[2026-04-27 01:31:20] INFO    etl.aggregation :   agg_student_summary → 1,695 records
+[2026-04-27 01:31:20] INFO    etl.aggregation :   agg_student_summary rebuilt : 1,695
+[2026-04-27 01:31:20] INFO    etl.aggregation : == AGGREGATION HOÀN TẤT ==
+[2026-04-27 01:31:20] INFO    etl.load : ======================================================================
+[2026-04-27 01:31:20] INFO    etl.load : LOAD HOÀN TẤT
+[2026-04-27 01:31:20] INFO    etl.load :   dim_hoc_ky               :       13 records
+[2026-04-27 01:31:20] INFO    etl.load :   dim_giang_vien           :       45 records
+[2026-04-27 01:31:20] INFO    etl.load :   dim_hoc_phan             :      121 records
+[2026-04-27 01:31:20] INFO    etl.load :   dim_sinh_vien            :      928 records
+[2026-04-27 01:31:20] INFO    etl.load :   fact_hoc_tap             :   55,535 records
+[2026-04-27 01:31:20] INFO    etl.load :   fact_dang_ky             :   55,971 records
+[2026-04-27 01:31:20] INFO    etl.load :   fact_ctsv                :    9,665 records
+[2026-04-27 01:31:20] INFO    etl.load :   fact_tai_chinh           :    9,665 records
+[2026-04-27 01:31:20] INFO    etl.load :   agg_student_summary      :    1,695 records
+[2026-04-27 01:31:20] INFO    etl.load :   TỔNG                     :  133,638 records
+[2026-04-27 01:31:20] INFO    etl.load : ======================================================================
+[2026-04-27 02:00:07] INFO    etl.extract : ==BẮT ĐẦU FULL EXTRACT==
+[2026-04-27 02:00:07] INFO    etl.extract : ======================================================================
+[2026-04-27 02:00:07] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 02:00:07] INFO    etl.extract : NGUỒN 1 — PostgreSQL (Phòng Đào tạo) | Full Extract
+[2026-04-27 02:00:07] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-27 02:00:07] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-04-27 02:00:08] INFO    etl.extract :   PostgreSQL | dang_ky_hoc_phan          → 55,971 records
+[2026-04-27 02:00:08] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             → 55,535 records
+[2026-04-27 02:00:08] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-27 02:00:08] INFO    etl.extract :   PostgreSQL | TỔNG: 115,130 records từ 10 bảng
+[2026-04-27 02:00:08] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 02:00:08] INFO    etl.extract : NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-04-27 02:00:08] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 02:00:08] INFO    etl.extract :   CSV | Tìm thấy 14 file trong: /opt/airflow/data/csv
+[2026-04-27 02:00:08] INFO    etl.extract :   CSV | Đang đọc từ: /opt/airflow/data/csv
+[2026-04-27 02:00:08] INFO    etl.extract :   CSV | Tìm thấy 13 file(s)
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK1_2021_22.csv                →    791 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK1_2022_23.csv                →  1,591 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK1_2023_24.csv                →  2,412 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK1_2024_25.csv                →  3,229 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK1_2025_26.csv                →  2,436 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK2_2021_22.csv                →    792 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK2_2022_23.csv                →  1,574 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK2_2023_24.csv                →  2,396 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK2_2024_25.csv                →  2,871 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK3_2021_22.csv                →    130 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK3_2022_23.csv                →    219 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK3_2023_24.csv                →    447 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | ctsv_HK3_2024_25.csv                →    500 records
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | Loại bỏ 9426 bản ghi trùng
+[2026-04-27 02:00:09] INFO    etl.extract :   CSV | TỔNG: 9,962 records từ 13 file(s)
+[2026-04-27 02:00:09] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 02:00:09] INFO    etl.extract : NGUỒN 3 — API/JSON (Portal Tài chính) | Extract
+[2026-04-27 02:00:09] INFO    etl.extract : ════════════════════════════════════════════════════════════
+[2026-04-27 02:00:09] INFO    etl.extract :   API | Tìm thấy 14 JSON file trong: /opt/airflow/data/api_json
+[2026-04-27 02:00:09] INFO    etl.extract :   API | (taichinh_all.json) → 9,670 records (dedup: 69)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_sinh_vien.parquet (47.5 KB | 1,695 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_dang_ky.parquet (480.5 KB | 55,971 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_diem.parquet (1156.2 KB | 55,535 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_hoc_phan.parquet (10.3 KB | 121 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_hoc_ky.parquet (4.2 KB | 13 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_giang_vien.parquet (8.3 KB | 45 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_khoa.parquet (2.6 KB | 4 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_nganh.parquet (3.2 KB | 3 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_lop_hanh_chinh.parquet (4.8 KB | 48 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon1_tong_hop_ket_qua.parquet (22.1 KB | 1,695 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon2_ctsv.parquet (42.5 KB | 9,962 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO ↑ [raw-data] 2026-04-27_02-00/nguon3_tai_chinh.parquet (89.3 KB | 9,670 rows)
+[2026-04-27 02:00:10] INFO    utils.minio :   MinIO upload xong: 12/12 files | run_id=2026-04-27_02-00
+[2026-04-27 02:00:10] INFO    etl.extract :   MinIO staging: 12/12 files OK → run_id=2026-04-27_02-00
+[2026-04-27 02:00:10] INFO    etl.extract : ======================================================================
+[2026-04-27 02:00:10] INFO    etl.extract :  FULL EXTRACT HOÀN TẤT
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ khoa                     :        4
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ nganh                    :        3
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ giang_vien               :       45
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ lop_hanh_chinh           :       48
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ sinh_vien                :    1,695
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ hoc_phan                 :      121
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ hoc_ky_nam_hoc           :       13
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ dang_ky_hoc_phan         :   55,971
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ diem_hoc_phan            :   55,535
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ tong_hop_ket_qua         :    1,695
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ ctsv_data                :    9,962
+[2026-04-27 02:00:10] INFO    etl.extract :    ✅ tai_chinh_data           :    9,670
+[2026-04-27 02:00:10] INFO    etl.extract : ======================================================================
+[2026-04-27 02:00:16] INFO    validation.ge :   GE | DataValidator khoi tao | GE dir: /opt/airflow/great_expectations
+[2026-04-27 02:00:16] INFO    validation.ge :   GE | Bắt đầu validation | run_id=2026-04-27_02-00
+[2026-04-27 02:00:17] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-27 02:00:17] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_diem.parquet (55,535 rows)
+[2026-04-27 02:00:17] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-27 02:00:17] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon2_ctsv.parquet (9,962 rows)
+[2026-04-27 02:00:17] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon3_tai_chinh.parquet (9,670 rows)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | Downloaded raw: sv=1695, diem=55535, tong_hop=1695, ctsv=9962, tc=9670
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | [Tầng 1] Validate raw data...
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | Loaded 'grades_suite' (11 expectations)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | [grades_suite] diem_hoc_phan_raw: 11/11 (OK)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | [ctsv_suite] ctsv_data: 10/10 (OK)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | [tai_chinh_suite] tai_chinh_data: 11/11 (OK)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | [Tầng 2] Validate prepared data...
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | Loaded 'students_suite' (14 expectations)
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-04-27 02:00:17] INFO    validation.ge : ============================================================
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | VALIDATION OK
+[2026-04-27 02:00:17] INFO    validation.ge :   GE | run_id: 2026-04-27_02-00 | 51/51 passed
+[2026-04-27 02:00:17] INFO    validation.ge :     grades_raw               : OK   (11/11)
+[2026-04-27 02:00:17] INFO    validation.ge :     ctsv_raw                 : OK   (10/10)
+[2026-04-27 02:00:17] INFO    validation.ge :     tai_chinh                : OK   (11/11)
+[2026-04-27 02:00:17] INFO    validation.ge :     students_prepared        : OK   (14/14)
+[2026-04-27 02:00:17] INFO    validation.ge :     tong_hop_raw             : OK   (5/5)
+[2026-04-27 02:00:17] INFO    validation.ge : ============================================================
+[2026-04-27 02:00:19] INFO    etl.extract :   Load from MinIO staging: run_id=2026-04-27_02-00
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_khoa.parquet (4 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_nganh.parquet (3 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_giang_vien.parquet (45 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_lop_hanh_chinh.parquet (48 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_hoc_phan.parquet (121 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_hoc_ky.parquet (13 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_dang_ky.parquet (55,971 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_diem.parquet (55,535 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon2_ctsv.parquet (9,962 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↓ [raw-data] 2026-04-27_02-00/nguon3_tai_chinh.parquet (9,670 rows)
+[2026-04-27 02:00:19] INFO    etl.extract :  Load from staging OK — run_id=2026-04-27_02-00
+[2026-04-27 02:00:19] INFO    etl.transform : ==BẮT ĐẦU TRANSFORM==
+[2026-04-27 02:00:19] INFO    etl.transform : ======================================================================
+[2026-04-27 02:00:19] INFO    etl.transform : ── Bước 1: Transform Dimension Tables ──
+[2026-04-27 02:00:19] INFO    etl.transform :   dim_thoi_gian               →     13 records
+[2026-04-27 02:00:19] INFO    etl.transform :   dim_giang_vien              →     45 records
+[2026-04-27 02:00:19] INFO    etl.transform :   dim_hoc_phan                →    121 records
+[2026-04-27 02:00:19] INFO    etl.transform :   dim_sinh_vien               →  1,695 records
+[2026-04-27 02:00:19] INFO    etl.transform : ── Bước 2: Transform Fact Tables ──
+[2026-04-27 02:00:19] INFO    etl.transform :   fact_diem                   → 55,535 records
+[2026-04-27 02:00:19] INFO    etl.transform :   fact_dang_ky               → 55,971 records
+[2026-04-27 02:00:19] INFO    etl.transform :   fact_ren_luyen              →  9,962 records
+[2026-04-27 02:00:19] INFO    etl.transform :   fact_tai_chinh              →  9,670 records
+[2026-04-27 02:00:19] INFO    etl.transform : ======================================================================
+[2026-04-27 02:00:19] INFO    etl.transform : TRANSFORM HOÀN TẤT
+[2026-04-27 02:00:19] INFO    etl.transform :    dim_giang_vien           :       45 records
+[2026-04-27 02:00:19] INFO    etl.transform :    dim_sinh_vien            :    1,695 records
+[2026-04-27 02:00:19] INFO    etl.transform :    dim_hoc_phan             :      121 records
+[2026-04-27 02:00:19] INFO    etl.transform :    dim_thoi_gian            :       13 records
+[2026-04-27 02:00:19] INFO    etl.transform :    fact_diem                :   55,535 records
+[2026-04-27 02:00:19] INFO    etl.transform :    fact_dang_ky             :   55,971 records
+[2026-04-27 02:00:19] INFO    etl.transform :    fact_ren_luyen           :    9,962 records
+[2026-04-27 02:00:19] INFO    etl.transform :    fact_tai_chinh           :    9,670 records
+[2026-04-27 02:00:19] INFO    etl.transform : ======================================================================
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/dim_hoc_ky.parquet (5.4 KB | 13 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/dim_giang_vien.parquet (8.9 KB | 45 rows)
+[2026-04-27 02:00:19] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/dim_hoc_phan.parquet (11.0 KB | 121 rows)
+[2026-04-27 02:00:20] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/dim_sinh_vien.parquet (71.6 KB | 1,695 rows)
+[2026-04-27 02:00:20] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/fact_diem.parquet (844.9 KB | 55,535 rows)
+[2026-04-27 02:00:20] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/fact_dang_ky.parquet (480.5 KB | 55,971 rows)
+[2026-04-27 02:00:20] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/fact_ren_luyen.parquet (42.0 KB | 9,962 rows)
+[2026-04-27 02:00:20] INFO    utils.minio :   MinIO ↑ [staging-data] 2026-04-27_02-00/fact_tai_chinh.parquet (88.7 KB | 9,670 rows)
+[2026-04-27 02:00:20] INFO    etl.transform :   MinIO staging-data: 8/8 files OK → run_id=2026-04-27_02-00
+[2026-04-27 02:00:22] INFO    etl.transform :   Load TransformedData từ MinIO staging: run_id=2026-04-27_02-00
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/dim_hoc_ky.parquet (13 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/dim_giang_vien.parquet (45 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/dim_hoc_phan.parquet (121 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/fact_diem.parquet (55,535 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/fact_dang_ky.parquet (55,971 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/fact_ren_luyen.parquet (9,962 rows)
+[2026-04-27 02:00:22] INFO    utils.minio :   MinIO ↓ [staging-data] 2026-04-27_02-00/fact_tai_chinh.parquet (9,670 rows)
+[2026-04-27 02:00:22] INFO    etl.transform : Load from staging-data OK — run_id=2026-04-27_02-00
+[2026-04-27 02:00:22] INFO    etl.load : ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-27 02:00:22] INFO    etl.load : ======================================================================
+[2026-04-27 02:00:22] INFO    etl.load : Tạo schema warehouse từ warehouse_models.py...
+[2026-04-27 02:00:22] INFO    etl.load :   Schema warehouse OK
+[2026-04-27 02:00:22] INFO    etl.load : ── Bước 1: Load Dimension Tables ──
+[2026-04-27 02:00:22] INFO    etl.load :   dim_hoc_ky     →     13 records (new: 0)
+[2026-04-27 02:00:22] INFO    etl.load :   dim_giang_vien →     45 records (new: 0)
+[2026-04-27 02:00:22] INFO    etl.load :   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-27 02:00:25] INFO    etl.load :   dim_sinh_vien →  1,695 records (new: 0, SCD2: 0, fact cascade: 0)
+[2026-04-27 02:00:25] INFO    etl.load : ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-27 02:00:25] INFO    etl.load : Building surrogate key caches...
+[2026-04-27 02:00:25] INFO    etl.load :   SV=1695, HP=121, GV=45, HK=13
+[2026-04-27 02:00:25] INFO    etl.load : ── Bước 3: Load Fact Tables ──
+[2026-04-27 02:00:41] INFO    etl.load :   fact_hoc_tap   → 55,535 records (upserted)
+[2026-04-27 02:00:52] INFO    etl.load :   fact_dang_ky   → 55,971 records (upserted)
+[2026-04-27 02:00:52] WARNING etl.load :   fact_ctsv | [DEDUP Tầng 1 - DataFrame] Loại bỏ 292 bản ghi trùng (9962 → 9670)
+[2026-04-27 02:00:54] INFO    etl.load :   fact_ctsv | Tiến độ: 2/2 batches (9,665/9,665 records)
+[2026-04-27 02:00:54] INFO    etl.load :   fact_ctsv      → 9,665 records (upserted) | Đã loại: 292 duplicates
+[2026-04-27 02:00:54] INFO    etl.load :   fact_tai_chinh | Đã làm sạch 1 cột datetime (NaT → None)
+[2026-04-27 02:00:57] INFO    etl.load :   fact_tai_chinh →  9,665 records (upserted)
+[2026-04-27 02:00:57] INFO    etl.load : ── Bước 4: Build Aggregation ──
+[2026-04-27 02:00:57] INFO    etl.aggregation : == BẮT ĐẦU AGGREGATION ==
+[2026-04-27 02:00:57] INFO    etl.aggregation :   agg_student_summary → 1,695 records
+[2026-04-27 02:00:57] INFO    etl.aggregation :   agg_student_summary rebuilt : 1,695
+[2026-04-27 02:00:57] INFO    etl.aggregation : == AGGREGATION HOÀN TẤT ==
+[2026-04-27 02:00:57] INFO    etl.load : ======================================================================
+[2026-04-27 02:00:57] INFO    etl.load : LOAD HOÀN TẤT
+[2026-04-27 02:00:57] INFO    etl.load :   dim_hoc_ky               :       13 records
+[2026-04-27 02:00:57] INFO    etl.load :   dim_giang_vien           :       45 records
+[2026-04-27 02:00:57] INFO    etl.load :   dim_hoc_phan             :      121 records
+[2026-04-27 02:00:57] INFO    etl.load :   dim_sinh_vien            :        0 records
+[2026-04-27 02:00:57] INFO    etl.load :   fact_hoc_tap             :   55,535 records
+[2026-04-27 02:00:57] INFO    etl.load :   fact_dang_ky             :   55,971 records
+[2026-04-27 02:00:57] INFO    etl.load :   fact_ctsv                :    9,665 records
+[2026-04-27 02:00:57] INFO    etl.load :   fact_tai_chinh           :    9,665 records
+[2026-04-27 02:00:57] INFO    etl.load :   agg_student_summary      :    1,695 records
+[2026-04-27 02:00:57] INFO    etl.load :   TỔNG                     :  132,710 records
+[2026-04-27 02:00:57] INFO    etl.load : ======================================================================
+[2026-04-27 12:29:38] INFO    etl.aggregation : == WeeklyAggregator: BẮT ĐẦU ==
+[2026-04-27 12:29:38] INFO    etl.aggregation :   sync_student_status | Bắt đầu đồng bộ trạng thái SV...
+[2026-04-27 12:29:38] INFO    etl.aggregation :   sync_student_status | Đọc 1695 SV từ Source
+[2026-04-27 12:29:39] INFO    etl.aggregation :   sync_student_status | 0 SV được cập nhật
+[2026-04-27 12:29:40] INFO    etl.aggregation :   agg_student_summary → 1,695 records
+[2026-04-27 12:29:40] INFO    etl.aggregation :   sv_status_synced    : 0 SV
+[2026-04-27 12:29:40] INFO    etl.aggregation :   agg_student_summary : 1,695 records
+[2026-04-27 12:29:40] INFO    etl.aggregation : == WeeklyAggregator: HOÀN TẤT ==
+[2026-04-27 12:29:40] INFO    validation.ge :   GE | DataValidator khoi tao | GE dir: /opt/airflow/great_expectations
+[2026-04-27 12:29:40] INFO    validation.ge :   GE | Validate warehouse — agg_student_summary
+[2026-04-27 12:29:40] INFO    validation.ge :   GE | agg_student_summary: 1695 records
+[2026-04-27 12:29:40] INFO    validation.ge :   GE | Loaded 'warehouse_suite' (7 expectations)
+[2026-04-27 12:29:40] INFO    validation.ge :   GE | [warehouse_suite] agg_student_summary: 7/7 (OK)
+[2026-04-27 12:29:42] INFO    etl.aggregation : == WeeklyReporter: Đang tạo báo cáo tuần ==
+[2026-04-27 12:29:42] INFO    etl.aggregation :   sv_canh_bao    : 229
+[2026-04-27 12:29:42] INFO    etl.aggregation :   sv_hoc_bong    : 67
+[2026-04-27 12:29:42] INFO    etl.aggregation :   ty_le_dat      : 95.1%
+[2026-04-27 12:29:42] INFO    etl.aggregation :   sv_bi_ha_bang  : 2
+[2026-04-27 12:29:42] INFO    etl.aggregation :   sv_rui_ro_cao  : 178
+[2026-04-27 12:29:42] INFO    etl.aggregation : == WeeklyReporter: HOÀN TẤT ==
+[2026-04-27 14:05:33] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 400, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:06:04] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 400, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:06:19] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 401, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:06:30] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 410, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:07:01] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 410, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:07:30] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 410, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:07:34] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 410, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:07:41] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 414, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:08:12] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 414, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:08:40] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:09:10] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:09:40] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:10:11] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:10:42] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:11:12] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:11:42] ERROR   airflow.models.dagbag.DagBag : Failed to import: /opt/airflow/dags/daily_student_pipeline.py
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/dagbag.py", line 344, in parse
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 422, in <module>
+    start >> extract >> validate >> transform >> load >> alert >> end
+             ^^^^^^^
+NameError: name 'extract' is not defined
+[2026-04-27 14:12:02] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:02] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:12:05] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:05] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:12:07] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:07] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:12:09] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:09] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:12:10] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:10] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:12:18] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-27T14:12:15.437722+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:12:24] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:12:15.437722+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:12:24] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-04-27T14:12:15.437722+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:12:24] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-04-27T14:12:15.437722+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:12:37] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:12:15.437722+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:12:40] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:40] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:12:45] INFO    airflow.models.dag.DAG : Executing dag callback function: <function task_alert_failure at 0x74693a698040>
+[2026-04-27 14:12:45] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:12:45] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:13:16] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:13:16] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:13:46] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:13:46] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:14:17] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:14:17] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:14:47] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:14:47] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:15:18] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:15:18] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:15:49] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:15:49] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:16:19] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:16:19] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:16:50] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:16:51] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:17:12] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:17:12] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:17:14] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:17:14] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:17:22] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:17:24] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:17:24] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:17:24] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:17:35] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:17:44] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:17:44] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:17:54] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.transform_data manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:17:56] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:18:14] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:18:14] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:18:40] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.alert_success manual__2026-04-27T14:17:21.040765+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:18:45] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:18:45] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:19:16] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:19:16] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:19:46] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:19:46] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:20:17] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:20:17] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:20:48] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:20:48] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:21:19] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:21:19] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:21:49] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:21:49] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:22:20] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:22:20] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:22:51] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:22:51] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:23:23] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:23:23] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:23:35] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:23:37] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:23:37] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:23:37] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:23:48] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:23:53] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:23:53] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:24:07] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.transform_data manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:24:09] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:24:24] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:24:24] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:24:52] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.alert_success manual__2026-04-27T14:23:34.468693+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:24:54] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:24:54] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:25:25] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:25:25] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:25:55] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:25:55] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:26:26] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:26:26] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:26:57] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:26:57] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:27:28] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:27:28] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:27:59] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:27:59] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:28:30] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:28:30] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:29:00] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:29:00] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:29:31] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:29:31] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:30:02] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:30:02] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:30:32] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:30:32] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:31:02] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:31:02] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:31:33] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:31:34] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:32:04] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:32:05] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:32:36] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:32:36] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:33:06] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:33:06] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:33:37] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:33:37] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:34:07] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:34:07] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:34:37] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:34:37] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:35:08] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:35:08] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:35:39] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:35:39] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:36:09] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:36:09] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:36:39] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:36:39] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:37:10] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:37:10] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:37:40] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:37:40] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:38:10] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:38:10] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:38:40] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:38:40] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:39:11] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:39:11] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:39:41] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:39:41] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:40:12] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:40:12] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:40:42] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:40:42] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:41:13] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:41:13] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:41:43] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:41:43] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:42:14] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:42:14] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:42:45] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:42:45] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:43:15] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:43:15] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:43:46] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:43:46] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:44:16] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:44:16] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:44:46] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:44:46] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:45:17] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:45:17] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:45:47] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:45:47] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:46:17] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:46:17] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:46:47] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:46:47] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:47:18] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:47:18] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:47:48] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:47:48] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:48:19] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:48:19] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:48:49] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:48:49] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:49:03] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:06] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:06] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:06] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:14] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:21] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:49:21] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:49:36] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.transform_data manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:38] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:49:01.668300+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:49:40] INFO    airflow.models.dag.DAG : Executing dag callback function: <function task_alert_failure at 0x74693a7a5800>
+[2026-04-27 14:49:40] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:49:40] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:50:11] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:50:11] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:50:42] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:50:42] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:51:13] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:51:13] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:51:39] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.init_run_id manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:51:41] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:51:41] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_postgres manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:51:41] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:51:45] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:51:45] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:51:48] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.validate_data manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:52:08] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.transform_data manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:52:11] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:52:15] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:52:15] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:52:46] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:52:46] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00
+[2026-04-27 14:52:54] INFO    airflow.cli.commands.task_command : Running <TaskInstance: daily_student_pipeline.alert_success manual__2026-04-27T14:51:37.887983+00:00 [queued]> on host 759b8b5e27b5
+[2026-04-27 14:53:17] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-27 14:53:17] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-27 02:00:00+00:00, run_after=2026-04-28 02:00:00+00:00

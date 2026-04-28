@@ -271,7 +271,15 @@ services:
     networks:
       - school-network
     restart: unless-stopped
-
+# Thêm vào services trong docker-compose.yml
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: pushgateway
+    ports:
+      - "9091:9091"
+    networks:
+      - school-network
+    restart: unless-stopped
   # =============================
   # pgAdmin
   # =============================

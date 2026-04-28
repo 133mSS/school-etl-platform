@@ -65,7 +65,7 @@ HK3_MAX_COURSES = 3       # Tối đa 3 môn/HK3
 
 # ★ v3.0 — Xác suất profile evolution mỗi năm học (sau HK2)
 PROFILE_EVOLVE_UP_RATE   = 0.08  # 8% SV yếu/tb cải thiện 1 bậc
-PROFILE_EVOLVE_DOWN_RATE = 0.03  # 3% SV giỏi/khá sa sút 1 bậc
+PROFILE_EVOLVE_DOWN_RATE = 0.04  # 3% SV giỏi/khá sa sút 1 bậc
 
 UNEXPECTED_FAIL_RATE = {
     "xuất sắc":   0.010,

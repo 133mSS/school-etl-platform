@@ -1,0 +1,82 @@
+[2026-04-27T14:24:09.512+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:23:34.468693+00:00 [queued]>
+[2026-04-27T14:24:09.521+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:23:34.468693+00:00 [queued]>
+[2026-04-27T14:24:09.522+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-04-27T14:24:09.536+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): load_data> on 2026-04-27 14:23:34.468693+00:00
+[2026-04-27T14:24:09.541+0000] {standard_task_runner.py:60} INFO - Started process 22376 to run task
+[2026-04-27T14:24:09.544+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'load_data', 'manual__2026-04-27T14:23:34.468693+00:00', '--job-id', '521', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmp0wx2s25r']
+[2026-04-27T14:24:09.547+0000] {standard_task_runner.py:88} INFO - Job 521: Subtask load_data
+[2026-04-27T14:24:09.613+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.load_data manual__2026-04-27T14:23:34.468693+00:00 [running]> on host 759b8b5e27b5
+[2026-04-27T14:24:10.047+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='load_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-27T14:23:34.468693+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-04-27T14:23:34.468693+00:00'
+[2026-04-27T14:24:11.145+0000] {transform.py:159} INFO -   Load TransformedData từ MinIO staging: run_id=2026-04-27_14-24
+[2026-04-27T14:24:11.151+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-04-27_14-24/dim_hoc_ky.parquet
+[2026-04-27T14:24:11.187+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-27_14-24/dim_giang_vien.parquet (45 rows)
+[2026-04-27T14:24:11.199+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-27_14-24/dim_hoc_phan.parquet (121 rows)
+[2026-04-27T14:24:11.213+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-27_14-24/dim_sinh_vien.parquet (1,695 rows)
+[2026-04-27T14:24:11.218+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-04-27_14-24/fact_diem.parquet
+[2026-04-27T14:24:11.223+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-04-27_14-24/fact_dang_ky.parquet
+[2026-04-27T14:24:11.235+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-27_14-24/fact_ren_luyen.parquet (9,962 rows)
+[2026-04-27T14:24:11.248+0000] {minio_client.py:223} INFO -   MinIO ↓ [staging-data] 2026-04-27_14-24/fact_tai_chinh.parquet (9,670 rows)
+[2026-04-27T14:24:11.248+0000] {transform.py:172} INFO - Load from staging-data OK — run_id=2026-04-27_14-24
+[2026-04-27T14:24:11.249+0000] {load.py:51} INFO - ==BẮT ĐẦU LOAD VÀO DATA WAREHOUSE==
+[2026-04-27T14:24:11.249+0000] {load.py:52} INFO - ======================================================================
+[2026-04-27T14:24:11.250+0000] {load.py:121} INFO - Tạo schema warehouse từ warehouse_models.py...
+[2026-04-27T14:24:11.265+0000] {load.py:123} INFO -   Schema warehouse OK
+[2026-04-27T14:24:11.266+0000] {load.py:57} INFO - ── Bước 1: Load Dimension Tables ──
+[2026-04-27T14:24:11.326+0000] {load.py:262} INFO -   dim_giang_vien →     45 records (new: 0)
+[2026-04-27T14:24:11.532+0000] {load.py:310} INFO -   dim_hoc_phan   →    121 records (new: 0)
+[2026-04-27T14:24:13.080+0000] {load.py:419} INFO -   dim_sinh_vien →  1,695 records (new: 0, SCD2: 0, fact cascade: 0)
+[2026-04-27T14:24:13.081+0000] {load.py:63} INFO - ── Bước 2: Build Surrogate Key Cache ──
+[2026-04-27T14:24:13.082+0000] {load.py:126} INFO - Building surrogate key caches...
+[2026-04-27T14:24:13.097+0000] {load.py:154} INFO -   SV=1695, HP=121, GV=45, HK=13
+[2026-04-27T14:24:13.098+0000] {load.py:66} INFO - ── Bước 3: Load Fact Tables ──
+[2026-04-27T14:24:13.098+0000] {load.py:488} INFO -   fact_hoc_tap   → SKIP (empty)
+[2026-04-27T14:24:13.099+0000] {load.py:579} INFO -   fact_dang_ky   → SKIP (empty)
+[2026-04-27T14:24:13.102+0000] {load.py:689} WARNING -   fact_ctsv | [DEDUP Tầng 1 - DataFrame] Loại bỏ 292 bản ghi trùng (9962 → 9670)
+[2026-04-27T14:24:15.000+0000] {load.py:842} INFO -   fact_ctsv | Tiến độ: 2/2 batches (9,665/9,665 records)
+[2026-04-27T14:24:15.001+0000] {load.py:850} INFO -   fact_ctsv      → 9,665 records (upserted) | Đã loại: 292 duplicates
+[2026-04-27T14:24:15.013+0000] {load.py:900} INFO -   fact_tai_chinh | Đã làm sạch 1 cột datetime (NaT → None)
+[2026-04-27T14:24:16.645+0000] {load.py:970} INFO -   fact_tai_chinh →  9,665 records (upserted)
+[2026-04-27T14:24:16.647+0000] {load.py:73} INFO - ── Bước 4: Build Aggregation ──
+[2026-04-27T14:24:16.648+0000] {aggregation.py:12} INFO - == BẮT ĐẦU AGGREGATION ==
+[2026-04-27T14:24:16.918+0000] {aggregation.py:288} INFO -   agg_student_summary → 1,695 records
+[2026-04-27T14:24:16.919+0000] {aggregation.py:14} INFO -   agg_student_summary rebuilt : 1,695
+[2026-04-27T14:24:16.920+0000] {aggregation.py:15} INFO - == AGGREGATION HOÀN TẤT ==
+[2026-04-27T14:24:16.920+0000] {load.py:77} INFO - ======================================================================
+[2026-04-27T14:24:16.921+0000] {load.py:78} INFO - LOAD HOÀN TẤT
+[2026-04-27T14:24:16.921+0000] {load.py:81} INFO -   dim_hoc_ky               :        0 records
+[2026-04-27T14:24:16.922+0000] {load.py:81} INFO -   dim_giang_vien           :       45 records
+[2026-04-27T14:24:16.922+0000] {load.py:81} INFO -   dim_hoc_phan             :      121 records
+[2026-04-27T14:24:16.923+0000] {load.py:81} INFO -   dim_sinh_vien            :        0 records
+[2026-04-27T14:24:16.924+0000] {load.py:81} INFO -   fact_hoc_tap             :        0 records
+[2026-04-27T14:24:16.924+0000] {load.py:81} INFO -   fact_dang_ky             :        0 records
+[2026-04-27T14:24:16.925+0000] {load.py:81} INFO -   fact_ctsv                :    9,665 records
+[2026-04-27T14:24:16.925+0000] {load.py:81} INFO -   fact_tai_chinh           :    9,665 records
+[2026-04-27T14:24:16.926+0000] {load.py:81} INFO -   agg_student_summary      :    1,695 records
+[2026-04-27T14:24:16.926+0000] {load.py:83} INFO -   TỔNG                     :   21,191 records
+[2026-04-27T14:24:16.927+0000] {load.py:84} INFO - ======================================================================
+[2026-04-27T14:24:20.824+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:24.577+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:28.321+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:32.089+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:35.840+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:39.589+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:44.127+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:47.894+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:51.624+0000] {metrics.py:34} WARNING -   metrics | Push thất bại: <urlopen error [Errno -2] Name or service not known> (pipeline vẫn tiếp tục)
+[2026-04-27T14:24:51.641+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-27T14:24:51.642+0000] {logging_mixin.py:188} INFO - LOAD HOÀN TẤT — Thống kê:
+[2026-04-27T14:24:51.642+0000] {logging_mixin.py:188} INFO -   dim_hoc_ky                    :          0 records
+[2026-04-27T14:24:51.642+0000] {logging_mixin.py:188} INFO -   dim_giang_vien                :         45 records
+[2026-04-27T14:24:51.643+0000] {logging_mixin.py:188} INFO -   dim_hoc_phan                  :        121 records
+[2026-04-27T14:24:51.643+0000] {logging_mixin.py:188} INFO -   dim_sinh_vien                 :          0 records
+[2026-04-27T14:24:51.643+0000] {logging_mixin.py:188} INFO -   fact_hoc_tap                  :          0 records
+[2026-04-27T14:24:51.643+0000] {logging_mixin.py:188} INFO -   fact_dang_ky                  :          0 records
+[2026-04-27T14:24:51.644+0000] {logging_mixin.py:188} INFO -   fact_ctsv                     :      9,665 records
+[2026-04-27T14:24:51.644+0000] {logging_mixin.py:188} INFO -   fact_tai_chinh                :      9,665 records
+[2026-04-27T14:24:51.644+0000] {logging_mixin.py:188} INFO -   agg_student_summary           :      1,695 records
+[2026-04-27T14:24:51.644+0000] {logging_mixin.py:188} INFO -   TỔNG                          :     21,191 records
+[2026-04-27T14:24:51.645+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-04-27T14:24:51.646+0000] {python.py:201} INFO - Done. Returned value was: {'dim_hoc_ky': 0, 'dim_giang_vien': 45, 'dim_hoc_phan': 121, 'dim_sinh_vien': 0, 'fact_hoc_tap': 0, 'fact_dang_ky': 0, 'fact_ctsv': 9665, 'fact_tai_chinh': 9665, 'agg_student_summary': 1695}
+[2026-04-27T14:24:51.670+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=load_data, execution_date=20260427T142334, start_date=20260427T142409, end_date=20260427T142451
+[2026-04-27T14:24:51.721+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-04-27T14:24:51.746+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

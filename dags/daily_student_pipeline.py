@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
+from src.utils.metrics import push_validate_metrics
 import logging
 DEFAULT_ARGS = {
     "owner":            "nhom8",
@@ -13,33 +14,6 @@ DEFAULT_ARGS = {
 }
 logger = logging.getLogger(__name__)
 
-# ════════════════════════════════════════════════════════════════════════════
-# TASK 1: EXTRACT
-# ════════════════════════════════════════════════════════════════════════════
-
-def task_extract(**context):
-    """
-    Extract dữ liệu từ 3 nguồn:
-      - Nguồn 1: PostgreSQL (học vụ)
-      - Nguồn 2: CSV (Phòng CTSV)
-      - Nguồn 3: API JSON (tài chính)
-    Upload kết quả lên MinIO bucket raw-data.
-    Push run_id vào XCom để các task sau dùng.
-    """
-    import sys
-    sys.path.insert(0, "/opt/airflow")
-
-    from src.etl.extract import DataExtractor
-
-    extractor = DataExtractor()
-    data      = extractor.extract_full()
-    summary   = data.summary()
-
-    context["ti"].xcom_push(key="extract_summary", value=summary)
-    context["ti"].xcom_push(key="run_id",          value=extractor._last_run_id)
-
-    print(f"Extract xong: {summary}")
-    return summary
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -55,7 +29,8 @@ def task_validate(**context):
       2. Download parquet từ MinIO raw-data
       3. Load ExpectationSuite từ great_expectations/expectations/*.json
       4. Validate từng nguồn với ge.from_pandas()
-      5. Nếu có expectation thất bại → raise ValueError → Airflow mark FAIL
+      5. Push metrics lên Pushgateway cho mỗi suite
+      6. Nếu có expectation thất bại → raise ValueError → Airflow mark FAIL
          → các task downstream không chạy (transform, load không chạy với data xấu)
 
     Kết quả push vào XCom để alert_success có thể báo cáo.
@@ -63,15 +38,30 @@ def task_validate(**context):
     import sys
     sys.path.insert(0, "/opt/airflow")
 
-    # Import DataValidator đã dùng GE thật
     from src.validation.ge_validation import DataValidator
+    from src.utils.metrics import push_validate_metrics
 
-    run_id = context["ti"].xcom_pull(key="run_id", task_ids="extract_data")
+    # ── Lấy run_id từ task init_run_id (sau khi đã sửa DAG có TaskGroup) ──
+    run_id = context["ti"].xcom_pull(key="run_id", task_ids="init_run_id")
 
+    # ── Chạy validation ─────────────────────────────────────────────────
     validator = DataValidator()
-    result    = validator.validate_from_staging(run_id=run_id)
+    result = validator.validate_from_staging(run_id=run_id)
 
-    # Lưu kết quả để alert_success báo cáo
+    # ── Push metrics lên Pushgateway cho từng suite ─────────────────────
+    # (chạy CHO DÙ validation pass hay fail — vẫn cần biết suite nào fail)
+    for suite_name, suite_r in result.get("suite_results", {}).items():
+        if suite_r.get("skipped"):
+            continue
+        push_validate_metrics(
+            suite=suite_name,
+            evaluated=suite_r.get("evaluated", 0),
+            successful=suite_r.get("successful", 0),
+            failed=suite_r.get("failed", 0),
+            run_id=run_id,
+        )
+
+    # ── Push kết quả tổng vào XCom để alert_success dùng ────────────────
     context["ti"].xcom_push(key="validation_result", value={
         "success":                 result["success"],
         "run_id":                  result["run_id"],
@@ -80,11 +70,11 @@ def task_validate(**context):
         "failed_count":            len(result["failed_expectations"]),
     })
 
-    # ── Xử lý kết quả ────────────────────────────────────────────────────
+    # ── Xử lý kết quả ───────────────────────────────────────────────────
     if not result["success"]:
         failed = result.get("failed_expectations", [])
 
-        # In chi tiết từng suite để dễ debug
+        # In chi tiết từng suite để dễ debug trên Airflow log
         print("=" * 60)
         print("GREAT EXPECTATIONS — VALIDATION FAILED")
         print("=" * 60)
@@ -98,13 +88,13 @@ def task_validate(**context):
         raise ValueError(
             f"Great Expectations validation FAILED!\n"
             f"  {len(failed)} expectation(s) không đạt:\n"
-            + "\n".join(f"  - {e}" for e in failed[:10])   # in tối đa 10
+            + "\n".join(f"  - {e}" for e in failed[:10])
             + ("\n  ..." if len(failed) > 10 else "")
         )
 
-    # Success
-    ev  = result["evaluated_expectations"]
-    ok  = result["successful_expectations"]
+    # ── Success ─────────────────────────────────────────────────────────
+    ev = result["evaluated_expectations"]
+    ok = result["successful_expectations"]
     print(f"Validation OK: {ok}/{ev} expectations passed")
     print(f"GE suites: {list(result.get('suite_results', {}).keys())}")
 
@@ -149,7 +139,8 @@ def task_load(**context):
     
     Cải tiến so với bản gốc:
     - Bắt riêng Exception và log chi tiết để dễ debug
-    - Push stats vào XCom ngay cả khi một số bảng fail
+    - Push stats vào XCom để alert_success sử dụng
+    - Push custom metrics lên Prometheus Pushgateway
     - Hiển thị tóm tắt số records đã load
     """
     import sys
@@ -157,6 +148,7 @@ def task_load(**context):
 
     from src.etl.transform import DataTransformer
     from src.etl.load      import DataLoader
+    from src.utils.metrics import push_load_metrics
 
     staging_run_id = context["ti"].xcom_pull(
         key="staging_run_id", task_ids="transform_data"
@@ -168,15 +160,16 @@ def task_load(**context):
             "Kiểm tra xem task transform_data có chạy thành công không."
         )
 
+    # ── Load staging data từ MinIO ──────────────────────────────────
     transformer = DataTransformer()
     transformed = transformer.load_from_staging(run_id=staging_run_id)
 
+    # ── Load vào Warehouse ──────────────────────────────────────────
     loader = DataLoader()
 
     try:
         stats = loader.load_all(transformed)
     except Exception as e:
-        # Log chi tiết để dễ tìm nguyên nhân trên Airflow UI
         import traceback
         print("=" * 60)
         print("LOAD FAILED — Chi tiết lỗi:")
@@ -184,10 +177,19 @@ def task_load(**context):
         print("=" * 60)
         raise  # Re-raise để Airflow đánh dấu task FAILED
 
-    # Push stats để alert_success sử dụng
+    # ── Push custom metrics lên Prometheus Pushgateway ──────────────
+    # (chỉ chạy khi load_all() thành công)
+    for table_name, count in stats.items():
+        push_load_metrics(
+            table=table_name,
+            records=count,
+            run_id=staging_run_id,
+        )
+
+    # ── Push stats vào XCom 1 LẦN cho alert_success ─────────────────
     context["ti"].xcom_push(key="load_stats", value=stats)
 
-    # In tóm tắt ra Airflow log
+    # ── In tóm tắt ra Airflow log ───────────────────────────────────
     print("=" * 60)
     print("LOAD HOÀN TẤT — Thống kê:")
     total = 0
@@ -262,14 +264,109 @@ def task_alert_failure(context):
     # Production: gửi Slack/email alert ở đây
 
 
+# dags/daily_student_pipeline.py (phần cuối, từ "TASK 1: EXTRACT" trở đi)
+
+from airflow.utils.task_group import TaskGroup
+
 # ════════════════════════════════════════════════════════════════════════════
-# DAG DEFINITION
+# EXTRACT TASKS — chạy SONG SONG cho 3 nguồn
+# ════════════════════════════════════════════════════════════════════════════
+
+def task_extract_postgres(**context):
+    """Extract Nguồn 1: PostgreSQL (Phòng Đào tạo) — 10 bảng."""
+    import sys
+    sys.path.insert(0, "/opt/airflow")
+
+    from src.etl.extract import PostgreSQLExtractor
+    from src.utils.minio_client import MinIOClient
+    from src.utils.metrics import push_extract_metrics
+
+    run_id = context["ti"].xcom_pull(key="run_id", task_ids="init_run_id")
+
+    extractor = PostgreSQLExtractor()
+    pg_data = extractor.extract_all()
+
+    client = MinIOClient()
+    total = 0
+    for table_name, df in pg_data.items():
+        if df.empty:
+            continue
+        client.upload_df(df, f"nguon1_{table_name}.parquet", run_id, bucket="raw")
+        total += len(df)
+
+    push_extract_metrics(source="postgres", records=total, run_id=run_id)
+    print(f"[Extract PG] {total:,} records | run_id={run_id}")
+    return total
+
+
+def task_extract_csv(**context):
+    """Extract Nguồn 2: CSV (Phòng CTSV)."""
+    import sys
+    sys.path.insert(0, "/opt/airflow")
+
+    from src.etl.extract import CSVExtractor
+    from src.utils.minio_client import MinIOClient
+    from src.utils.metrics import push_extract_metrics
+
+    run_id = context["ti"].xcom_pull(key="run_id", task_ids="init_run_id")
+
+    extractor = CSVExtractor()
+    df = extractor.extract_all()
+
+    if not df.empty:
+        client = MinIOClient()
+        client.upload_df(df, "nguon2_ctsv.parquet", run_id, bucket="raw")
+
+    push_extract_metrics(source="csv", records=len(df), run_id=run_id)
+    print(f"[Extract CSV] {len(df):,} records | run_id={run_id}")
+    return len(df)
+
+
+def task_extract_api(**context):
+    """Extract Nguồn 3: REST API (Tài chính)."""
+    import sys
+    sys.path.insert(0, "/opt/airflow")
+
+    from src.etl.extract import APIExtractor, PostgreSQLExtractor
+    from src.utils.minio_client import MinIOClient
+    from src.utils.metrics import push_extract_metrics
+
+    run_id = context["ti"].xcom_pull(key="run_id", task_ids="init_run_id")
+
+    # Lấy danh sách học kỳ từ PG để biết cần gọi API cho HK nào
+    pg = PostgreSQLExtractor()
+    hk_df = pg._read_table("hoc_ky_nam_hoc")
+    semester_list = hk_df["ma_hoc_ky"].tolist() if not hk_df.empty else []
+
+    extractor = APIExtractor()
+    df = extractor.extract_all_semesters(semester_list)
+
+    if not df.empty:
+        client = MinIOClient()
+        client.upload_df(df, "nguon3_tai_chinh.parquet", run_id, bucket="raw")
+
+    push_extract_metrics(source="api", records=len(df), run_id=run_id)
+    print(f"[Extract API] {len(df):,} records | run_id={run_id}")
+    return len(df)
+
+
+def task_init_run_id(**context):
+    """Tạo run_id 1 lần, push XCom cho các task extract dùng chung."""
+    from src.utils.minio_client import MinIOClient
+    run_id = MinIOClient.make_run_id()
+    context["ti"].xcom_push(key="run_id", value=run_id)
+    print(f"Run ID: {run_id}")
+    return run_id
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# DAG DEFINITION — có nhánh song song + TaskGroup
 # ════════════════════════════════════════════════════════════════════════════
 
 with DAG(
     dag_id="daily_student_pipeline",
     default_args=DEFAULT_ARGS,
-    description="ETL pipeline hang ngay: Extract → GE Validate → Transform → Load",
+    description="ETL hằng ngày: Extract (parallel) → GE Validate → Transform → Load",
     schedule_interval="0 2 * * *",
     start_date=datetime(2026, 1, 1),
     catchup=False,
@@ -278,51 +375,53 @@ with DAG(
 ) as dag:
 
     start = EmptyOperator(task_id="start")
-    end   = EmptyOperator(task_id="end")
+    end = EmptyOperator(task_id="end")
 
-    extract = PythonOperator(
-        task_id="extract_data",
-        python_callable=task_extract,
-        doc_md=(
-            "Extract từ PostgreSQL, CSV và API JSON. "
-            "Upload staging vào MinIO raw-data. "
-            "Push run_id vào XCom."
-        ),
+    init_run_id = PythonOperator(
+        task_id="init_run_id",
+        python_callable=task_init_run_id,
+        doc_md="Sinh run_id duy nhất cho 1 pipeline run, dùng chung qua XCom.",
     )
+
+    # ─── TaskGroup: Extract song song 3 nguồn ────────────────────────────
+    with TaskGroup("extract_group", tooltip="Extract song song 3 nguồn") as extract_group:
+        extract_pg = PythonOperator(
+            task_id="extract_postgres",
+            python_callable=task_extract_postgres,
+        )
+        extract_csv = PythonOperator(
+            task_id="extract_csv",
+            python_callable=task_extract_csv,
+        )
+        extract_api = PythonOperator(
+            task_id="extract_api",
+            python_callable=task_extract_api,
+        )
+        # 3 task không phụ thuộc nhau → chạy song song
 
     validate = PythonOperator(
         task_id="validate_data",
         python_callable=task_validate,
-        doc_md=(
-            "Great Expectations validate 3 nguồn dữ liệu. "
-            "Suites: students_suite, grades_suite, attendance_suite. "
-            "FAIL → pipeline dừng ngay, không transform/load data xấu."
-        ),
+        doc_md="GE validate 4 nguồn. FAIL → pipeline dừng.",
     )
 
     transform = PythonOperator(
         task_id="transform_data",
         python_callable=task_transform,
-        doc_md=(
-            "Chuẩn hóa dữ liệu, tính GPA, xếp loại. "
-            "Merge 3 nguồn → TransformedData. "
-            "Upload vào MinIO staging-data."
-        ),
+        doc_md="Chuẩn hoá, tính GPA, dedup, SCD2 detect. Upload staging-data.",
     )
 
     load = PythonOperator(
         task_id="load_data",
         python_callable=task_load,
-        doc_md=(
-            "Load vào Data Warehouse (PostgreSQL). "
-            "Upsert dimensions, insert facts. "
-            "Rebuild agg_student_summary từ 3 nguồn."
-        ),
+        doc_md="Upsert dim, insert fact, rebuild aggregate.",
     )
 
     alert = PythonOperator(
         task_id="alert_success",
         python_callable=task_alert_success,
-        doc_md="Log tổng kết kết quả pipeline.",
+        doc_md="Tổng kết kết quả + push metrics.",
     )
-    start >> extract >> validate >> transform >> load >> alert >> end
+
+    start >> init_run_id >> extract_group >> validate >> transform >> load >> alert >> end
+ 
