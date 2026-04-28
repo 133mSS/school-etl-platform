@@ -94,23 +94,31 @@ class PostgreSQLExtractor:
 
     def extract_by_semester(self, ma_hoc_ky: str) -> Dict[str, pd.DataFrame]:
         logger.info(f"  PostgreSQL | Incremental cho HK: {ma_hoc_ky}")
-
         result = {}
+        # Các bảng dimension không phụ thuộc HK → load full
         for table in ["khoa", "nganh", "giang_vien", "lop_hanh_chinh",
-                       "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc"]:
+                      "sinh_vien", "hoc_phan", "hoc_ky_nam_hoc"]:
             result[table] = self._read_table(table)
-
+ 
+        # ── dang_ky_hoc_phan: filter theo ma_hoc_ky ─────────────────
+        # ✅ Đã đúng: dùng params={} an toàn
         result["dang_ky_hoc_phan"] = pd.read_sql(
             text("SELECT * FROM dang_ky_hoc_phan WHERE ma_hoc_ky = :hk"),
             self.engine,
-            params={"hk": ma_hoc_ky}
+            params={"hk": ma_hoc_ky},
         )
+        diem_query = """
+            SELECT d.*
+            FROM diem_hoc_phan d
+            JOIN dang_ky_hoc_phan dk ON d.ma_dang_ky = dk.ma_dang_ky
+            WHERE dk.ma_hoc_ky = :hk
+        """
         result["diem_hoc_phan"] = self._read_table(
             "diem_hoc_phan",
-            f"""SELECT d.* FROM diem_hoc_phan d
-                JOIN dang_ky_hoc_phan dk ON d.ma_dang_ky = dk.ma_dang_ky
-                WHERE dk.ma_hoc_ky = '{ma_hoc_ky}'"""
+            query=diem_query,
+            params={"hk": ma_hoc_ky},
         )
+ 
         result["tong_hop_ket_qua"] = self._read_table("tong_hop_ket_qua")
         return result
 

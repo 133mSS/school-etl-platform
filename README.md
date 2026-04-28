@@ -68,7 +68,7 @@ Xây dựng hệ thống ETL tự động tích hợp dữ liệu từ **3 ngu�
 | Monitoring | Prometheus + Grafana + Alertmanager |
 | ETL | Python 3.11 + Pandas + SQLAlchemy 2.0 |
 | Container | Docker + docker-compose |
-| Test | pytest |
+
 
 ## 📂 Cấu trúc thư mục
 .
@@ -101,7 +101,6 @@ Xây dựng hệ thống ETL tự động tích hợp dữ liệu từ **3 ngu�
 │   ├── validate_generated_data.py # Cross-source check
 │   ├── mock_api_server.py         # Mock REST API
 │   └── run_etl.py                 # CLI runner (3 modes)
-├── tests/                   # Unit tests
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
@@ -167,12 +166,6 @@ DAG chạy ~3-5 phút trên data mẫu, đi qua: `extract → validate → trans
 - **Grafana Business**: http://localhost:3000/d/business-metrics-v8
 - **MinIO**: http://localhost:9001 → bucket `raw-data` và `staging-data`
 - **Warehouse**: pgAdmin → DB `school_warehouse` → `SELECT * FROM agg_student_summary LIMIT 10;`
-
-## 🧪 Chạy test
-
-```bash
-docker exec -it airflow-webserver pytest /opt/airflow/tests -v
-```
 
 ## 🔄 Chế độ chạy CLI
 

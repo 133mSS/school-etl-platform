@@ -690,3 +690,147 @@
 [2026-04-28 12:39:01] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
 [2026-04-28 12:39:31] INFO    airflow.models.dag : Sync 1 DAGs
 [2026-04-28 12:39:31] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:40:01] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:40:01] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:40:32] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:40:32] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:41:02] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:41:02] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:41:32] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:41:33] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:42:03] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:42:03] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:42:34] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:42:34] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:43:04] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:43:04] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:43:34] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:43:34] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:44:04] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:44:04] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:44:36] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:44:36] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:45:07] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:45:07] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:45:39] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:45:39] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:46:09] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:46:09] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:46:39] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:46:39] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:47:10] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:47:10] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:47:40] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:47:40] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:48:11] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:48:11] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:48:41] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:48:41] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:49:11] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:49:11] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:49:41] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:49:41] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:50:12] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:50:12] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:50:42] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:50:42] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:51:12] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:51:12] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:51:42] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:51:42] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:52:12] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:52:12] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:52:43] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:52:43] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:53:13] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:53:13] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:53:43] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:53:43] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:54:13] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:54:13] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:54:44] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:54:44] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:55:14] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:55:14] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:55:44] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:55:44] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:56:15] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:56:15] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:56:45] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:56:46] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:57:19] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:57:19] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:57:49] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:57:49] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:58:22] INFO    etl.extract :   PostgreSQL | Incremental cho HK: HK1-2024-25
+[2026-04-28 12:58:22] INFO    etl.extract :   PostgreSQL | khoa                      →      4 records
+[2026-04-28 12:58:22] INFO    etl.extract :   PostgreSQL | nganh                     →      3 records
+[2026-04-28 12:58:22] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:58:22] INFO    etl.extract :   PostgreSQL | giang_vien                →     45 records
+[2026-04-28 12:58:22] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:58:22] INFO    etl.extract :   PostgreSQL | lop_hanh_chinh            →     48 records
+[2026-04-28 12:58:23] INFO    etl.extract :   PostgreSQL | sinh_vien                 →  1,695 records
+[2026-04-28 12:58:23] INFO    etl.extract :   PostgreSQL | hoc_phan                  →    121 records
+[2026-04-28 12:58:23] INFO    etl.extract :   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-04-28 12:58:23] INFO    etl.extract :   PostgreSQL | diem_hoc_phan             →  9,374 records
+[2026-04-28 12:58:23] INFO    etl.extract :   PostgreSQL | tong_hop_ket_qua          →  1,695 records
+[2026-04-28 12:58:54] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:58:54] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:59:26] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:59:26] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 12:59:56] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 12:59:56] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:00:29] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:00:29] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:01:01] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:01:01] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:01:33] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:01:33] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:02:03] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:02:03] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:02:34] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:02:34] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:03:04] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:03:04] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:03:35] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:03:35] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:04:05] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:04:05] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:04:36] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:04:36] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:05:06] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:05:07] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:05:37] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:05:37] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:06:07] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:06:07] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:06:37] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:06:37] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:07:07] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:07:07] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:07:38] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:07:38] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:08:09] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:08:09] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:08:39] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:08:39] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:09:09] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:09:09] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:09:39] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:09:39] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:10:09] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:10:10] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:10:40] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:10:40] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:11:10] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:11:10] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:11:41] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:11:41] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:12:11] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:12:11] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:12:42] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:12:42] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:13:13] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:13:13] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
+[2026-04-28 13:13:44] INFO    airflow.models.dag : Sync 1 DAGs
+[2026-04-28 13:13:44] INFO    airflow.models.dag : Setting next_dagrun for daily_student_pipeline to 2026-04-28 02:00:00+00:00, run_after=2026-04-29 02:00:00+00:00
