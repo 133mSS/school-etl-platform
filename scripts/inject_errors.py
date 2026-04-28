@@ -30,7 +30,15 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # ── Kết nối database ────────────────────────────────────────────────────────
-DB_URL = "postgresql+psycopg2://school_user:school_pass@localhost:5434/school_source"
+import os
+
+DB_HOST = os.getenv("POSTGRES_SOURCE_HOST", "localhost")
+DB_PORT = os.getenv("POSTGRES_SOURCE_PORT", "5434")
+DB_USER = os.getenv("POSTGRES_SOURCE_USER", "school_user")
+DB_PASS = os.getenv("POSTGRES_SOURCE_PASSWORD", "school_pass")
+DB_NAME = os.getenv("POSTGRES_SOURCE_DB", "school_source")
+
+DB_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 engine = create_engine(DB_URL, echo=False)
 
 # ── Thư mục dữ liệu ─────────────────────────────────────────────────────────
@@ -555,9 +563,9 @@ def backup_files():
 
     count = 0
     for f in glob.glob(str(CSV_DIR / "*.csv")):
-        shutil.copy2(f, bck_csv / Path(f).name); count += 1
+        shutil.copyfile(f, bck_csv / Path(f).name); count += 1
     for f in glob.glob(str(JSON_DIR / "*.json")):
-        shutil.copy2(f, bck_json / Path(f).name); count += 1
+        shutil.copyfile(f, bck_json / Path(f).name); count += 1
     print(f"  💾 Đã backup {count} files → {BCK_DIR}")
 
 
