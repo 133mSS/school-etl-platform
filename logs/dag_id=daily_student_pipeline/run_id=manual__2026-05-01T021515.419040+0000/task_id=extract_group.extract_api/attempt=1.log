@@ -1,0 +1,21 @@
+[2026-05-01T02:15:21.813+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-05-01T02:15:15.419040+00:00 [queued]>
+[2026-05-01T02:15:21.824+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-05-01T02:15:15.419040+00:00 [queued]>
+[2026-05-01T02:15:21.825+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-05-01T02:15:21.854+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_group.extract_api> on 2026-05-01 02:15:15.419040+00:00
+[2026-05-01T02:15:21.859+0000] {standard_task_runner.py:60} INFO - Started process 1504 to run task
+[2026-05-01T02:15:21.862+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_group.extract_api', 'manual__2026-05-01T02:15:15.419040+00:00', '--job-id', '597', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpz__d9n1i']
+[2026-05-01T02:15:21.865+0000] {standard_task_runner.py:88} INFO - Job 597: Subtask extract_group.extract_api
+[2026-05-01T02:15:21.950+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_group.extract_api manual__2026-05-01T02:15:15.419040+00:00 [running]> on host 485f600440bc
+[2026-05-01T02:15:22.048+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_group.extract_api' AIRFLOW_CTX_EXECUTION_DATE='2026-05-01T02:15:15.419040+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-01T02:15:15.419040+00:00'
+[2026-05-01T02:15:23.073+0000] {extract.py:67} INFO -   PostgreSQL | hoc_ky_nam_hoc            →     13 records
+[2026-05-01T02:15:23.075+0000] {extract.py:367} INFO - ════════════════════════════════════════════════════════════
+[2026-05-01T02:15:23.075+0000] {extract.py:368} INFO - NGUỒN 3 — API/JSON (Portal Tài chính) | Extract
+[2026-05-01T02:15:23.076+0000] {extract.py:369} INFO - ════════════════════════════════════════════════════════════
+[2026-05-01T02:15:23.085+0000] {extract.py:253} INFO -   API | Tìm thấy 14 JSON file trong: /opt/***/data/api_json
+[2026-05-01T02:15:23.207+0000] {extract.py:392} INFO -   API | (taichinh_all.json) → 9,670 records (dedup: 69)
+[2026-05-01T02:15:23.596+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-05-01_02-15/nguon3_tai_chinh.parquet (89.3 KB | 9,670 rows)
+[2026-05-01T02:15:23.610+0000] {logging_mixin.py:188} INFO - [Extract API] 9,670 records | run_id=2026-05-01_02-15
+[2026-05-01T02:15:23.613+0000] {python.py:201} INFO - Done. Returned value was: 9670
+[2026-05-01T02:15:23.642+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=extract_group.extract_api, execution_date=20260501T021515, start_date=20260501T021521, end_date=20260501T021523
+[2026-05-01T02:15:23.669+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-01T02:15:23.694+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

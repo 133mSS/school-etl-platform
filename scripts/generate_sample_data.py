@@ -1,6 +1,3 @@
-
-
-
 import os
 import random
 import json
@@ -14,6 +11,7 @@ from sqlalchemy import (
     Numeric, String, Text, UniqueConstraint, create_engine, func, text
 )
 from sqlalchemy.orm import declarative_base, Session
+from psycopg2.extras import execute_values
 
 # ═══════════════════════════════════════════════════════
 # KẾT NỐI
@@ -1481,18 +1479,33 @@ def main():
             s.flush()
             print(f"\n  -> Trạng thái: {' | '.join(f'{k}:{v}' for k, v in sorted(status_counts.items()))}")
 
-            # ── Insert Đăng ký ──
+            # ── Insert Đăng ký (tối ưu: execute_values nhanh hơn 10-30x) ──
             dk_clean = [{k: v for k, v in d.items() if not k.startswith("_")} for d in dk_buf]
             inserted_dk = 0
-            for i in range(0, len(dk_clean), 500):
-                batch = dk_clean[i:i + 500]
-                res = s.execute(text("""
-                    INSERT INTO dang_ky_hoc_phan
-                    (ma_sinh_vien, ma_hoc_phan, ma_hoc_ky, ma_giang_vien, ngay_dang_ky, trang_thai)
-                    VALUES (:ma_sinh_vien, :ma_hoc_phan, :ma_hoc_ky, :ma_giang_vien, :ngay_dang_ky, :trang_thai)
-                    ON CONFLICT (ma_sinh_vien, ma_hoc_phan, ma_hoc_ky) DO NOTHING
-                """), batch)
-                inserted_dk += res.rowcount
+            if dk_clean:
+                # Lấy raw psycopg2 cursor để dùng execute_values
+                s.flush()
+                raw_conn = s.connection().connection
+                cur = raw_conn.cursor()
+                rows = [
+                    (d["ma_sinh_vien"], d["ma_hoc_phan"], d["ma_hoc_ky"],
+                     d.get("ma_giang_vien"), d.get("ngay_dang_ky"), d.get("trang_thai", "Đã đăng ký"))
+                    for d in dk_clean
+                ]
+                # Chia chunk 5000 để vừa memory mà vẫn nhanh
+                for i in range(0, len(rows), 5000):
+                    chunk = rows[i:i + 5000]
+                    execute_values(
+                        cur,
+                        """INSERT INTO dang_ky_hoc_phan
+                           (ma_sinh_vien, ma_hoc_phan, ma_hoc_ky, ma_giang_vien, ngay_dang_ky, trang_thai)
+                           VALUES %s
+                           ON CONFLICT (ma_sinh_vien, ma_hoc_phan, ma_hoc_ky) DO NOTHING""",
+                        chunk,
+                        page_size=1000,
+                    )
+                    inserted_dk += cur.rowcount
+                cur.close()
             s.flush()
             total_dk_created += inserted_dk
             print(f"  -> {inserted_dk:,} Đăng ký HP "
@@ -1530,21 +1543,34 @@ def main():
                     "ngay_cham":       pg["ngay_cham"],
                 })
 
+            # ── Insert Điểm (tối ưu: execute_values) ──
             inserted_diem = 0
-            for i in range(0, len(diem_buf), 500):
-                batch = diem_buf[i:i + 500]
-                res = s.execute(text("""
-                    INSERT INTO diem_hoc_phan
-                    (ma_dang_ky, diem_chuyen_can, diem_bai_tap, diem_giua_ky,
-                     diem_cuoi_ky, diem_tong_ket, diem_chu, diem_he_4,
-                     dat_mon, hoc_lai, ngay_cham)
-                    VALUES
-                    (:ma_dang_ky, :diem_chuyen_can, :diem_bai_tap, :diem_giua_ky,
-                     :diem_cuoi_ky, :diem_tong_ket, :diem_chu, :diem_he_4,
-                     :dat_mon, :hoc_lai, :ngay_cham)
-                    ON CONFLICT (ma_dang_ky) DO NOTHING
-                """), batch)
-                inserted_diem += res.rowcount
+            if diem_buf:
+                s.flush()
+                raw_conn = s.connection().connection
+                cur = raw_conn.cursor()
+                rows = [
+                    (d["ma_dang_ky"], d["diem_chuyen_can"], d["diem_bai_tap"],
+                     d["diem_giua_ky"], d["diem_cuoi_ky"], d["diem_tong_ket"],
+                     d["diem_chu"], d["diem_he_4"], d["dat_mon"],
+                     d["hoc_lai"], d["ngay_cham"])
+                    for d in diem_buf
+                ]
+                for i in range(0, len(rows), 5000):
+                    chunk = rows[i:i + 5000]
+                    execute_values(
+                        cur,
+                        """INSERT INTO diem_hoc_phan
+                           (ma_dang_ky, diem_chuyen_can, diem_bai_tap, diem_giua_ky,
+                            diem_cuoi_ky, diem_tong_ket, diem_chu, diem_he_4,
+                            dat_mon, hoc_lai, ngay_cham)
+                           VALUES %s
+                           ON CONFLICT (ma_dang_ky) DO NOTHING""",
+                        chunk,
+                        page_size=1000,
+                    )
+                    inserted_diem += cur.rowcount
+                cur.close()
             s.flush()
             total_diem_created += inserted_diem
             print(f"  -> {inserted_diem:,} Điểm HP ({total_missing_grades} chưa nhập)")

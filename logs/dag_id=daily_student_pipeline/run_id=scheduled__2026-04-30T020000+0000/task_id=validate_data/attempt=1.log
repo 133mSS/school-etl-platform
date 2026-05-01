@@ -1,0 +1,93 @@
+[2026-05-01T02:00:09.006+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data scheduled__2026-04-30T02:00:00+00:00 [queued]>
+[2026-05-01T02:00:09.014+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data scheduled__2026-04-30T02:00:00+00:00 [queued]>
+[2026-05-01T02:00:09.015+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-05-01T02:00:09.029+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-04-30 02:00:00+00:00
+[2026-05-01T02:00:09.033+0000] {standard_task_runner.py:60} INFO - Started process 833 to run task
+[2026-05-01T02:00:09.036+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'scheduled__2026-04-30T02:00:00+00:00', '--job-id', '594', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpz_eduxnq']
+[2026-05-01T02:00:09.038+0000] {standard_task_runner.py:88} INFO - Job 594: Subtask validate_data
+[2026-05-01T02:00:09.108+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data scheduled__2026-04-30T02:00:00+00:00 [running]> on host 485f600440bc
+[2026-05-01T02:00:09.200+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-04-30T02:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-04-30T02:00:00+00:00'
+[2026-05-01T02:00:11.545+0000] {ge_validation.py:162} INFO -   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-05-01T02:00:11.623+0000] {ge_validation.py:180} INFO -   GE | Bắt đầu validation | run_id=2026-05-01_02-00
+[2026-05-01T02:00:11.668+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-01_02-00/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-05-01T02:00:11.675+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-05-01_02-00/nguon1_diem.parquet
+[2026-05-01T02:00:11.694+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-01_02-00/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-05-01T02:00:11.713+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-01_02-00/nguon2_ctsv.parquet (11,080 rows)
+[2026-05-01T02:00:11.736+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-01_02-00/nguon3_tai_chinh.parquet (9,675 rows)
+[2026-05-01T02:00:11.737+0000] {ge_validation.py:189} INFO -   GE | Downloaded raw: sv=1695, diem=0, tong_hop=1695, ctsv=11080, tc=9675
+[2026-05-01T02:00:11.738+0000] {ge_validation.py:195} INFO -   GE | [Tầng 1] Validate raw data...
+[2026-05-01T02:00:11.740+0000] {ge_validation.py:50} WARNING -   GE | [grades_suite] DataFrame rong — skip
+[2026-05-01T02:00:11.761+0000] {ge_validation.py:43} INFO -   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-05-01T02:00:11.764+0000] {data_asset.py:541} INFO - 	10 expectation(s) included in expectation_suite.
+[2026-05-01T02:00:11.797+0000] {ge_validation.py:93} INFO -   GE | [ctsv_suite] ctsv_data: 8/10 (FAIL)
+[2026-05-01T02:00:11.797+0000] {ge_validation.py:98} WARNING -     FAIL: [ctsv_data] expect_column_values_to_match_regex | col='ma_sinh_vien' | unexpected=13.1% | mostly=0.93
+[2026-05-01T02:00:11.798+0000] {ge_validation.py:98} WARNING -     FAIL: [ctsv_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=2.6% | mostly=0.993
+[2026-05-01T02:00:11.805+0000] {ge_validation.py:43} INFO -   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-05-01T02:00:11.806+0000] {data_asset.py:541} INFO - 	11 expectation(s) included in expectation_suite.
+[2026-05-01T02:00:11.827+0000] {ge_validation.py:93} INFO -   GE | [tai_chinh_suite] tai_chinh_data: 10/11 (FAIL)
+[2026-05-01T02:00:11.828+0000] {ge_validation.py:98} WARNING -     FAIL: [tai_chinh_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=7.0% | mostly=0.983
+[2026-05-01T02:00:11.829+0000] {ge_validation.py:215} INFO -   GE | [Tầng 2] Validate prepared data...
+[2026-05-01T02:00:11.839+0000] {ge_validation.py:43} INFO -   GE | Loaded 'students_suite' (14 expectations)
+[2026-05-01T02:00:11.840+0000] {data_asset.py:541} INFO - 	14 expectation(s) included in expectation_suite.
+[2026-05-01T02:00:11.849+0000] {ge_validation.py:93} INFO -   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-05-01T02:00:11.850+0000] {ge_validation.py:248} INFO - ============================================================
+[2026-05-01T02:00:11.850+0000] {ge_validation.py:249} INFO -   GE | VALIDATION FAILED
+[2026-05-01T02:00:11.851+0000] {ge_validation.py:250} INFO -   GE | run_id: 2026-05-01_02-00 | 37/40 passed
+[2026-05-01T02:00:11.851+0000] {ge_validation.py:261} INFO -     grades_raw               : SKIP (0/0)
+[2026-05-01T02:00:11.852+0000] {ge_validation.py:261} INFO -     ctsv_raw                 : FAIL (8/10)
+[2026-05-01T02:00:11.852+0000] {ge_validation.py:261} INFO -     tai_chinh                : FAIL (10/11)
+[2026-05-01T02:00:11.853+0000] {ge_validation.py:261} INFO -     students_prepared        : OK   (14/14)
+[2026-05-01T02:00:11.853+0000] {ge_validation.py:261} INFO -     tong_hop_raw             : OK   (5/5)
+[2026-05-01T02:00:11.853+0000] {ge_validation.py:266} WARNING -   GE | Reason: 3 expectations thất bại
+[2026-05-01T02:00:11.854+0000] {ge_validation.py:267} INFO - ============================================================
+[2026-05-01T02:00:11.879+0000] {warnings.py:110} WARNING - /home/***/.local/lib/python3.11/site-packages/great_expectations/data_context/data_context/serializable_data_context.py:225: UserWarning: Warning. An existing `great_expectations.yml` was found here: /opt/***/gx.
+    - No action was taken.
+  warnings.warn(message)
+
+[2026-05-01T02:00:11.880+0000] {warnings.py:110} WARNING - /home/***/.local/lib/python3.11/site-packages/great_expectations/data_context/data_context/serializable_data_context.py:235: UserWarning: Warning. An existing `config_variables.yml` was found here: /opt/***/gx/uncommitted.
+    - No action was taken.
+  warnings.warn(message)
+
+[2026-05-01T02:00:11.891+0000] {file_data_context.py:222} INFO - FileDataContext loading fluent config
+[2026-05-01T02:00:11.901+0000] {config.py:185} INFO - Loading 'datasources' ->
+[]
+[2026-05-01T02:00:11.905+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-01T02:00:11.911+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-01T02:00:11.919+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-01T02:00:11.920+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-01T02:00:12.733+0000] {ge_validation.py:450} INFO -   GE | DataDocs built: /opt/***/great_expectations/uncommitted/data_docs/local_site/index.html
+[2026-05-01T02:00:12.778+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-05-01T02:00:12.779+0000] {logging_mixin.py:188} INFO - GREAT EXPECTATIONS — VALIDATION FAILED
+[2026-05-01T02:00:12.779+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-05-01T02:00:12.780+0000] {logging_mixin.py:188} INFO -   Suite 'ctsv_raw': 2 failures
+[2026-05-01T02:00:12.780+0000] {logging_mixin.py:188} INFO -     - [ctsv_data] expect_column_values_to_match_regex | col='ma_sinh_vien' | unexpected=13.1% | mostly=0.93
+[2026-05-01T02:00:12.780+0000] {logging_mixin.py:188} INFO -     - [ctsv_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=2.6% | mostly=0.993
+[2026-05-01T02:00:12.781+0000] {logging_mixin.py:188} INFO -   Suite 'tai_chinh': 1 failures
+[2026-05-01T02:00:12.782+0000] {logging_mixin.py:188} INFO -     - [tai_chinh_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=7.0% | mostly=0.983
+[2026-05-01T02:00:12.782+0000] {logging_mixin.py:188} INFO - ============================================================
+[2026-05-01T02:00:12.783+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/daily_student_pipeline.py", line 71, in task_validate
+    raise ValueError(
+ValueError: Great Expectations validation FAILED!
+  3 expectation(s) không đạt:
+  - [ctsv_data] expect_column_values_to_match_regex | col='ma_sinh_vien' | unexpected=13.1% | mostly=0.93
+  - [ctsv_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=2.6% | mostly=0.993
+  - [tai_chinh_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=7.0% | mostly=0.983
+[2026-05-01T02:00:12.806+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260430T020000, start_date=20260501T020009, end_date=20260501T020012
+[2026-05-01T02:00:12.824+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 594 for task validate_data (Great Expectations validation FAILED!
+  3 expectation(s) không đạt:
+  - [ctsv_data] expect_column_values_to_match_regex | col='ma_sinh_vien' | unexpected=13.1% | mostly=0.93
+  - [ctsv_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=2.6% | mostly=0.993
+  - [tai_chinh_data] expect_column_values_to_match_regex | col='hoc_ky' | unexpected=7.0% | mostly=0.983; 833)
+[2026-05-01T02:00:12.847+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-05-01T02:00:12.875+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
