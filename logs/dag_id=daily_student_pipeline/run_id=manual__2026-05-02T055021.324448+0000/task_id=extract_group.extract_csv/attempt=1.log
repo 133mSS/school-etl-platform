@@ -1,0 +1,36 @@
+[2026-05-02T05:50:24.400+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-05-02T05:50:21.324448+00:00 [queued]>
+[2026-05-02T05:50:24.407+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-05-02T05:50:21.324448+00:00 [queued]>
+[2026-05-02T05:50:24.408+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-05-02T05:50:24.421+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): extract_group.extract_csv> on 2026-05-02 05:50:21.324448+00:00
+[2026-05-02T05:50:24.425+0000] {standard_task_runner.py:60} INFO - Started process 19474 to run task
+[2026-05-02T05:50:24.429+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'extract_group.extract_csv', 'manual__2026-05-02T05:50:21.324448+00:00', '--job-id', '637', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpyml2f7kh']
+[2026-05-02T05:50:24.431+0000] {standard_task_runner.py:88} INFO - Job 637: Subtask extract_group.extract_csv
+[2026-05-02T05:50:24.508+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.extract_group.extract_csv manual__2026-05-02T05:50:21.324448+00:00 [running]> on host 485f600440bc
+[2026-05-02T05:50:24.595+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='extract_group.extract_csv' AIRFLOW_CTX_EXECUTION_DATE='2026-05-02T05:50:21.324448+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-02T05:50:21.324448+00:00'
+[2026-05-02T05:50:25.154+0000] {extract.py:195} INFO - ════════════════════════════════════════════════════════════
+[2026-05-02T05:50:25.155+0000] {extract.py:196} INFO - NGUỒN 2 — CSV (Phòng CTSV) | Extract
+[2026-05-02T05:50:25.156+0000] {extract.py:197} INFO - ════════════════════════════════════════════════════════════
+[2026-05-02T05:50:25.161+0000] {extract.py:149} INFO -   CSV | Tìm thấy 14 file trong: /opt/***/data/csv
+[2026-05-02T05:50:25.162+0000] {extract.py:201} INFO -   CSV | Đang đọc từ: /opt/***/data/csv
+[2026-05-02T05:50:25.165+0000] {extract.py:211} INFO -   CSV | Tìm thấy 13 file(s)
+[2026-05-02T05:50:25.172+0000] {extract.py:171} INFO -   CSV | ctsv_HK1_2021_22.csv                →    794 records
+[2026-05-02T05:50:25.181+0000] {extract.py:171} INFO -   CSV | ctsv_HK1_2022_23.csv                →  1,584 records
+[2026-05-02T05:50:25.188+0000] {extract.py:171} INFO -   CSV | ctsv_HK1_2023_24.csv                →  2,398 records
+[2026-05-02T05:50:25.196+0000] {extract.py:171} INFO -   CSV | ctsv_HK1_2024_25.csv                →  3,251 records
+[2026-05-02T05:50:25.202+0000] {extract.py:171} INFO -   CSV | ctsv_HK1_2025_26.csv                →  2,479 records
+[2026-05-02T05:50:25.208+0000] {extract.py:171} INFO -   CSV | ctsv_HK2_2021_22.csv                →    784 records
+[2026-05-02T05:50:25.214+0000] {extract.py:171} INFO -   CSV | ctsv_HK2_2022_23.csv                →  1,579 records
+[2026-05-02T05:50:25.220+0000] {extract.py:171} INFO -   CSV | ctsv_HK2_2023_24.csv                →  2,399 records
+[2026-05-02T05:50:25.228+0000] {extract.py:171} INFO -   CSV | ctsv_HK2_2024_25.csv                →  2,898 records
+[2026-05-02T05:50:25.233+0000] {extract.py:171} INFO -   CSV | ctsv_HK3_2021_22.csv                →    112 records
+[2026-05-02T05:50:25.237+0000] {extract.py:171} INFO -   CSV | ctsv_HK3_2022_23.csv                →    302 records
+[2026-05-02T05:50:25.243+0000] {extract.py:171} INFO -   CSV | ctsv_HK3_2023_24.csv                →    503 records
+[2026-05-02T05:50:25.248+0000] {extract.py:171} INFO -   CSV | ctsv_HK3_2024_25.csv                →    608 records
+[2026-05-02T05:50:25.258+0000] {extract.py:228} INFO -   CSV | Loại bỏ 9623 bản ghi trùng
+[2026-05-02T05:50:25.258+0000] {extract.py:230} INFO -   CSV | TỔNG: 10,068 records từ 13 file(s)
+[2026-05-02T05:50:25.356+0000] {minio_client.py:142} INFO -   MinIO ↑ [raw-data] 2026-05-02_05-50/nguon2_ctsv.parquet (43.7 KB | 10,068 rows)
+[2026-05-02T05:50:25.359+0000] {logging_mixin.py:188} INFO - [Extract CSV] 10,068 records | run_id=2026-05-02_05-50
+[2026-05-02T05:50:25.360+0000] {python.py:201} INFO - Done. Returned value was: 10068
+[2026-05-02T05:50:25.385+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=extract_group.extract_csv, execution_date=20260502T055021, start_date=20260502T055024, end_date=20260502T055025
+[2026-05-02T05:50:25.410+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-02T05:50:25.433+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

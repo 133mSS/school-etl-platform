@@ -358,18 +358,20 @@ services:
   # Alertmanager không support Discord trực tiếp.
   # Service này nhận webhook từ AM → chuyển thành Discord embed message.
   alertmanager-discord:
-    image: benjojo/alertmanager-discord:latest
-    container_name: alertmanager-discord
-    environment:
-      DISCORD_WEBHOOK: ${DISCORD_WEBHOOK_URL}
-    expose:
-      - "9094"
-    networks:
-      - school-network
-    restart: unless-stopped
-    depends_on:
-      - alertmanager
-
+      image: rogerrum/alertmanager-discord:latest
+      container_name: alertmanager-discord
+      environment:
+        DISCORD_WEBHOOK: ${DISCORD_WEBHOOK_URL}
+        DISCORD_USERNAME: "Alertmanager Bot"
+        VERBOSE: "ON"
+        LISTEN_ADDRESS: "0.0.0.0:9094"
+      expose:
+        - "9094"
+      networks:
+        - school-network
+      restart: unless-stopped
+      depends_on:
+        - alertmanager
   # =============================
   # PostgreSQL Exporter — Source
   # =============================

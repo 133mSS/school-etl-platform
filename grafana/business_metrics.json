@@ -19,7 +19,7 @@
                 "name": "hoc_ky",
                 "label": "Học kỳ",
                 "type": "query",
-                "query": "SELECT ma_hoc_ky as __value, nam_hoc || ' - ' || hoc_ky as __text FROM dim_hoc_ky ORDER BY ngay_bat_dau DESC",
+                "query": "SELECT (nam_hoc || ' - ' || hoc_ky) AS \"__text\", ma_hoc_ky AS \"__value\" FROM dim_hoc_ky ORDER BY ngay_bat_dau DESC",
                 "datasource": {
                     "type": "postgres",
                     "uid": "warehouse-db"

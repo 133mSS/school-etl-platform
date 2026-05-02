@@ -1,0 +1,60 @@
+[2026-05-02T05:46:30.516+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.transform_data manual__2026-05-02T05:46:14.512288+00:00 [queued]>
+[2026-05-02T05:46:30.525+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.transform_data manual__2026-05-02T05:46:14.512288+00:00 [queued]>
+[2026-05-02T05:46:30.526+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-05-02T05:46:30.540+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): transform_data> on 2026-05-02 05:46:14.512288+00:00
+[2026-05-02T05:46:30.544+0000] {standard_task_runner.py:60} INFO - Started process 19218 to run task
+[2026-05-02T05:46:30.547+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'transform_data', 'manual__2026-05-02T05:46:14.512288+00:00', '--job-id', '632', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmpc959fusr']
+[2026-05-02T05:46:30.549+0000] {standard_task_runner.py:88} INFO - Job 632: Subtask transform_data
+[2026-05-02T05:46:30.621+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.transform_data manual__2026-05-02T05:46:14.512288+00:00 [running]> on host 485f600440bc
+[2026-05-02T05:46:30.720+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='transform_data' AIRFLOW_CTX_EXECUTION_DATE='2026-05-02T05:46:14.512288+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-02T05:46:14.512288+00:00'
+[2026-05-02T05:46:31.292+0000] {extract.py:510} INFO -   Load from MinIO staging: run_id=2026-05-02_05-46
+[2026-05-02T05:46:31.321+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_khoa.parquet (4 rows)
+[2026-05-02T05:46:31.333+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_nganh.parquet (3 rows)
+[2026-05-02T05:46:31.343+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_giang_vien.parquet (45 rows)
+[2026-05-02T05:46:31.355+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_lop_hanh_chinh.parquet (48 rows)
+[2026-05-02T05:46:31.367+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-05-02T05:46:31.376+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_hoc_phan.parquet (121 rows)
+[2026-05-02T05:46:31.381+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-05-02_05-46/nguon1_hoc_ky.parquet
+[2026-05-02T05:46:31.385+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-05-02_05-46/nguon1_dang_ky.parquet
+[2026-05-02T05:46:31.389+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-05-02_05-46/nguon1_diem.parquet
+[2026-05-02T05:46:31.399+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-05-02T05:46:31.409+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon2_ctsv.parquet (10,068 rows)
+[2026-05-02T05:46:31.419+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_05-46/nguon3_tai_chinh.parquet (9,769 rows)
+[2026-05-02T05:46:31.420+0000] {extract.py:527} INFO -  Load from staging OK — run_id=2026-05-02_05-46
+[2026-05-02T05:46:31.421+0000] {transform.py:75} INFO - ==BẮT ĐẦU TRANSFORM==
+[2026-05-02T05:46:31.422+0000] {transform.py:76} INFO - ======================================================================
+[2026-05-02T05:46:31.423+0000] {transform.py:80} INFO - ── Bước 1: Transform Dimension Tables ──
+[2026-05-02T05:46:31.427+0000] {transform.py:213} INFO -   dim_giang_vien              →     45 records
+[2026-05-02T05:46:31.430+0000] {transform.py:240} INFO -   dim_hoc_phan                →    121 records
+[2026-05-02T05:46:31.442+0000] {transform.py:306} INFO -   dim_sinh_vien               →  1,695 records
+[2026-05-02T05:46:31.443+0000] {transform.py:96} INFO - ── Bước 2: Transform Fact Tables ──
+[2026-05-02T05:46:31.444+0000] {transform.py:317} WARNING -   fact_diem | Không có dữ liệu điểm hoặc đăng ký
+[2026-05-02T05:46:31.445+0000] {transform.py:387} WARNING -   fact_dang_ky | Không có dữ liệu đăng ký
+[2026-05-02T05:46:31.458+0000] {transform.py:445} INFO -   fact_ren_luyen              → 10,068 records
+[2026-05-02T05:46:31.470+0000] {logging_mixin.py:188} WARNING - /opt/***/src/etl/transform.py:467 UserWarning: The argument 'infer_datetime_format' is deprecated and will be removed in a future version. A strict version of it is now the default, see https://pandas.pydata.org/pdeps/0004-consistent-to-datetime-parsing.html. You can safely remove this argument.
+[2026-05-02T05:46:31.477+0000] {transform.py:485} INFO -   fact_tai_chinh              →  9,769 records
+[2026-05-02T05:46:31.478+0000] {transform.py:108} INFO - ======================================================================
+[2026-05-02T05:46:31.479+0000] {transform.py:109} INFO - TRANSFORM HOÀN TẤT
+[2026-05-02T05:46:31.480+0000] {transform.py:111} INFO -    dim_giang_vien           :       45 records
+[2026-05-02T05:46:31.480+0000] {transform.py:111} INFO -    dim_sinh_vien            :    1,695 records
+[2026-05-02T05:46:31.480+0000] {transform.py:111} INFO -    dim_hoc_phan             :      121 records
+[2026-05-02T05:46:31.481+0000] {transform.py:111} INFO -    dim_thoi_gian            :        0 records
+[2026-05-02T05:46:31.482+0000] {transform.py:111} INFO -    fact_diem                :        0 records
+[2026-05-02T05:46:31.482+0000] {transform.py:111} INFO -    fact_dang_ky             :        0 records
+[2026-05-02T05:46:31.483+0000] {transform.py:111} INFO -    fact_ren_luyen           :   10,068 records
+[2026-05-02T05:46:31.484+0000] {transform.py:111} INFO -    fact_tai_chinh           :    9,769 records
+[2026-05-02T05:46:31.484+0000] {transform.py:112} INFO - ======================================================================
+[2026-05-02T05:46:31.493+0000] {minio_client.py:120} WARNING -   MinIO skip (empty): dim_hoc_ky.parquet
+[2026-05-02T05:46:31.505+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-05-02_05-46/dim_giang_vien.parquet (8.9 KB | 45 rows)
+[2026-05-02T05:46:31.515+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-05-02_05-46/dim_hoc_phan.parquet (11.0 KB | 121 rows)
+[2026-05-02T05:46:31.533+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-05-02_05-46/dim_sinh_vien.parquet (71.5 KB | 1,695 rows)
+[2026-05-02T05:46:31.534+0000] {minio_client.py:120} WARNING -   MinIO skip (empty): fact_diem.parquet
+[2026-05-02T05:46:31.535+0000] {minio_client.py:120} WARNING -   MinIO skip (empty): fact_dang_ky.parquet
+[2026-05-02T05:46:31.558+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-05-02_05-46/fact_ren_luyen.parquet (43.5 KB | 10,068 rows)
+[2026-05-02T05:46:31.575+0000] {minio_client.py:142} INFO -   MinIO ↑ [staging-data] 2026-05-02_05-46/fact_tai_chinh.parquet (93.1 KB | 9,769 rows)
+[2026-05-02T05:46:31.575+0000] {transform.py:141} INFO -   MinIO staging-data: 8/8 files OK → run_id=2026-05-02_05-46
+[2026-05-02T05:46:31.608+0000] {logging_mixin.py:188} INFO - Transform xong: {'dim_giang_vien': 45, 'dim_sinh_vien': 1695, 'dim_hoc_phan': 121, 'dim_thoi_gian': 0, 'fact_diem': 0, 'fact_dang_ky': 0, 'fact_ren_luyen': 10068, 'fact_tai_chinh': 9769}
+[2026-05-02T05:46:31.610+0000] {python.py:201} INFO - Done. Returned value was: {'dim_giang_vien': 45, 'dim_sinh_vien': 1695, 'dim_hoc_phan': 121, 'dim_thoi_gian': 0, 'fact_diem': 0, 'fact_dang_ky': 0, 'fact_ren_luyen': 10068, 'fact_tai_chinh': 9769}
+[2026-05-02T05:46:31.636+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=transform_data, execution_date=20260502T054614, start_date=20260502T054630, end_date=20260502T054631
+[2026-05-02T05:46:31.663+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-02T05:46:31.686+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

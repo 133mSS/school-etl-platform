@@ -1,0 +1,60 @@
+[2026-05-02T02:00:14.196+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data scheduled__2026-05-01T02:00:00+00:00 [queued]>
+[2026-05-02T02:00:14.204+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: daily_student_pipeline.validate_data scheduled__2026-05-01T02:00:00+00:00 [queued]>
+[2026-05-02T02:00:14.205+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 1
+[2026-05-02T02:00:14.218+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): validate_data> on 2026-05-01 02:00:00+00:00
+[2026-05-02T02:00:14.222+0000] {standard_task_runner.py:60} INFO - Started process 11266 to run task
+[2026-05-02T02:00:14.224+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'daily_student_pipeline', 'validate_data', 'scheduled__2026-05-01T02:00:00+00:00', '--job-id', '607', '--raw', '--subdir', 'DAGS_FOLDER/daily_student_pipeline.py', '--cfg-path', '/tmp/tmp5sisl3fm']
+[2026-05-02T02:00:14.227+0000] {standard_task_runner.py:88} INFO - Job 607: Subtask validate_data
+[2026-05-02T02:00:14.289+0000] {task_command.py:423} INFO - Running <TaskInstance: daily_student_pipeline.validate_data scheduled__2026-05-01T02:00:00+00:00 [running]> on host 485f600440bc
+[2026-05-02T02:00:14.371+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='nhom8' AIRFLOW_CTX_DAG_ID='daily_student_pipeline' AIRFLOW_CTX_TASK_ID='validate_data' AIRFLOW_CTX_EXECUTION_DATE='2026-05-01T02:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-05-01T02:00:00+00:00'
+[2026-05-02T02:00:17.439+0000] {ge_validation.py:162} INFO -   GE | DataValidator khoi tao | GE dir: /opt/***/great_expectations
+[2026-05-02T02:00:17.500+0000] {ge_validation.py:180} INFO -   GE | Bắt đầu validation | run_id=2026-05-02_02-00
+[2026-05-02T02:00:17.596+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_02-00/nguon1_sinh_vien.parquet (1,695 rows)
+[2026-05-02T02:00:17.601+0000] {minio_client.py:229} WARNING -   MinIO không tìm thấy: 2026-05-02_02-00/nguon1_diem.parquet
+[2026-05-02T02:00:17.611+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_02-00/nguon1_tong_hop_ket_qua.parquet (1,695 rows)
+[2026-05-02T02:00:17.623+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_02-00/nguon2_ctsv.parquet (9,962 rows)
+[2026-05-02T02:00:17.635+0000] {minio_client.py:223} INFO -   MinIO ↓ [raw-data] 2026-05-02_02-00/nguon3_tai_chinh.parquet (9,670 rows)
+[2026-05-02T02:00:17.636+0000] {ge_validation.py:189} INFO -   GE | Downloaded raw: sv=1695, diem=0, tong_hop=1695, ctsv=9962, tc=9670
+[2026-05-02T02:00:17.636+0000] {ge_validation.py:195} INFO -   GE | [Tầng 1] Validate raw data...
+[2026-05-02T02:00:17.637+0000] {ge_validation.py:50} WARNING -   GE | [grades_suite] DataFrame rong — skip
+[2026-05-02T02:00:17.648+0000] {ge_validation.py:43} INFO -   GE | Loaded 'ctsv_suite' (10 expectations)
+[2026-05-02T02:00:17.651+0000] {data_asset.py:541} INFO - 	10 expectation(s) included in expectation_suite.
+[2026-05-02T02:00:17.670+0000] {ge_validation.py:93} INFO -   GE | [ctsv_suite] ctsv_data: 10/10 (OK)
+[2026-05-02T02:00:17.693+0000] {ge_validation.py:43} INFO -   GE | Loaded 'tai_chinh_suite' (11 expectations)
+[2026-05-02T02:00:17.694+0000] {data_asset.py:541} INFO - 	11 expectation(s) included in expectation_suite.
+[2026-05-02T02:00:17.709+0000] {ge_validation.py:93} INFO -   GE | [tai_chinh_suite] tai_chinh_data: 11/11 (OK)
+[2026-05-02T02:00:17.710+0000] {ge_validation.py:215} INFO -   GE | [Tầng 2] Validate prepared data...
+[2026-05-02T02:00:17.729+0000] {ge_validation.py:43} INFO -   GE | Loaded 'students_suite' (14 expectations)
+[2026-05-02T02:00:17.731+0000] {data_asset.py:541} INFO - 	14 expectation(s) included in expectation_suite.
+[2026-05-02T02:00:17.737+0000] {ge_validation.py:93} INFO -   GE | [students_suite] sinh_vien_prepared: 14/14 (OK)
+[2026-05-02T02:00:17.738+0000] {ge_validation.py:248} INFO - ============================================================
+[2026-05-02T02:00:17.739+0000] {ge_validation.py:249} INFO -   GE | VALIDATION OK
+[2026-05-02T02:00:17.740+0000] {ge_validation.py:250} INFO -   GE | run_id: 2026-05-02_02-00 | 40/40 passed
+[2026-05-02T02:00:17.741+0000] {ge_validation.py:261} INFO -     grades_raw               : SKIP (0/0)
+[2026-05-02T02:00:17.742+0000] {ge_validation.py:261} INFO -     ctsv_raw                 : OK   (10/10)
+[2026-05-02T02:00:17.743+0000] {ge_validation.py:261} INFO -     tai_chinh                : OK   (11/11)
+[2026-05-02T02:00:17.744+0000] {ge_validation.py:261} INFO -     students_prepared        : OK   (14/14)
+[2026-05-02T02:00:17.744+0000] {ge_validation.py:261} INFO -     tong_hop_raw             : OK   (5/5)
+[2026-05-02T02:00:17.745+0000] {ge_validation.py:267} INFO - ============================================================
+[2026-05-02T02:00:17.782+0000] {warnings.py:110} WARNING - /home/***/.local/lib/python3.11/site-packages/great_expectations/data_context/data_context/serializable_data_context.py:225: UserWarning: Warning. An existing `great_expectations.yml` was found here: /opt/***/gx.
+    - No action was taken.
+  warnings.warn(message)
+
+[2026-05-02T02:00:17.783+0000] {warnings.py:110} WARNING - /home/***/.local/lib/python3.11/site-packages/great_expectations/data_context/data_context/serializable_data_context.py:235: UserWarning: Warning. An existing `config_variables.yml` was found here: /opt/***/gx/uncommitted.
+    - No action was taken.
+  warnings.warn(message)
+
+[2026-05-02T02:00:17.793+0000] {file_data_context.py:222} INFO - FileDataContext loading fluent config
+[2026-05-02T02:00:17.803+0000] {config.py:185} INFO - Loading 'datasources' ->
+[]
+[2026-05-02T02:00:17.808+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-02T02:00:17.816+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-02T02:00:17.826+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-02T02:00:17.827+0000] {abstract_data_context.py:1236} INFO - Profiler store is not configured; omitting it from active stores
+[2026-05-02T02:00:18.614+0000] {ge_validation.py:450} INFO -   GE | DataDocs built: /opt/***/great_expectations/uncommitted/data_docs/local_site/index.html
+[2026-05-02T02:00:18.636+0000] {logging_mixin.py:188} INFO - Validation OK: 40/40 expectations passed
+[2026-05-02T02:00:18.636+0000] {logging_mixin.py:188} INFO - GE suites: ['grades_raw', 'ctsv_raw', 'tai_chinh', 'students_prepared', 'tong_hop_raw']
+[2026-05-02T02:00:18.637+0000] {python.py:201} INFO - Done. Returned value was: None
+[2026-05-02T02:00:18.648+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=daily_student_pipeline, task_id=validate_data, execution_date=20260501T020000, start_date=20260502T020014, end_date=20260502T020018
+[2026-05-02T02:00:18.678+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-05-02T02:00:18.703+0000] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

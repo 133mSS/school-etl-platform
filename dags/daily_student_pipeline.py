@@ -4,7 +4,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
 from src.utils.metrics import push_validate_metrics
 import logging
-
+from airflow.utils.task_group import TaskGroup
 DEFAULT_ARGS = {
     "owner":            "nhom8",
     "depends_on_past":  False,
@@ -232,7 +232,7 @@ def task_alert_failure(context):
     push_pipeline_status(success=False, run_id=run_id or "unknown")
 
 
-from airflow.utils.task_group import TaskGroup
+
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -253,12 +253,21 @@ def task_extract_postgres(**context):
     extractor = PostgreSQLExtractor()
     pg_data = extractor.extract_all()
 
+# Map tên bảng DB → tên file MinIO (giữ nhất quán với
+# src/utils/minio_client.upload_all_extracted và src/etl/extract.load_from_staging)
+    TABLE_TO_FILENAME = {
+        "hoc_ky_nam_hoc":   "hoc_ky",
+        "dang_ky_hoc_phan": "dang_ky",
+        "diem_hoc_phan":    "diem",
+    }
+
     client = MinIOClient()
     total = 0
     for table_name, df in pg_data.items():
         if df.empty:
             continue
-        client.upload_df(df, f"nguon1_{table_name}.parquet", run_id, bucket="raw")
+        short_name = TABLE_TO_FILENAME.get(table_name, table_name)
+        client.upload_df(df, f"nguon1_{short_name}.parquet", run_id, bucket="raw")
         total += len(df)
 
     push_extract_metrics(source="postgres", records=total, run_id=run_id)

@@ -21,7 +21,8 @@ groups:
           component: airflow
         annotations:
           summary: "🔴 Airflow Webserver không hoạt động"
-          description: "Airflow Webserver đã down trong hơn 2 phút. Pipeline ETL không thể chạy."
+          description: "Airflow Webserver đã down trong hơn 2 phút. Pipeline ETL không thể
+            chạy."
           runbook: "Kiểm tra: docker-compose logs airflow-webserver"
 
       - alert: MinIODown
@@ -53,7 +54,7 @@ groups:
     interval: 30s
     rules:
       - alert: PostgreSQLSourceDown
-        expr: up{job="postgres_source"} == 0
+        expr: pg_up{db_role="source"} == 0 or absent(pg_up{db_role="source"}) == 1
         for: 1m
         labels:
           severity: critical
@@ -64,7 +65,7 @@ groups:
           runbook: "docker-compose restart postgres-source"
 
       - alert: PostgreSQLWarehouseDown
-        expr: up{job="postgres_warehouse"} == 0
+        expr: pg_up{db_role="warehouse"} == 0 or absent(pg_up{db_role="warehouse"}) == 1
         for: 1m
         labels:
           severity: critical
@@ -82,7 +83,8 @@ groups:
           component: database
         annotations:
           summary: "⚠️ Số connection đến warehouse cao bất thường"
-          description: "{{ $value }} connection đang mở đến school_warehouse, có thể có connection leak trong ETL."
+          description: "{{ $value }} connection đang mở đến school_warehouse, có thể có
+            connection leak trong ETL."
 
   # ──────────────────────────────────────────────────────────────────
   # NHÓM 3: System Resources (giữ nguyên bản cũ)
@@ -97,7 +99,8 @@ groups:
           severity: warning
         annotations:
           summary: "⚠️ Target {{ $labels.job }} không scrape được"
-          description: "Prometheus không thể scrape metrics từ {{ $labels.instance }} trong 5 phút."
+          description: "Prometheus không thể scrape metrics từ {{ $labels.instance }}
+            trong 5 phút."
 
   # ──────────────────────────────────────────────────────────────────
   # NHÓM 4: ETL BUSINESS METRICS (BỔ SUNG MỚI)
@@ -116,8 +119,10 @@ groups:
           component: pipeline
         annotations:
           summary: "🔴 ETL Pipeline FAILED — run_id={{ $labels.run_id }}"
-          description: "Pipeline daily_student_pipeline đã thất bại. Cần kiểm tra log Airflow ngay."
-          runbook: "docker exec airflow-webserver airflow tasks failed-deps daily_student_pipeline"
+          description: "Pipeline daily_student_pipeline đã thất bại. Cần kiểm tra log
+            Airflow ngay."
+          runbook: "docker exec airflow-webserver airflow tasks failed-deps
+            daily_student_pipeline"
 
       # Số records extract bất thường thấp (data lost?)
       - alert: ETLRecordsExtractedTooLow
@@ -128,7 +133,8 @@ groups:
           component: pipeline
         annotations:
           summary: "⚠️ Số records extract từ PostgreSQL quá thấp"
-          description: "Extract chỉ được {{ $value }} records (kỳ vọng > 1000). Có thể source bị mất data."
+          description: "Extract chỉ được {{ $value }} records (kỳ vọng > 1000). Có thể
+            source bị mất data."
 
       # Pipeline chạy quá lâu
       - alert: ETLPipelineSlow
@@ -139,7 +145,8 @@ groups:
           component: pipeline
         annotations:
           summary: "⚠️ Stage transform chạy quá 10 phút"
-          description: "Transform stage mất {{ $value | humanizeDuration }}. Cần xem có data spike hay logic chậm."
+          description: "Transform stage mất {{ $value | humanizeDuration }}. Cần xem có
+            data spike hay logic chậm."
 
   # ──────────────────────────────────────────────────────────────────
   # NHÓM 5: DATA QUALITY (BỔ SUNG MỚI)
@@ -157,8 +164,10 @@ groups:
           component: data_quality
         annotations:
           summary: "🔴 Data Quality FAIL — suite={{ $labels.suite }}"
-          description: "Suite '{{ $labels.suite }}' có {{ $value }} expectation thất bại. Pipeline đã dừng do data bẩn."
-          runbook: "Mở Data Docs: http://localhost:8888 hoặc xem Airflow log task validate_data"
+          description: "Suite '{{ $labels.suite }}' có {{ $value }} expectation thất bại.
+            Pipeline đã dừng do data bẩn."
+          runbook: "Mở Data Docs: http://localhost:8888 hoặc xem Airflow log task
+            validate_data"
 
       # Tỷ lệ pass < 90% (cảnh báo sớm trước khi fail)
       - alert: DataQualityDegrading
@@ -171,4 +180,5 @@ groups:
           component: data_quality
         annotations:
           summary: "⚠️ Tỷ lệ data quality < 90% — suite={{ $labels.suite }}"
-          description: "Suite '{{ $labels.suite }}' chỉ pass {{ $value | humanizePercentage }}. Cần review data trước khi nó fail hẳn."
+          description: "Suite '{{ $labels.suite }}' chỉ pass {{ $value |
+            humanizePercentage }}. Cần review data trước khi nó fail hẳn."

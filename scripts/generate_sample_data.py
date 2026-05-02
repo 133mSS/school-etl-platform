@@ -326,22 +326,24 @@ COHORT_CONFIG = {
 EVAL_CRITERIA = {
     "canh_bao_1_gpa": 1.5,
     "canh_bao_2_gpa": 1.2,
-    # ★ v3.0 FIX BUG 2: Đổi từ 0.5 → 0.80 (thực tế hơn, ~2-3% SV thôi học)
-    # Ngưỡng 0.5 quá thấp → gần như 0 SV thôi học; 0.80 phản ánh đúng quy chế PTIT
-    "buoc_thoi_hoc_gpa_hard": 0.80,
+    # ★ Hạ ngưỡng: cho phép SV GPA 0.5–0.9 còn "Đang học"
+    # Quy chế thực tế PTIT: phải có 2 HK liên tiếp dưới ngưỡng mới buộc thôi học,
+    # nên trạng thái "Đang học" với GPA tích luỹ < 0.9 là hợp lý
+    "buoc_thoi_hoc_gpa_hard": 0.50,   # 0.80 → 0.50
     "ap_dung_tu_hk": 2,
     "bao_luu_gpa_threshold": 1.5,
-    "bao_luu_prob_yeu": 0.08,
-    "bao_luu_prob_tb": 0.03,
+    # ★ Giảm tỷ lệ bảo lưu để giữ lại SV cảnh báo trong dữ liệu
+    "bao_luu_prob_yeu": 0.04,         # 0.08 → 0.04
+    "bao_luu_prob_tb": 0.015,         # 0.03 → 0.015
     "tot_nghiep_gpa_min": 2.2,
 }
 
 PROFILE_WEIGHTS = {
     "xuất sắc": 5,
-    "giỏi": 18,
-    "khá": 48,
-    "trung bình": 21,
-    "yếu": 8,
+    "giỏi": 17,
+    "khá": 44,        # 48 → 44
+    "trung bình": 23, # 21 → 23 (thêm SV biên 1.5–2.0)
+    "yếu": 11, 
 }
 
 # ★ v3.0 — Thứ tự profile để hỗ trợ evolution
@@ -1350,8 +1352,8 @@ def main():
 
                             # DRL + Học bổng + Kỷ luật
                             drl_shift = int(hk_mod * 4)
-                            drl_means = {"xuất sắc": 88,"giỏi": 82,"khá": 73,"yếu": 48,"trung bình": 62}
-                            drl_stds  = {"xuất sắc": 4, "giỏi": 5, "khá": 6, "yếu": 8, "trung bình": 7}
+                            drl_means = {"xuất sắc": 88,"giỏi": 82,"khá": 73,"yếu": 56,"trung bình": 64}
+                            drl_stds  = {"xuất sắc": 4, "giỏi": 5, "khá": 6, "yếu": 14,"trung bình": 9}
                             drl = int(max(0, min(100, random.gauss(
                                 drl_means.get(profile, 62) + drl_shift,
                                 drl_stds.get(profile, 7)
@@ -1363,9 +1365,15 @@ def main():
                                     break
 
                             kl_ht, kl_ld = "", ""
-                            if profile == "yếu" and random.random() < 0.15:
+                            if profile == "yếu" and random.random() < 0.22:                    # 0.15 → 0.22
                                 kl_ht = random.choice(["Cảnh cáo lần 1","Cảnh cáo lần 2","Khiển trách"])
                                 kl_ld = random.choice(["Thi hộ","Vi phạm quy chế thi","Gian lận bài tập","Nghỉ học quá nhiều","Vi phạm nội quy KTX"])
+                            elif profile == "trung bình" and random.random() < 0.04:           # MỚI
+                                kl_ht = random.choice(["Khiển trách","Cảnh cáo lần 1"])
+                                kl_ld = random.choice(["Vi phạm quy chế thi","Nghỉ học quá nhiều","Vi phạm nội quy KTX"])
+                            elif profile == "khá" and random.random() < 0.012:                 # MỚI (rất thấp)
+                                kl_ht = "Khiển trách"
+                                kl_ld = random.choice(["Nghỉ học quá nhiều","Vi phạm nội quy KTX"])
 
                             temp_hk_data.setdefault(ma_hk, []).append({
                                 "ma_sinh_vien": ma_sv, "hoc_ky": ma_hk, "khoa_hoc": cohort,
